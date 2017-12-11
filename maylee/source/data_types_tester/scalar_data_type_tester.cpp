@@ -4,7 +4,7 @@
 using namespace maylee;
 using namespace std;
 
-TEST_CASE("test_is_unsigned", "[scalar_data_type]") {
+TEST_CASE("test_scalar_is_unsigned", "[scalar_data_type]") {
   REQUIRE(!scalar_data_type(scalar_data_type::type::INT8).is_unsigned());
   REQUIRE(!scalar_data_type(scalar_data_type::type::INT16).is_unsigned());
   REQUIRE(!scalar_data_type(scalar_data_type::type::INT32).is_unsigned());
@@ -15,7 +15,7 @@ TEST_CASE("test_is_unsigned", "[scalar_data_type]") {
   REQUIRE(scalar_data_type(scalar_data_type::type::UINT64).is_unsigned());
 }
 
-TEST_CASE("test_name", "[scalar_data_type]") {
+TEST_CASE("test_scalar_name", "[scalar_data_type]") {
   REQUIRE(scalar_data_type(scalar_data_type::type::INT8).get_name() ==
     "Int8");
   REQUIRE(scalar_data_type(scalar_data_type::type::INT16).get_name() ==
@@ -34,7 +34,7 @@ TEST_CASE("test_name", "[scalar_data_type]") {
     "UInt64");
 }
 
-TEST_CASE("test_size", "[scalar_data_type]") {
+TEST_CASE("test_scalar_size", "[scalar_data_type]") {
   REQUIRE(scalar_data_type(scalar_data_type::type::INT8).get_size() == 1);
   REQUIRE(scalar_data_type(scalar_data_type::type::INT16).get_size() == 2);
   REQUIRE(scalar_data_type(scalar_data_type::type::INT32).get_size() == 4);

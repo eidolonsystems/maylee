@@ -64,28 +64,6 @@ namespace maylee {
     return m_type;
   }
 
-  inline int scalar_data_type::get_size() const {
-    switch(m_type) {
-      case type::INT8:
-        return 1;
-      case type::INT16:
-        return 2;
-      case type::INT32:
-        return 4;
-      case type::INT64:
-        return 8;
-      case type::UINT8:
-        return 1;
-      case type::UINT16:
-        return 2;
-      case type::UINT32:
-        return 4;
-      case type::UINT64:
-        return 8;
-    }
-    return 0;
-  }
-
   inline bool scalar_data_type::is_unsigned() const {
     return m_type >= type::UINT8;
   }
@@ -138,6 +116,28 @@ namespace maylee {
           return value;
         }
     }
+  }
+
+  inline int scalar_data_type::get_size() const {
+    switch(m_type) {
+      case type::INT8:
+        return 1;
+      case type::INT16:
+        return 2;
+      case type::INT32:
+        return 4;
+      case type::INT64:
+        return 8;
+      case type::UINT8:
+        return 1;
+      case type::UINT16:
+        return 2;
+      case type::UINT32:
+        return 4;
+      case type::UINT64:
+        return 8;
+    }
+    return 0;
   }
 }
 
