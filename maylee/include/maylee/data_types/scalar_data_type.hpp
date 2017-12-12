@@ -51,7 +51,7 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      int get_size() const override final;
+      size get_size() const override final;
 
     private:
       type m_type;
@@ -118,7 +118,7 @@ namespace maylee {
     }
   }
 
-  inline int scalar_data_type::get_size() const {
+  inline size scalar_data_type::get_size() const {
     switch(m_type) {
       case type::INT8:
         return 1;

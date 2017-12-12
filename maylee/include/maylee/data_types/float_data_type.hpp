@@ -30,7 +30,7 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      int get_size() const override final;
+      size get_size() const override final;
 
     private:
       type m_type;
@@ -63,7 +63,7 @@ namespace maylee {
     }
   }
 
-  inline int float_data_type::get_size() const {
+  inline size float_data_type::get_size() const {
     switch(m_type) {
       case type::FLOAT32:
         return 4;

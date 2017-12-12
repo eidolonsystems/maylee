@@ -18,7 +18,7 @@ namespace maylee {
       virtual const std::string& get_name() const = 0;
 
       //! Returns the size in bytes of the data type.
-      virtual int get_size() const = 0;
+      virtual size get_size() const = 0;
 
     private:
       data_type(const data_type&) = delete;

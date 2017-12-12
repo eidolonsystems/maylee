@@ -14,7 +14,7 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      int get_size() const override final;
+      size get_size() const override final;
   };
 
   inline const std::string& bool_data_type::get_name() const {
@@ -22,7 +22,7 @@ namespace maylee {
     return name;
   }
 
-  inline int bool_data_type::get_size() const {
+  inline size bool_data_type::get_size() const {
     return 1;
   }
 }

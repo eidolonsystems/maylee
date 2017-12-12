@@ -9,12 +9,15 @@ namespace maylee {
   class size_data_type : public data_type {
     public:
 
+      //! The number of bytes used to represent a size.
+      static const int SIZE = 8;
+
       //! Constructs a size data type.
       size_data_type() = default;
 
       const std::string& get_name() const override final;
 
-      int get_size() const override final;
+      size get_size() const override final;
   };
 
   inline const std::string& size_data_type::get_name() const {
@@ -22,8 +25,8 @@ namespace maylee {
     return name;
   }
 
-  inline int size_data_type::get_size() const {
-    return 8;
+  inline size size_data_type::get_size() const {
+    return SIZE;
   }
 }
 
