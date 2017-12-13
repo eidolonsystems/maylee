@@ -1,5 +1,6 @@
 #ifndef MAYLEE_FLOAT_DATA_TYPE_HPP
 #define MAYLEE_FLOAT_DATA_TYPE_HPP
+#include <stdexcept>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
 
@@ -56,10 +57,7 @@ namespace maylee {
           return value;
         }
       default:
-        {
-          static std::string value;
-          return value;
-        }
+        throw std::invalid_argument("Invalid float type.");
     }
   }
 
@@ -69,8 +67,9 @@ namespace maylee {
         return 4;
       case type::FLOAT64:
         return 8;
+      default:
+        throw std::invalid_argument("Invalid float type.");
     }
-    return 0;
   }
 }
 

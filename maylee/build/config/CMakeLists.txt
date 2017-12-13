@@ -46,4 +46,5 @@ if(NOT EXISTS $ENV{TEST_INSTALL_DIRECTORY}/release)
 endif()
 
 add_subdirectory(data_types)
+add_subdirectory(lexicon)
 add_subdirectory(maylee)

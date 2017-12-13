@@ -1,5 +1,6 @@
 #ifndef MAYLEE_SCALAR_DATA_TYPE_HPP
 #define MAYLEE_SCALAR_DATA_TYPE_HPP
+#include <stdexcept>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
 
@@ -111,10 +112,7 @@ namespace maylee {
           return value;
         }
       default:
-        {
-          static std::string value;
-          return value;
-        }
+        throw std::invalid_argument("Invalid scalar type.");
     }
   }
 
@@ -136,8 +134,9 @@ namespace maylee {
         return 4;
       case type::UINT64:
         return 8;
+      default:
+        throw std::invalid_argument("Invalid scalar type.");
     }
-    return 0;
   }
 }
 
