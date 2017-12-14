@@ -91,6 +91,8 @@ namespace maylee {
       */
       token(identifier identifier, int line_number, int column_number);
 
+      ~token();
+
       //! Returns the data associated with this token.
       const instance& get_instance() const;
 
@@ -108,8 +110,6 @@ namespace maylee {
       type m_type;
       int m_line_number;
       int m_column_number;
-
-      token(instance instance, type type, int line_number, int column_number);
   };
 
   inline std::ostream& operator <<(std::ostream& out, const token& value) {
@@ -133,18 +133,32 @@ namespace maylee {
   inline token::instance::instance(punctuation punctuation)
       : m_punctuation(std::move(punctuation)) {}
 
+  inline token::instance::instance(identifier identifier)
+      : m_identifier(std::move(identifier)) {}
+
+  inline token::instance::~instance() {}
+
   inline token::token(keyword keyword, int line_number, int column_number)
-      : token(instance(std::move(keyword)), type::KEYWORD, line_number,
-          column_number) {}
+      : m_instance(std::move(keyword)),
+        m_type(type::KEYWORD),
+        m_line_number(line_number),
+        m_column_number(column_number) {}
 
   inline token::token(punctuation punctuation, int line_number,
       int column_number)
-      : token(std::move(punctuation), type::PUNCTUATION, line_number,
-          column_number) {}
+      : m_instance(std::move(punctuation)),
+        m_type(type::PUNCTUATION),
+        m_line_number(line_number),
+        m_column_number(column_number) {}
 
   inline token::token(identifier identifier, int line_number, int column_number)
-      : token(std::move(identifier), type::IDENTIFIER, line_number,
-          column_number) {}
+      : m_instance(std::move(identifier)),
+        m_type(type::IDENTIFIER),
+        m_line_number(line_number),
+        m_column_number(column_number) {}
+
+  inline token::~token() {
+  }
 
   inline const token::instance& token::get_instance() const {
     return m_instance;
@@ -161,13 +175,6 @@ namespace maylee {
   inline int token::get_column_number() const {
     return m_column_number;
   }
-
-  inline token::token(instance instance, type type, int line_number,
-      int column_number)
-      : m_instance(std::move(instance)),
-        m_type(type),
-        m_line_number(line_number),
-        m_column_number(column_number) {}
 }
 
 #endif
