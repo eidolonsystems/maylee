@@ -1,6 +1,7 @@
 #ifndef MAYLEE_VARIANT_HPP
 #define MAYLEE_VARIANT_HPP
 #include <cstdint>
+#include <type_traits>
 #include "maylee/utilities/utilities.hpp"
 
 namespace maylee {
@@ -9,11 +10,6 @@ namespace details {
   union variant_union {
     T1 m_first;
     T2 m_second;
-
-    variant_union() {}
-    variant_union(const variant_union&) = delete;
-    variant_union& operator =(const variant_union&) = delete;
-    ~variant_union() {}
   };
 
   template<typename... T>
@@ -29,42 +25,70 @@ namespace details {
     using type = variant_union<T1, typename get_variant_union<T2...>::type>;
   };
 
-  template<typename T, typename F, typename Enabled = void>
-  struct call_variant {
+  template<std::uint8_t W, typename... T>
+  struct variant_assign;
 
+  template<std::uint8_t W, typename T>
+  struct variant_assign<W, T> {
+    void destroy(std::uint8_t which, void* lhs) const {
+      if(which == W) {
+        return;
+      }
+      reinterpret_cast<T*>(lhs)->~T();
+    }
+
+    std::uint8_t assign(std::uint8_t which, void* lhs, const T& rhs) const {
+      if(which != W) {
+        new (lhs) T(rhs);
+      } else {
+        *reinterpret_cast<T*>(lhs) = rhs;
+      }
+      return W;
+    }
+
+    std::uint8_t assign(std::uint8_t which, void* lhs, T&& rhs) const {
+      if(which != W) {
+        new (lhs) T(std::move(rhs));
+      } else {
+        *reinterpret_cast<T*>(lhs) = std::move(rhs);
+      }
+      return W;
+    }
   };
 
-  template<typename T, typename F>
-  struct call_variant<T, F, template<typename F,
-      std::enable_if_t<decltype(std::declval<F&&>()(decl
- {
-    decltype(auto) operator()(
+  template<std::uint8_t W, typename T1, typename... T>
+  struct variant_assign<W, T1, T...> : variant_assign<W, T1>,
+      variant_assign<W + 1, T...> {
+    using variant_assign<W, T1>::destroy;
+    using variant_assign<W, T1>::assign;
+    using variant_assign<W + 1, T...>::destroy;
+    using variant_assign<W + 1, T...>::assign;
   };
 
   template<typename... T>
-  struct apply_variant;
+  struct variant_apply;
 
   template<typename T1, typename... T>
-  struct apply_variant<T1, T...> {
-    template<typename... F>
-    decltype(auto) operator()(std::uint8_t& which,
+  struct variant_apply<T1, T...> {
+    template<typename F>
+    decltype(auto) operator ()(std::uint8_t which,
         typename get_variant_union<T1, T...>::type& value, F&& f) const {
       if(which == 0) {
-        return f(value.m_first);
+        std::cout << typeid(T1).name() << std::endl;
+      } else {
+        return variant_apply<T...>()(which - 1, value.m_second,
+          std::forward<F>(f));
       }
-      --which;
-      return apply_variant<T...>()(which, value.m_second, std::forward<F>(f));
     }
   };
 
   template<typename T>
-  struct apply_variant<T> {
+  struct variant_apply<T> {
     template<typename F>
-    decltype(auto) operator()(std::uint8_t& which, T& value, F&& f) const {
-      if(which == 0) {
-        return f(value);
+    decltype(auto) operator ()(std::uint8_t which, T& value, F&& f) const {
+      if(which != 0) {
+        std::cout << "faak" << std::endl;
       }
-      throw 5;
     }
   };
 }
@@ -74,30 +98,49 @@ namespace details {
     public:
       variant();
 
+      template<typename U>
+      variant(U&& value);
+
       ~variant();
 
-      template<typename... F>
-      decltype(auto) apply(F&&... f) {
-        auto which = m_which;
-        return details::apply_variant<T...>()(which, m_value,
-          std::forward<F>(f)...);
+      template<typename U>
+      variant& operator =(const U& rhs) {
+        m_which = details::variant_assign<0, T...>().assign(m_which, &m_value,
+          rhs);
+        return *this;
+      }
+
+      template<typename U>
+      variant& operator =(U&& rhs) {
+        m_which = details::variant_assign<0, T...>().assign(m_which, &m_value,
+          std::forward<U>(rhs));
+        return *this;
+      }
+
+      template<typename F>
+      decltype(auto) apply(F&& f) {
+//        details::variant_apply<T...>()(m_which, m_value, std::forward<F>(f));
       }
 
     private:
+      using variant_union = typename details::get_variant_union<T...>::type;
+      using storage = std::aligned_storage_t<sizeof(variant_union)>;
       std::uint8_t m_which;
-      typename details::get_variant_union<T...>::type m_value;
+      storage m_value;
   };
 
   template<typename... T>
-  variant<T...>::variant()
-      : m_which(sizeof...(T)) {}
+  variant<T...>::variant() {}
 
   template<typename... T>
-  variant<T...>::~variant() {
-    if(m_which == sizeof...(T)) {
-      return;
-    }
+  template<typename U>
+  variant<T...>::variant(U&& value)
+      : m_which(sizeof...(T)) {
+    *this = std::forward<U>(value);
   }
+
+  template<typename... T>
+  variant<T...>::~variant() {}
 }
 
 #endif
