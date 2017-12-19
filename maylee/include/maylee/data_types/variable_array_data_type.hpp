@@ -43,7 +43,7 @@ namespace maylee {
   }
 
   inline size variable_array_data_type::get_size() const {
-    return size_data_type::SIZE;
+    return size_data_type::SIZE();
   }
 }
 

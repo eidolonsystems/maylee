@@ -10,7 +10,7 @@ namespace maylee {
     public:
 
       //! The number of bytes used to represent a size.
-      static const int SIZE = 8;
+      static constexpr int SIZE() { return 8; };
 
       //! Constructs a size data type.
       size_data_type() = default;
@@ -26,7 +26,7 @@ namespace maylee {
   }
 
   inline size size_data_type::get_size() const {
-    return SIZE;
+    return SIZE();
   }
 }
 

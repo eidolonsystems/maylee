@@ -22,7 +22,7 @@ namespace maylee {
       //! Constructs a variant representing a value constructible from a value
       //! of type <i>U</i>.
       template<typename U, typename = std::enable_if_t<
-        !std::is_same_v<std::decay_t<U>, variant>>>
+        !std::is_same<std::decay_t<U>, variant>::value>>
       variant(U&& value);
 
       //! Copies a variant.
@@ -62,10 +62,11 @@ namespace maylee {
 
   template<typename... T>
   std::ostream& operator <<(std::ostream& out, const variant<T...>& value) {
-    return value.apply(
+    value.apply(
       [&] (auto& value) {
-        return out << value;
+        out << value;
       });
+    return out;
   }
 
   template<typename... T>
@@ -93,8 +94,8 @@ namespace maylee {
   variant<T...>::~variant() {
     apply(
       [] (auto& value) {
-        using T = std::decay_t<decltype(value)>;
-        value.~T();
+        using U = std::decay_t<decltype(value)>;
+        value.~U();
       });
   }
 
@@ -108,8 +109,8 @@ namespace maylee {
   decltype(auto) variant<T...>::apply(F1&& f1, F&&... f) {
     return details::apply_variant(m_which, m_value,
       [&] (auto& value) {
-        using T = decltype(value);
-        return details::overload_variant<T, F1>()(value, f1,
+        using U = decltype(value);
+        return details::overload_variant<U, F1>()(value, f1,
           std::forward<F>(f)...);
       });
   }
@@ -119,8 +120,8 @@ namespace maylee {
   decltype(auto) variant<T...>::apply(F1&& f1, F&&... f) const {
     return details::apply_variant(m_which, m_value,
       [&] (auto& value) {
-        using T = decltype(value);
-        return details::overload_variant<T, F1>()(value, f1,
+        using U = decltype(value);
+        return details::overload_variant<U, F1>()(value, f1,
           std::forward<F>(f)...);
       });
   }
