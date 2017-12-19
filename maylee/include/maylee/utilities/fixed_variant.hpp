@@ -5,6 +5,62 @@
 #include <utility>
 #include "maylee/utilities/utilities.hpp"
 
+
+#include <iostream>
+
+template<typename T, typename F, typename = void>
+struct InvokeVariant {
+  template<typename H1, typename... H>
+  decltype(auto) operator ()(const T& value, F&& f, H1&& h1, H&&... h) const {
+    return InvokeVariant<T, std::decay_t<H1>>()(value, std::forward<H1>(h1),
+      std::forward<H>(h)...);
+  }
+
+  template<typename H1, typename... H>
+  decltype(auto) operator ()(T& value, F&& f, H1&& h1, H&&... h) const {
+    return InvokeVariant<T, std::decay_t<H1>>()(value, std::forward<H1>(h1),
+      std::forward<H>(h)...);
+  }
+};
+
+template<typename T, typename F>
+struct InvokeVariant<T, F,
+    std::void_t<decltype(std::declval<F&&>()(std::declval<T&&>()))>> {
+  template<typename... H>
+  decltype(auto) operator ()(const T& value, F&& f, H&&... h) const {
+    return f(value);
+  }
+
+  template<typename... H>
+  decltype(auto) operator ()(T& value, F&& f, H&&... h) const {
+    return f(value);
+  }
+};
+
+template<typename T, typename F1, typename... F>
+decltype(auto) invoke(T&& value, F1&& f1, F&&... f) {
+  return InvokeVariant<T, std::decay_t<F1>>()(std::forward<T>(value),
+    std::forward<F1>(f1), std::forward<F>(f)...);
+}
+
+auto h(int value) {
+  std::cout << "h" << std::endl;
+  return 123;
+}
+
+auto g(const std::string& value) {
+  std::cout << "g" << std::endl;
+  return 321;
+}
+
+int main(int argc, const char** argv) {
+  auto r1 = invoke(std::string("hi"), g, h);
+  std::cout << r1 << std::endl;
+  auto r2 = invoke(123, g, h);
+  std::cout << r2 << std::endl;
+}
+
+
 namespace maylee {
 namespace details {
   template<typename T1, typename T2>
