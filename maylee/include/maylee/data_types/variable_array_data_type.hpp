@@ -18,7 +18,7 @@ namespace maylee {
       variable_array_data_type(std::shared_ptr<data_type> type);
 
       //! Returns the type stored by the array.
-      const data_type& get_type() const;
+      const std::shared_ptr<data_type>& get_type() const;
 
       const std::string& get_name() const override final;
 
@@ -34,8 +34,9 @@ namespace maylee {
       : m_type(std::move(type)),
         m_name("[]" + m_type->get_name()) {}
 
-  inline const data_type& variable_array_data_type::get_type() const {
-    return *m_type;
+  inline const std::shared_ptr<data_type>&
+      variable_array_data_type::get_type() const {
+    return m_type;
   }
 
   inline const std::string& variable_array_data_type::get_name() const {

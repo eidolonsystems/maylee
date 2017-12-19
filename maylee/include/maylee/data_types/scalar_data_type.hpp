@@ -1,5 +1,6 @@
 #ifndef MAYLEE_SCALAR_DATA_TYPE_HPP
 #define MAYLEE_SCALAR_DATA_TYPE_HPP
+#include <memory>
 #include <stdexcept>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
@@ -38,6 +39,12 @@ namespace maylee {
         UINT64,
       };
 
+      //! Returns an instance of this type.
+      /*!
+        \param type The type of scalar to get.
+      */
+      static const std::shared_ptr<scalar_data_type>& get_instance(type type);
+
       //! Constructs a scalar data type.
       /*!
         \param type The type of scalar.
@@ -57,6 +64,54 @@ namespace maylee {
     private:
       type m_type;
   };
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_instance(type type) {
+    switch(type) {
+      case type::INT8:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::INT16:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::INT32:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::INT64:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::UINT8:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::UINT16:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::UINT32:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      case type::UINT64:
+        {
+          static auto value = std::make_shared<scalar_data_type>(type);
+          return value;
+        }
+      default:
+        throw std::invalid_argument("Invalid scalar type.");
+    }
+  }
 
   inline scalar_data_type::scalar_data_type(type type)
       : m_type(type) {}

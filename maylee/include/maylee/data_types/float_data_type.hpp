@@ -1,5 +1,6 @@
 #ifndef MAYLEE_FLOAT_DATA_TYPE_HPP
 #define MAYLEE_FLOAT_DATA_TYPE_HPP
+#include <memory>
 #include <stdexcept>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
@@ -20,6 +21,12 @@ namespace maylee {
         FLOAT64
       };
 
+      //! Returns an instance of this type.
+      /*!
+        \param type The type of floating point to get.
+      */
+      static const std::shared_ptr<float_data_type>& get_instance(type type);
+
       //! Constructs a float data type.
       /*!
         \param type The type of float.
@@ -36,6 +43,24 @@ namespace maylee {
     private:
       type m_type;
   };
+
+  inline const std::shared_ptr<float_data_type>& float_data_type::get_instance(
+      type type) {
+    switch(type) {
+      case type::FLOAT32:
+        {
+          static auto value = std::make_shared<float_data_type>(type);
+          return value;
+        }
+      case type::FLOAT64:
+        {
+          static auto value = std::make_shared<float_data_type>(type);
+          return value;
+        }
+      default:
+        throw std::invalid_argument("Invalid float type.");
+    }
+  }
 
   inline float_data_type::float_data_type(type type)
       : m_type(type) {}

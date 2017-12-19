@@ -19,7 +19,7 @@ namespace maylee {
       array_data_type(std::shared_ptr<data_type> type, size length);
 
       //! Returns the type stored by the array.
-      const data_type& get_type() const;
+      const std::shared_ptr<data_type>& get_type() const;
 
       //! Returns the number of elements stored.
       size get_length() const;
@@ -40,8 +40,8 @@ namespace maylee {
         m_length(length),
         m_name("[" + std::to_string(m_length) + "]" + m_type->get_name()) {}
 
-  inline const data_type& array_data_type::get_type() const {
-    return *m_type;
+  inline const std::shared_ptr<data_type>& array_data_type::get_type() const {
+    return m_type;
   }
 
   inline size array_data_type::get_length() const {

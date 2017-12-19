@@ -4,6 +4,7 @@
 #include <utility>
 #include "maylee/lexicon/identifier.hpp"
 #include "maylee/lexicon/keyword.hpp"
+#include "maylee/lexicon/literal.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/punctuation.hpp"
 #include "maylee/utilities/variant.hpp"
@@ -28,13 +29,10 @@ namespace maylee {
 
         //! A literal value.
         LITERAL,
-
-        //! A terminal symbol (end-of-file).
-        TERMINAL
       };
 
       //! A variant that stores the token's data.
-      using instance = variant<keyword, punctuation, identifier>;
+      using instance = variant<keyword, punctuation, identifier, literal>;
 
       //! Constructs a keyword token.
       /*!

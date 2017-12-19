@@ -4,6 +4,7 @@
 namespace maylee {
   class identifier;
   class keyword;
+  class literal;
   class punctuation;
   class token;
 }
