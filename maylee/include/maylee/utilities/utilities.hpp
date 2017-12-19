@@ -3,7 +3,7 @@
 
 namespace maylee {
   template<typename... T>
-  class fixed_variant;
+  class variant;
 }
 
 #endif

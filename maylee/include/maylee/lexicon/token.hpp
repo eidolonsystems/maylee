@@ -6,6 +6,7 @@
 #include "maylee/lexicon/keyword.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/punctuation.hpp"
+#include "maylee/utilities/variant.hpp"
 
 namespace maylee {
 
@@ -32,66 +33,16 @@ namespace maylee {
         TERMINAL
       };
 
-      //! Stores the data associated with this token.
-      union instance {
-
-        //! The keyword represented.
-        keyword m_keyword;
-
-        //! The punctuation represented.
-        punctuation m_punctuation;
-
-        //! The identifier represented.
-        identifier m_identifier;
-
-        instance() = delete;
-
-        //! Constructs an instance from a keyword.
-        /*!
-          \param keyword The keyword to store.
-        */
-        instance(keyword keyword);
-
-        //! Constructs an instance from a punctuation.
-        /*!
-          \param punctuation The punctuation to store.
-        */
-        instance(punctuation punctuation);
-
-        //! Constructs an instance from an identifier.
-        /*!
-          \param identifier The identifier to store.
-        */
-        instance(identifier identifier);
-
-        ~instance();
-      };
+      //! A variant that stores the token's data.
+      using instance = variant<keyword, punctuation, identifier>;
 
       //! Constructs a keyword token.
       /*!
-        \param keyword The keyword to represent.
+        \param instance The token's data.
         \param line_number The line number.
         \param column_number The column number.
       */
-      token(keyword keyword, int line_number, int column_number);
-
-      //! Constructs a punctuation token.
-      /*!
-        \param punctuation The punctuation to represent.
-        \param line_number The line number.
-        \param column_number The column number.
-      */
-      token(punctuation punctuation, int line_number, int column_number);
-
-      //! Constructs an identifier token.
-      /*!
-        \param identifier The identifier to represent.
-        \param line_number The line number.
-        \param column_number The column number.
-      */
-      token(identifier identifier, int line_number, int column_number);
-
-      ~token();
+      token(instance instance, int line_number, int column_number);
 
       //! Returns the data associated with this token.
       const instance& get_instance() const;
@@ -107,65 +58,25 @@ namespace maylee {
 
     private:
       instance m_instance;
-      type m_type;
       int m_line_number;
       int m_column_number;
   };
 
   inline std::ostream& operator <<(std::ostream& out, const token& value) {
-    switch(value.get_type()) {
-      case token::type::KEYWORD:
-        return out << value.get_instance().m_keyword;
-      case token::type::PUNCTUATION:
-        return out << value.get_instance().m_punctuation;
-      case token::type::IDENTIFIER:
-        return out << value.get_instance().m_identifier;
-      case token::type::TERMINAL:
-        return out;
-      default:
-        throw std::invalid_argument("Invalid token.");
-    }
+    return out << value.get_instance();
   }
 
-  inline token::instance::instance(keyword keyword)
-      : m_keyword(std::move(keyword)) {}
-
-  inline token::instance::instance(punctuation punctuation)
-      : m_punctuation(std::move(punctuation)) {}
-
-  inline token::instance::instance(identifier identifier)
-      : m_identifier(std::move(identifier)) {}
-
-  inline token::instance::~instance() {}
-
-  inline token::token(keyword keyword, int line_number, int column_number)
-      : m_instance(std::move(keyword)),
-        m_type(type::KEYWORD),
+  inline token::token(instance instance, int line_number, int column_number)
+      : m_instance(std::move(instance)),
         m_line_number(line_number),
         m_column_number(column_number) {}
-
-  inline token::token(punctuation punctuation, int line_number,
-      int column_number)
-      : m_instance(std::move(punctuation)),
-        m_type(type::PUNCTUATION),
-        m_line_number(line_number),
-        m_column_number(column_number) {}
-
-  inline token::token(identifier identifier, int line_number, int column_number)
-      : m_instance(std::move(identifier)),
-        m_type(type::IDENTIFIER),
-        m_line_number(line_number),
-        m_column_number(column_number) {}
-
-  inline token::~token() {
-  }
 
   inline const token::instance& token::get_instance() const {
     return m_instance;
   }
 
   inline token::type token::get_type() const {
-    return m_type;
+    return static_cast<type>(m_instance.get_which());
   }
 
   inline int token::get_line_number() const {
