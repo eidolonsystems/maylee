@@ -62,11 +62,10 @@ namespace maylee {
 
   template<typename... T>
   std::ostream& operator <<(std::ostream& out, const variant<T...>& value) {
-    value.apply(
-      [&] (auto& value) {
-        out << value;
+    return value.apply(
+      [&] (auto& value) -> decltype(auto) {
+        return (out << value);
       });
-    return out;
   }
 
   template<typename... T>
@@ -108,7 +107,7 @@ namespace maylee {
   template<typename F1, typename... F>
   decltype(auto) variant<T...>::apply(F1&& f1, F&&... f) {
     return details::apply_variant(m_which, m_value,
-      [&] (auto& value) {
+      [&] (auto& value) -> decltype(auto) {
         using U = decltype(value);
         return details::overload_variant<U, F1>()(value, f1,
           std::forward<F>(f)...);
@@ -119,7 +118,7 @@ namespace maylee {
   template<typename F1, typename... F>
   decltype(auto) variant<T...>::apply(F1&& f1, F&&... f) const {
     return details::apply_variant(m_which, m_value,
-      [&] (auto& value) {
+      [&] (auto& value) -> decltype(auto) {
         using U = decltype(value);
         return details::overload_variant<U, F1>()(value, f1,
           std::forward<F>(f)...);
