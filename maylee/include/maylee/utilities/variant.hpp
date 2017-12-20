@@ -60,6 +60,44 @@ namespace maylee {
       variant_union m_value;
   };
 
+  //! Returns <code>true</code> iff the variant stores a value of a specified
+  //! type.
+  /*!
+    \param v The variant to check.
+    \return <code>true</code> iff the variant stores a value of type <i>T</i>.
+  */
+  template<typename T, typename... V>
+  bool check_which(const variant<V...>& v) {
+    return v.apply(
+      [] (const T& v) {
+        return true;
+      },
+      [] (auto& v) {
+        return false;
+      });
+  }
+
+  //! Returns the value stored by a variant.
+  /*!
+    \param v The variant whose value is to be extracted.
+    \return The value stored by the variant.
+  */
+  template<typename T, typename... V>
+  T& get(variant<V...>& v) {
+    return v.apply(
+      [] (T& v) {
+        return v;
+      },
+      [] (auto&) -> T& {
+        throw std::runtime_error("Invalid get.");
+      });
+  }
+
+  template<typename T, typename... V>
+  const T& get(const variant<V...>& v) {
+    return get<T>(const_cast<variant<V...>&>(v));
+  }
+
   template<typename... T>
   std::ostream& operator <<(std::ostream& out, const variant<T...>& value) {
     return value.apply(
