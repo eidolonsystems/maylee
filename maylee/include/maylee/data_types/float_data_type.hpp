@@ -23,9 +23,9 @@ namespace maylee {
 
       //! Returns an instance of this type.
       /*!
-        \param type The type of floating point to get.
+        \param t The type of floating point to get.
       */
-      static const std::shared_ptr<float_data_type>& get_instance(type type);
+      static const std::shared_ptr<float_data_type>& get_instance(type t);
 
       //! Constructs a float data type.
       /*!
@@ -45,16 +45,16 @@ namespace maylee {
   };
 
   inline const std::shared_ptr<float_data_type>& float_data_type::get_instance(
-      type type) {
-    switch(type) {
+      type t) {
+    switch(t) {
       case type::FLOAT32:
         {
-          static auto value = std::make_shared<float_data_type>(type);
+          static auto value = std::make_shared<float_data_type>(t);
           return value;
         }
       case type::FLOAT64:
         {
-          static auto value = std::make_shared<float_data_type>(type);
+          static auto value = std::make_shared<float_data_type>(t);
           return value;
         }
       default:

@@ -85,7 +85,7 @@ namespace maylee {
   template<typename T, typename... V>
   T& get(variant<V...>& v) {
     return v.apply(
-      [] (T& v) {
+      [] (T& v) -> T& {
         return v;
       },
       [] (auto&) -> T& {
