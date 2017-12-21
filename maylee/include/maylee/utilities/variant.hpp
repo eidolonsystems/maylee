@@ -84,18 +84,18 @@ namespace maylee {
   */
   template<typename T, typename... V>
   T& get(variant<V...>& v) {
-    return v.apply(
-      [] (T& v) -> T& {
-        return v;
-      },
-      [] (auto&) -> T& {
-        throw std::runtime_error("Invalid get.");
-      });
+    return const_cast<T&>(get<T>(v));
   }
 
   template<typename T, typename... V>
   const T& get(const variant<V...>& v) {
-    return get<T>(const_cast<variant<V...>&>(v));
+    return v.apply(
+      [] (const T& v) -> const T& {
+        return v;
+      },
+      [] (auto&) -> const T& {
+        throw std::runtime_error("Invalid get.");
+      });
   }
 
   template<typename... T>
@@ -147,7 +147,7 @@ namespace maylee {
     return details::apply_variant(m_which, m_value,
       [&] (auto& value) -> decltype(auto) {
         using U = decltype(value);
-        return details::overload_variant<U, F1>()(value, f1,
+        return details::overload_variant<U, F1>()(value, std::forward<F1>(f1),
           std::forward<F>(f)...);
       });
   }
@@ -158,7 +158,7 @@ namespace maylee {
     return details::apply_variant(m_which, m_value,
       [&] (auto& value) -> decltype(auto) {
         using U = decltype(value);
-        return details::overload_variant<U, F1>()(value, f1,
+        return details::overload_variant<U, F1>()(value, std::forward<F1>(f1),
           std::forward<F>(f)...);
       });
   }
