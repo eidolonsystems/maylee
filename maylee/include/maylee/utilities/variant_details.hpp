@@ -2,14 +2,10 @@
 #define MAYLEE_VARIANT_DETAILS_HPP
 #include <cstdint>
 #include <type_traits>
-#include <utility>
 #include "maylee/utilities/utilities.hpp"
 
 namespace maylee {
 namespace details {
-  template<typename... T>
-  using void_t = void;
-
   template<typename T1, typename T2>
   union variant_union {
     T1 m_first;
@@ -107,7 +103,7 @@ namespace details {
 
   template<typename T, typename F>
   struct overload_variant<T, F,
-      void_t<decltype(std::declval<F>()(std::declval<T>()))>> {
+      std::void_t<decltype(std::declval<F>()(std::declval<T>()))>> {
     template<typename... H>
     decltype(auto) operator ()(T value, F f, H&&... h) const {
       return f(value);

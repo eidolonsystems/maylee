@@ -7193,7 +7193,7 @@ namespace Catch {
     }
 
     ScopedMessage::~ScopedMessage() {
-        if ( !std::uncaught_exception() ){
+        if ( !std::uncaught_exceptions() ){
             getResultCapture().popScopedMessage(m_info);
         }
     }
@@ -7987,12 +7987,12 @@ namespace Catch {
 
 #if defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable:4996) // std::uncaught_exception is deprecated in C++17
+#pragma warning(disable:4996) // std::uncaught_exceptions is deprecated in C++17
 #endif
     Section::~Section() {
         if( m_sectionIncluded ) {
             SectionEndInfo endInfo( m_info, m_assertions, m_timer.getElapsedSeconds() );
-            if( std::uncaught_exception() )
+            if( std::uncaught_exceptions() )
                 getResultCapture().sectionEndedEarly( endInfo );
             else
                 getResultCapture().sectionEnded( endInfo );

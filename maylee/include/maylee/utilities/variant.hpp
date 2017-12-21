@@ -1,6 +1,7 @@
 #ifndef MAYLEE_VARIANT_HPP
 #define MAYLEE_VARIANT_HPP
 #include <ostream>
+#include <utility>
 #include "maylee/utilities/variant_details.hpp"
 #include "maylee/utilities/utilities.hpp"
 
@@ -22,7 +23,7 @@ namespace maylee {
       //! Constructs a variant representing a value constructible from a value
       //! of type <i>U</i>.
       template<typename U, typename = std::enable_if_t<
-        !std::is_same<std::decay_t<U>, variant>::value>>
+        !std::is_same_v<std::decay_t<U>, variant>>>
       variant(U&& value);
 
       //! Copies a variant.
@@ -83,11 +84,6 @@ namespace maylee {
     \return The value stored by the variant.
   */
   template<typename T, typename... V>
-  T& get(variant<V...>& v) {
-    return const_cast<T&>(get<T>(v));
-  }
-
-  template<typename T, typename... V>
   const T& get(const variant<V...>& v) {
     return v.apply(
       [] (const T& v) -> const T& {
@@ -96,6 +92,11 @@ namespace maylee {
       [] (auto&) -> const T& {
         throw std::runtime_error("Invalid get.");
       });
+  }
+
+  template<typename T, typename... V>
+  T& get(variant<V...>& v) {
+    return const_cast<T&>(get<T>(std::as_const(v)));
   }
 
   template<typename... T>
