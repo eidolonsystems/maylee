@@ -19,6 +19,9 @@ namespace maylee {
       const std::string& get_name() const override final;
 
       size get_size() const override final;
+
+    protected:
+      virtual bool is_equal(const data_type& rhs) const override final;
   };
 
   inline const std::shared_ptr<bool_data_type>& bool_data_type::get_instance() {
@@ -33,6 +36,10 @@ namespace maylee {
 
   inline size bool_data_type::get_size() const {
     return 1;
+  }
+
+  inline bool bool_data_type::is_equal(const data_type& rhs) const {
+    return true;
   }
 }
 

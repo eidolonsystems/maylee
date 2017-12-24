@@ -61,6 +61,9 @@ namespace maylee {
 
       size get_size() const override final;
 
+    protected:
+      virtual bool is_equal(const data_type& rhs) const override final;
+
     private:
       type m_type;
   };
@@ -192,6 +195,11 @@ namespace maylee {
       default:
         throw std::invalid_argument("Invalid scalar type.");
     }
+  }
+
+  inline bool scalar_data_type::is_equal(const data_type& rhs) const {
+    auto& r = static_cast<const scalar_data_type&>(rhs);
+    return m_type == r.get_type();
   }
 }
 

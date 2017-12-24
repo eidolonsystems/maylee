@@ -1,5 +1,6 @@
 #ifndef MAYLEE_PUNCTUATION_HPP
 #define MAYLEE_PUNCTUATION_HPP
+#include <optional>
 #include <ostream>
 #include <stdexcept>
 #include "maylee/lexicon/lexicon.hpp"
@@ -42,6 +43,40 @@ namespace maylee {
       mark m_mark;
   };
 
+  //! Returns <code>true</code> iff a character represents a punctuation.
+  /*!
+    \param c The character to test.
+  */
+  inline bool is_punctuation(char c) {
+    return c == '(' || c == ')' || c == ':' || c == ',' || c == '.';
+  }
+
+  //! Parses a punctuation.
+  /*!
+    \param cursor A pointer to the first character to parse, this pointer will
+           be adjusted to one past the last character that was parsed.
+    \param size The number of characters available, this number will be adjusted
+           by the number of characters parsed.
+    \return The punctuation that was parsed.
+  */
+  inline std::optional<punctuation> parse_punctuation(const char*& cursor,
+      std::size_t& size) {
+    if(size >= 1) {
+      if(*cursor == '(') {
+        return punctuation::mark::OPEN_BRACKET;
+      } else if(*cursor == ')') {
+        return punctuation::mark::CLOSE_BRACKET;
+      } else if(*cursor == ':') {
+        return punctuation::mark::COLON;
+      } else if(*cursor == ',') {
+        return punctuation::mark::COMMA;
+      } else if(*cursor == '.') {
+        return punctuation::mark::DOT;
+      }
+    }
+    return std::nullopt;
+  }
+
   inline std::ostream& operator <<(std::ostream& out,
       const punctuation& value) {
     switch(value.get_mark()) {
@@ -58,6 +93,14 @@ namespace maylee {
       default:
         throw std::runtime_error("Invalid punctuation mark.");
     }
+  }
+
+  inline bool operator ==(const punctuation& lhs, const punctuation& rhs) {
+    return lhs.get_mark() == rhs.get_mark();
+  }
+
+  inline bool operator !=(const punctuation& lhs, const punctuation& rhs) {
+    return !(lhs == rhs);
   }
 
   inline punctuation::punctuation(mark mark)

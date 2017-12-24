@@ -2,12 +2,13 @@
 #define MAYLEE_TOKEN_HPP
 #include <ostream>
 #include <utility>
+#include <variant>
 #include "maylee/lexicon/identifier.hpp"
 #include "maylee/lexicon/keyword.hpp"
 #include "maylee/lexicon/literal.hpp"
 #include "maylee/lexicon/lexicon.hpp"
+#include "maylee/lexicon/operation.hpp"
 #include "maylee/lexicon/punctuation.hpp"
-#include "maylee/utilities/variant.hpp"
 
 namespace maylee {
 
@@ -24,6 +25,9 @@ namespace maylee {
         //! A punctuation mark.
         PUNCTUATION,
 
+        //! An operation.
+        OPERATION,
+
         //! A symbolic identifier.
         IDENTIFIER,
 
@@ -32,7 +36,8 @@ namespace maylee {
       };
 
       //! A variant that stores the token's data.
-      using instance = variant<keyword, punctuation, identifier, literal>;
+      using instance = std::variant<keyword, punctuation, operation, identifier,
+        literal>;
 
       //! Constructs a keyword token.
       /*!
@@ -60,8 +65,22 @@ namespace maylee {
       int m_column_number;
   };
 
+  //! Tests if a token represents a particular instance.
+  /*!
+    \param t The token to test.
+    \param i The instance to match.
+    \return <code>true</code> iff the token matches the specified instance.
+  */
+  inline bool match(const token& t, const token::instance& i) {
+    return t.get_instance() == i;
+  }
+
   inline std::ostream& operator <<(std::ostream& out, const token& value) {
-    return out << value.get_instance();
+    return std::visit(
+      [&] (auto& value) -> decltype(auto) {
+        return out << value;
+      },
+      value.get_instance());
   }
 
   inline token::token(instance instance, int line_number, int column_number)
@@ -74,7 +93,7 @@ namespace maylee {
   }
 
   inline token::type token::get_type() const {
-    return static_cast<type>(m_instance.get_which());
+    return static_cast<type>(m_instance.index());
   }
 
   inline int token::get_line_number() const {

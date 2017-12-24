@@ -24,6 +24,9 @@ namespace maylee {
 
       size get_size() const override final;
 
+    protected:
+      virtual bool is_equal(const data_type& rhs) const override final;
+
     private:
       std::shared_ptr<data_type> m_type;
       std::string m_name;
@@ -45,6 +48,11 @@ namespace maylee {
 
   inline size variable_array_data_type::get_size() const {
     return size_data_type::SIZE();
+  }
+
+  inline bool variable_array_data_type::is_equal(const data_type& rhs) const {
+    auto& r = static_cast<const variable_array_data_type&>(rhs);
+    return *m_type == *r.get_type();
   }
 }
 
