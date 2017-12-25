@@ -90,33 +90,63 @@ namespace maylee {
       std::size_t& size) {
     if(prefix_match(cursor, size, "and")) {
       return operation::symbol::AND;
-    } else if(prefix_match(cursor, size, "or")) {
+    }
+    if(prefix_match(cursor, size, "or")) {
       return operation::symbol::OR;
-    } else if(prefix_match(cursor, size, "not")) {
+    }
+    if(prefix_match(cursor, size, "not")) {
       return operation::symbol::NOT;
-    } else if(size >= 2) {
-      if(std::equal(cursor, cursor + 2, "<=")) {
-        return operation::symbol::LESS_OR_EQUAL;
-      } else if(std::equal(cursor, cursor + 2, "==")) {
-        return operation::symbol::EQUAL;
-      } else if(std::equal(cursor, cursor + 2, ">=")) {
-        return operation::symbol::GREATER_OR_EQUAL;
+    }
+    if(size >= 2) {
+      auto symbol =
+        [&] {
+          if(std::equal(cursor, cursor + 2, "<=")) {
+            return operation::symbol::LESS_OR_EQUAL;
+          }
+          if(std::equal(cursor, cursor + 2, "==")) {
+            return operation::symbol::EQUAL;
+          }
+          if(std::equal(cursor, cursor + 2, ">=")) {
+            return operation::symbol::GREATER_OR_EQUAL;
+          }
+          return static_cast<operation::symbol>(-1);
+        }();
+      if(symbol != static_cast<operation::symbol>(-1)) {
+        cursor += 2;
+        size -= 2;
+        return symbol;
       }
-    } else if(size > 1) {
-      if(*cursor == '+') {
-        return operation::symbol::PLUS;
-      } else if(*cursor == '-') {
-        return operation::symbol::MINUS;
-      } else if(*cursor == '*') {
-        return operation::symbol::TIMES;
-      } else if(*cursor == '/') {
-        return operation::symbol::DIVIDE;
-      } else if(*cursor == '=') {
-        return operation::symbol::ASSIGN;
-      } else if(*cursor == '<') {
-        return operation::symbol::LESS;
-      } else if(*cursor == '>') {
-        return operation::symbol::GREATER;
+    }
+    if(size > 1) {
+      auto symbol =
+        [&] {
+          if(*cursor == '+') {
+            return operation::symbol::PLUS;
+          }
+          if(*cursor == '-') {
+            return operation::symbol::MINUS;
+          }
+          if(*cursor == '*') {
+            return operation::symbol::TIMES;
+          }
+          if(*cursor == '/') {
+            return operation::symbol::DIVIDE;
+          }
+          if(*cursor == '=') {
+            return operation::symbol::ASSIGN;
+          }
+          if(*cursor == '<') {
+            return operation::symbol::LESS;
+          }
+          if(*cursor == '>') {
+            return operation::symbol::GREATER;
+          }
+          return static_cast<operation::symbol>(-1);
+        }();
+      if(symbol != static_cast<operation::symbol>(-1)) {
+        ++cursor;
+        --size;
+        return symbol;
       }
     }
     return std::nullopt;
@@ -137,19 +167,19 @@ namespace maylee {
       case operation::symbol::LESS:
         return out << '<';
       case operation::symbol::LESS_OR_EQUAL:
-        return out << '<=';
+        return out << "<=";
       case operation::symbol::EQUAL:
-        return out << '==';
+        return out << "==";
       case operation::symbol::GREATER_OR_EQUAL:
-        return out << '>=';
+        return out << ">=";
       case operation::symbol::GREATER:
         return out << '>';
       case operation::symbol::AND:
-        return out << 'and';
+        return out << "and";
       case operation::symbol::OR:
-        return out << 'or';
+        return out << "or";
       case operation::symbol::NOT:
-        return out << 'not';
+        return out << "not";
       default:
         throw std::runtime_error("Invalid operation.");
     }

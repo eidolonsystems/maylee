@@ -49,8 +49,8 @@ namespace maylee {
       std::size_t& size) {
     auto is_separator =
       [] (char c) {
-        return std::isalnum(c) || std::isspace(c) || c == '_' ||
-          is_punctuation(c) || is_operation_delimiter(c);
+        return std::isspace(c) || is_punctuation(c) ||
+          is_operation_delimiter(c) || c == '\0';
       };
     auto parse_decimal =
       [] (const char*& cursor, std::size_t& size) {
@@ -82,8 +82,7 @@ namespace maylee {
         auto value = std::string(cursor, c - cursor);
         cursor = c;
         size = s;
-        return literal(std::move(value),
-          scalar_data_type::get_instance(scalar_data_type::type::INT32));
+        return literal(std::move(value), scalar_data_type::get_int32());
       } else {
         ++c;
         --s;

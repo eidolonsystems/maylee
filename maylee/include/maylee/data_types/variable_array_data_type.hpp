@@ -25,7 +25,7 @@ namespace maylee {
       size get_size() const override final;
 
     protected:
-      virtual bool is_equal(const data_type& rhs) const override final;
+      bool is_equal(const data_type& rhs) const override final;
 
     private:
       std::shared_ptr<data_type> m_type;

@@ -39,6 +39,30 @@ namespace maylee {
         UINT64,
       };
 
+      //! Returns an instance of INT8.
+      static const std::shared_ptr<scalar_data_type>& get_int8();
+
+      //! Returns an instance of INT16.
+      static const std::shared_ptr<scalar_data_type>& get_int16();
+
+      //! Returns an instance of INT32.
+      static const std::shared_ptr<scalar_data_type>& get_int32();
+
+      //! Returns an instance of INT64.
+      static const std::shared_ptr<scalar_data_type>& get_int64();
+
+      //! Returns an instance of UINT8.
+      static const std::shared_ptr<scalar_data_type>& get_uint8();
+
+      //! Returns an instance of UINT16.
+      static const std::shared_ptr<scalar_data_type>& get_uint16();
+
+      //! Returns an instance of UINT32.
+      static const std::shared_ptr<scalar_data_type>& get_uint32();
+
+      //! Returns an instance of UINT64.
+      static const std::shared_ptr<scalar_data_type>& get_uint64();
+
       //! Returns an instance of this type.
       /*!
         \param t The type of scalar to get.
@@ -62,55 +86,79 @@ namespace maylee {
       size get_size() const override final;
 
     protected:
-      virtual bool is_equal(const data_type& rhs) const override final;
+      bool is_equal(const data_type& rhs) const override final;
 
     private:
       type m_type;
   };
 
   inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_int8() {
+    static auto value = std::make_shared<scalar_data_type>(type::INT8);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_int16() {
+    static auto value = std::make_shared<scalar_data_type>(type::INT16);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_int32() {
+    static auto value = std::make_shared<scalar_data_type>(type::INT32);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_int64() {
+    static auto value = std::make_shared<scalar_data_type>(type::INT64);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_uint8() {
+    static auto value = std::make_shared<scalar_data_type>(type::UINT8);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_uint16() {
+    static auto value = std::make_shared<scalar_data_type>(type::UINT16);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_uint32() {
+    static auto value = std::make_shared<scalar_data_type>(type::UINT32);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
+      scalar_data_type::get_uint64() {
+    static auto value = std::make_shared<scalar_data_type>(type::UINT64);
+    return value;
+  }
+
+  inline const std::shared_ptr<scalar_data_type>&
       scalar_data_type::get_instance(type t) {
     switch(t) {
       case type::INT8:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_int8();
       case type::INT16:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_int16();
       case type::INT32:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_int32();
       case type::INT64:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_int64();
       case type::UINT8:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_uint8();
       case type::UINT16:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_uint16();
       case type::UINT32:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_uint32();
       case type::UINT64:
-        {
-          static auto value = std::make_shared<scalar_data_type>(t);
-          return value;
-        }
+        return get_uint64();
       default:
         throw std::invalid_argument("Invalid scalar type.");
     }

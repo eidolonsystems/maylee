@@ -7,6 +7,7 @@ namespace maylee {
   class literal;
   class operation;
   class punctuation;
+  class terminal;
   class token;
 }
 

@@ -31,7 +31,7 @@ namespace maylee {
 
       //! Parses the next token.
       /*!
-        \return The token parsed from the previously feed text.
+        \return The token parsed from the previously fed text.
       */
       std::optional<token> parse_token();
 
@@ -41,6 +41,9 @@ namespace maylee {
       int m_column_number;
       const char* m_cursor;
       std::size_t m_remaining_size;
+
+      token_parser(const token_parser&) = delete;
+      token_parser& operator =(const token_parser&) = delete;
   };
 
   inline token_parser::token_parser()
@@ -107,6 +110,13 @@ namespace maylee {
       m_remaining_size = remaining_size;
       return std::make_optional<token>(
         {std::move(*literal), m_line_number, column_number});
+    } else if(auto terminal = parse_terminal(m_cursor, remaining_size)) {
+      auto line_number = m_line_number;
+      auto column_number = m_column_number;
+      m_line_number = 0;
+      m_column_number = 0;
+      return std::make_optional<token>(
+        {std::move(*terminal), line_number, column_number});
     }
     return std::nullopt;
   }

@@ -9,6 +9,7 @@
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/operation.hpp"
 #include "maylee/lexicon/punctuation.hpp"
+#include "maylee/lexicon/terminal.hpp"
 
 namespace maylee {
 
@@ -33,11 +34,14 @@ namespace maylee {
 
         //! A literal value.
         LITERAL,
+
+        //! The end of the module.
+        TERMINAL
       };
 
       //! A variant that stores the token's data.
       using instance = std::variant<keyword, punctuation, operation, identifier,
-        literal>;
+        literal, terminal>;
 
       //! Constructs a keyword token.
       /*!
