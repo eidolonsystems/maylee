@@ -8,6 +8,7 @@ namespace maylee {
   class char_data_type;
   class data_type;
   class float_data_type;
+  class function_data_type;
   class scalar_data_type;
   class size_data_type;
   class variable_array_data_type;

@@ -83,8 +83,6 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      size get_size() const override final;
-
     protected:
       bool is_equal(const data_type& rhs) const override final;
 
@@ -217,29 +215,6 @@ namespace maylee {
           static std::string value = "UInt64";
           return value;
         }
-      default:
-        throw std::invalid_argument("Invalid scalar type.");
-    }
-  }
-
-  inline size scalar_data_type::get_size() const {
-    switch(m_type) {
-      case type::INT8:
-        return 1;
-      case type::INT16:
-        return 2;
-      case type::INT32:
-        return 4;
-      case type::INT64:
-        return 8;
-      case type::UINT8:
-        return 1;
-      case type::UINT16:
-        return 2;
-      case type::UINT32:
-        return 4;
-      case type::UINT64:
-        return 8;
       default:
         throw std::invalid_argument("Invalid scalar type.");
     }

@@ -3,7 +3,6 @@
 #include <memory>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
-#include "maylee/data_types/size_data_type.hpp"
 
 namespace maylee {
 
@@ -21,8 +20,6 @@ namespace maylee {
       const std::shared_ptr<data_type>& get_type() const;
 
       const std::string& get_name() const override final;
-
-      size get_size() const override final;
 
     protected:
       bool is_equal(const data_type& rhs) const override final;
@@ -44,10 +41,6 @@ namespace maylee {
 
   inline const std::string& variable_array_data_type::get_name() const {
     return m_name;
-  }
-
-  inline size variable_array_data_type::get_size() const {
-    return size_data_type::SIZE();
   }
 
   inline bool variable_array_data_type::is_equal(const data_type& rhs) const {

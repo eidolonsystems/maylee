@@ -26,8 +26,6 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      size get_size() const override final;
-
     protected:
       bool is_equal(const data_type& rhs) const override final;
 
@@ -53,10 +51,6 @@ namespace maylee {
 
   inline const std::string& array_data_type::get_name() const {
     return m_name;
-  }
-
-  inline size array_data_type::get_size() const {
-    return size_data_type::SIZE() + m_length * m_type->get_size();
   }
 
   inline bool array_data_type::is_equal(const data_type& rhs) const {

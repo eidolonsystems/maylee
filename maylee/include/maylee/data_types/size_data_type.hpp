@@ -10,9 +10,6 @@ namespace maylee {
   class size_data_type : public data_type {
     public:
 
-      //! The number of bytes used to represent a size.
-      static constexpr int SIZE() { return 8; };
-
       //! Returns an instance of this type.
       static const std::shared_ptr<size_data_type>& get_instance();
 
@@ -20,8 +17,6 @@ namespace maylee {
       size_data_type() = default;
 
       const std::string& get_name() const override final;
-
-      size get_size() const override final;
 
     protected:
       bool is_equal(const data_type& rhs) const override final;
@@ -35,10 +30,6 @@ namespace maylee {
   inline const std::string& size_data_type::get_name() const {
     static std::string name = "Size";
     return name;
-  }
-
-  inline size size_data_type::get_size() const {
-    return SIZE();
   }
 
   inline bool size_data_type::is_equal(const data_type& rhs) const {

@@ -44,8 +44,6 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      size get_size() const override final;
-
     protected:
       bool is_equal(const data_type& rhs) const override final;
 
@@ -96,17 +94,6 @@ namespace maylee {
           static std::string value = "Float64";
           return value;
         }
-      default:
-        throw std::invalid_argument("Invalid float type.");
-    }
-  }
-
-  inline size float_data_type::get_size() const {
-    switch(m_type) {
-      case type::FLOAT32:
-        return 4;
-      case type::FLOAT64:
-        return 8;
       default:
         throw std::invalid_argument("Invalid float type.");
     }

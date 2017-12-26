@@ -18,8 +18,6 @@ namespace maylee {
 
       const std::string& get_name() const override final;
 
-      size get_size() const override final;
-
     protected:
       bool is_equal(const data_type& rhs) const override final;
   };
@@ -32,10 +30,6 @@ namespace maylee {
   inline const std::string& bool_data_type::get_name() const {
     static std::string name = "Bool";
     return name;
-  }
-
-  inline size bool_data_type::get_size() const {
-    return 1;
   }
 
   inline bool bool_data_type::is_equal(const data_type& rhs) const {

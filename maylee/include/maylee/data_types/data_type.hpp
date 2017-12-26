@@ -14,9 +14,6 @@ namespace maylee {
       //! Returns the name of the data type.
       virtual const std::string& get_name() const = 0;
 
-      //! Returns the size in bytes of the data type.
-      virtual size get_size() const = 0;
-
       //! Tests if two data types are identical.
       /*!
         \param rhs The right hand side to test.
