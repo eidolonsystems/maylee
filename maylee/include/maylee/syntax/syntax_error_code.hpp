@@ -11,7 +11,10 @@ namespace maylee {
     IDENTIFIER_EXPECTED,
 
     //! An assignment operation was expected.
-    ASSIGNMENT_EXPECTED
+    ASSIGNMENT_EXPECTED,
+
+    //! An identifier already has a definition.
+    IDENTIFIER_ALREADY_DEFINED
   };
 }
 

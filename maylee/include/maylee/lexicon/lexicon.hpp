@@ -5,6 +5,7 @@ namespace maylee {
   class identifier;
   class keyword;
   class literal;
+  class location;
   class operation;
   class punctuation;
   class terminal;

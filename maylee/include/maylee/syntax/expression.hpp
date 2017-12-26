@@ -12,6 +12,7 @@ namespace maylee {
     public:
       virtual ~expression() = default;
 
+      //! Returns the data type the expression evaluates to.
       virtual const std::shared_ptr<data_type>& get_evaluation_type() const = 0;
 
     protected:
