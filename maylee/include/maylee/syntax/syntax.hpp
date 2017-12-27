@@ -2,6 +2,7 @@
 #define MAYLEE_SYNTAX_HPP
 
 namespace maylee {
+  class call_expression;
   class element;
   class expression;
   class let_expression;
