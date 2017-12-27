@@ -1,8 +1,10 @@
 #ifndef MAYLEE_SYNTAX_PARSER_EXPRESSIONS_HPP
 #define MAYLEE_SYNTAX_PARSER_EXPRESSIONS_HPP
+#include <cassert>
 #include <deque>
 #include <stack>
 #include "maylee/lexicon/token.hpp"
+#include "maylee/syntax/arity_syntax_error.hpp"
 #include "maylee/syntax/call_expression.hpp"
 #include "maylee/syntax/let_expression.hpp"
 #include "maylee/syntax/literal_expression.hpp"
@@ -11,6 +13,7 @@
 #include "maylee/syntax/syntax.hpp"
 #include "maylee/syntax/syntax_error.hpp"
 #include "maylee/syntax/syntax_parser.hpp"
+#include "maylee/syntax/unmatched_bracket_syntax_error.hpp"
 #include "maylee/syntax/variable_expression.hpp"
 
 namespace maylee {
@@ -111,13 +114,17 @@ namespace maylee {
 
   inline std::unique_ptr<expression> syntax_parser::parse_expression(
       std::vector<token>::iterator& cursor, std::size_t& size) {
+    struct op_token {
+      op m_op;
+      location m_location;
+    };
     std::deque<std::unique_ptr<expression>> expressions;
-    std::stack<op> operators;
+    std::stack<op_token> operators;
     auto build_call_expression =
-      [&] (op o) {
-        auto arity = get_arity(o);
+      [&] (const op_token& o) {
+        auto arity = get_arity(o.m_op);
         if(static_cast<int>(expressions.size()) < arity) {
-          // TODO: Throw exception.
+          throw arity_syntax_error(o.m_location, expressions.size(), o.m_op);
         }
         std::vector<std::unique_ptr<expression>> parameters;
         for(auto i = 0; i < arity; ++i) {
@@ -136,61 +143,85 @@ namespace maylee {
       };
     auto c = cursor;
     auto s = size;
+    enum class parse_mode {
+      TERM,
+      OPERATOR
+    };
+    auto mode = parse_mode::TERM;
     while(s != 0) {
-      if(c->get_type() == token::type::OPERATION) {
-        auto o = get_op(std::get<operation>(c->get_instance()));
-        while(!operators.empty() &&
-            (operators.top() != op::OPEN_BRACKET &&
-            operators.top() != op::CLOSE_BRACKET &&
-            (get_precedence(operators.top()) > get_precedence(o) ||
-            get_precedence(operators.top()) == get_precedence(o) &&
-            get_associativity(o) == associativity::LEFT_TO_RIGHT))) {
-          build_call_expression(operators.top());
-          operators.pop();
+      if(mode == parse_mode::TERM) {
+        if(match(*c, punctuation::mark::OPEN_BRACKET)) {
+          operators.push({op::OPEN_BRACKET,
+            location(get_current_module(), *c)});
+          ++c;
+          --s;
+        } else if(auto node = parse_expression_term(c, s)) {
+          expressions.push_back(std::move(node));
+        } else {
+          break;
         }
-        operators.push(o);
-        ++c;
-        --s;
-      } else if(match(*c, punctuation::mark::OPEN_BRACKET)) {
-        ++c;
-        --s;
-        operators.push(op::OPEN_BRACKET);
-      } else if(match(*c, punctuation::mark::CLOSE_BRACKET)) {
-        auto found_open_bracket = false;
-        while(!operators.empty()) {
-          auto o = operators.top();
-          operators.pop();
-          if(o == op::OPEN_BRACKET) {
-            found_open_bracket = true;
-            break;
-          } else {
-            build_call_expression(o);
-          }
-        }
-        if(!found_open_bracket) {
-          // TODO: Throw exception.
-        }
-      } else if(auto node = parse_expression_term(c, s)) {
-        expressions.push_back(std::move(node));
+        mode = parse_mode::OPERATOR;
       } else {
-        break;
+        if(c->get_type() == token::type::OPERATION) {
+          auto o = get_binary_op(std::get<operation>(c->get_instance()));
+          while(!operators.empty() &&
+              (operators.top().m_op != op::OPEN_BRACKET &&
+              operators.top().m_op != op::CLOSE_BRACKET &&
+              (get_precedence(operators.top().m_op) > get_precedence(o) ||
+              get_precedence(operators.top().m_op) == get_precedence(o) &&
+              get_associativity(o) == associativity::LEFT_TO_RIGHT))) {
+            build_call_expression(operators.top());
+            operators.pop();
+          }
+          operators.push({o, location(get_current_module(), *c)});
+          ++c;
+          --s;
+        } else if(match(*c, punctuation::mark::CLOSE_BRACKET)) {
+          auto found_open_bracket = false;
+          while(!operators.empty()) {
+            auto o = operators.top();
+            operators.pop();
+            if(o.m_op == op::OPEN_BRACKET) {
+              found_open_bracket = true;
+              break;
+            } else {
+              build_call_expression(o);
+            }
+          }
+          if(!found_open_bracket) {
+            throw unmatched_bracket_syntax_error(
+              location(get_current_module(), *c),
+              punctuation::mark::CLOSE_BRACKET);
+          }
+        } else {
+          break;
+        }
+        mode = parse_mode::TERM;
       }
     }
     while(!operators.empty()) {
       auto o = operators.top();
       operators.pop();
-      if(o == op::OPEN_BRACKET || o == op::CLOSE_BRACKET) {
-        // TODO: Throw exception.
+      if(o.m_op == op::OPEN_BRACKET || o.m_op == op::CLOSE_BRACKET) {
+        auto bracket =
+          [&] {
+            if(o.m_op == op::OPEN_BRACKET) {
+              return punctuation::mark::OPEN_BRACKET;
+            }
+            return punctuation::mark::CLOSE_BRACKET;
+          }();
+        throw unmatched_bracket_syntax_error(o.m_location, bracket);
       }
       build_call_expression(o);
     }
     if(expressions.empty()) {
       return nullptr;
-    } else if(expressions.size() != 1) {
-      // TODO: Throw exception.
     }
     auto e = std::move(expressions.front());
     expressions.pop_front();
+    assert(expressions.empty());
+    cursor = c;
+    size = s;
     return e;
   }
 }

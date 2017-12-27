@@ -15,6 +15,12 @@ namespace maylee {
     //! ...)
     CLOSE_BRACKET,
 
+    //! +a
+    PLUS,
+
+    //! -a
+    MINUS,
+
     //! a + b
     ADD,
 
@@ -49,6 +55,10 @@ namespace maylee {
         return 1;
       case op::CLOSE_BRACKET:
         return 1;
+      case op::PLUS:
+        return 1;
+      case op::MINUS:
+        return 1;
       case op::ADD:
         return 2;
       case op::SUBTRACT:
@@ -69,8 +79,12 @@ namespace maylee {
   constexpr int get_precedence(op o) {
     switch(o) {
       case op::OPEN_BRACKET:
-        return 2;
+        return 3;
       case op::CLOSE_BRACKET:
+        return 3;
+      case op::PLUS:
+        return 2;
+      case op::MINUS:
         return 2;
       case op::ADD:
         return 0;
@@ -95,6 +109,10 @@ namespace maylee {
         return associativity::LEFT_TO_RIGHT;
       case op::CLOSE_BRACKET:
         return associativity::LEFT_TO_RIGHT;
+      case op::PLUS:
+        return associativity::RIGHT_TO_LEFT;
+      case op::MINUS:
+        return associativity::RIGHT_TO_LEFT;
       case op::ADD:
         return associativity::LEFT_TO_RIGHT;
       case op::SUBTRACT:
@@ -107,12 +125,27 @@ namespace maylee {
     throw std::runtime_error("Invalid operation specified.");
   }
 
-  //! Returns the operation represented by a token.
+  //! Returns the unary operation represented by a token.
   /*!
     \param o The token representing the operation.
     \return The operation represented by the token.
   */
-  inline op get_op(operation o) {
+  inline op get_unary_op(operation o) {
+    switch(o.get_symbol()) {
+      case operation::symbol::PLUS:
+        return op::PLUS;
+      case operation::symbol::MINUS:
+        return op::MINUS;
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns the binary operation represented by a token.
+  /*!
+    \param o The token representing the operation.
+    \return The operation represented by the token.
+  */
+  inline op get_binary_op(operation o) {
     switch(o.get_symbol()) {
       case operation::symbol::PLUS:
         return op::ADD;

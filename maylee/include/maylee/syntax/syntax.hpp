@@ -5,6 +5,7 @@ namespace maylee {
   class call_expression;
   class element;
   class expression;
+  class function;
   class let_expression;
   class literal_expression;
   enum class op;
@@ -15,6 +16,7 @@ namespace maylee {
   class syntax_node;
   class syntax_parser;
   class terminal_node;
+  class unmatched_bracket_syntax_error;
   class variable;
   class variable_expression;
 }
