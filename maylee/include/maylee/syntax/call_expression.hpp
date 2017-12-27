@@ -49,7 +49,7 @@ namespace maylee {
     return *m_callable;
   }
 
-  const std::vector<std::unique_ptr<expression>>&
+  inline const std::vector<std::unique_ptr<expression>>&
       call_expression::get_parameters() const {
     return m_parameters;
   }

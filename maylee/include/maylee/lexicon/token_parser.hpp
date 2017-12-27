@@ -98,18 +98,18 @@ namespace maylee {
       m_remaining_size = remaining_size;
       return std::make_optional<token>(
         {std::move(*operation), m_line_number, column_number});
-    } else if(auto identifier = parse_identifier(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
-      return std::make_optional<token>(
-        {std::move(*identifier), m_line_number, column_number});
     } else if(auto literal = parse_literal(m_cursor, remaining_size)) {
       auto column_number = m_column_number;
       m_column_number += (m_remaining_size - remaining_size);
       m_remaining_size = remaining_size;
       return std::make_optional<token>(
         {std::move(*literal), m_line_number, column_number});
+    } else if(auto identifier = parse_identifier(m_cursor, remaining_size)) {
+      auto column_number = m_column_number;
+      m_column_number += (m_remaining_size - remaining_size);
+      m_remaining_size = remaining_size;
+      return std::make_optional<token>(
+        {std::move(*identifier), m_line_number, column_number});
     } else if(auto terminal = parse_terminal(m_cursor, remaining_size)) {
       auto line_number = m_line_number;
       auto column_number = m_column_number;

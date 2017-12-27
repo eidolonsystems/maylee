@@ -7,6 +7,7 @@ namespace maylee {
   class expression;
   class let_expression;
   class literal_expression;
+  enum class op;
   class redefinition_syntax_error;
   class scope;
   enum class syntax_error_code;

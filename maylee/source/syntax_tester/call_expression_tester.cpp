@@ -2,20 +2,11 @@
 #include "maylee/data_types/function_data_type.hpp"
 #include "maylee/maylee/catch.hpp"
 #include "maylee/syntax/call_expression.hpp"
-#include "maylee/syntax/literal_expression.hpp"
 #include "maylee/syntax/variable.hpp"
 #include "maylee/syntax/variable_expression.hpp"
 
 using namespace maylee;
 using namespace std;
-
-namespace {
-  auto parse_literal(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_literal(c, s);
-  }
-}
 
 TEST_CASE("test_call_expression", "[call_expression]") {
   std::shared_ptr<variable> f = std::make_shared<variable>("f",
