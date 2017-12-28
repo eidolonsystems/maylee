@@ -33,12 +33,21 @@ TEST_CASE("test_spaces_token_parser", "[token_parser]") {
   {
     auto t = parser.parse_token();
     REQUIRE(t.has_value());
+    REQUIRE(match(*t, keyword(keyword::word::RETURN)));
     REQUIRE(t->get_line_number() == 1);
     REQUIRE(t->get_column_number() == 0);
   }
   {
     auto t = parser.parse_token();
     REQUIRE(t.has_value());
+    REQUIRE(match(*t, terminal::type::new_line));
+    REQUIRE(t->get_line_number() == 1);
+    REQUIRE(t->get_column_number() == 8);
+  }
+  {
+    auto t = parser.parse_token();
+    REQUIRE(t.has_value());
+    REQUIRE(match(*t, keyword(keyword::word::RETURN)));
     REQUIRE(t->get_line_number() == 3);
     REQUIRE(t->get_column_number() == 3);
   }

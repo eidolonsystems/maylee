@@ -7,6 +7,9 @@ namespace maylee {
   //! Enumerates all syntax errors.
   enum class syntax_error_code {
 
+    //! A new line was expected.
+    NEW_LINE_EXPECTED,
+
     //! An identifier was expected.
     IDENTIFIER_EXPECTED,
 

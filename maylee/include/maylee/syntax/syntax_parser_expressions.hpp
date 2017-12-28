@@ -153,15 +153,22 @@ namespace maylee {
     auto mode = parse_mode::TERM;
     while(s != 0) {
       if(mode == parse_mode::TERM) {
-        if(match(*c, punctuation::mark::OPEN_BRACKET)) {
+        if(is_terminal(*c)) {
+          break;
+        } else if(match(*c, punctuation::mark::OPEN_BRACKET)) {
           operators.push({op::OPEN_BRACKET,
             location(get_current_module(), *c)});
           ++c;
           --s;
         } else if(auto node = parse_expression_term(c, s)) {
           expressions.push_back(std::move(node));
-        } else {
+        } else if(c == cursor) {
           break;
+        } else {
+
+          // TODO
+          throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
+            location(get_current_module(), *c));
         }
         mode = parse_mode::OPERATOR;
       } else {

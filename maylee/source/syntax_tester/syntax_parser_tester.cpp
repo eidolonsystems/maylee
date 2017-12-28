@@ -8,17 +8,24 @@ using namespace std;
 
 namespace {
   template<std::size_t N>
-  void feed(syntax_parser& p, const char (&s)[N]) {
+  void incremental_feed(syntax_parser& p, const char (&s)[N]) {
     token_parser t;
     t.feed(s);
-    t.feed("\0");
     while(auto token = t.parse_token()) {
-      if(match(*token, terminal())) {
+      if(match(*token, terminal::type::end_of_file)) {
         p.feed(std::move(*token));
         break;
       }
       p.feed(std::move(*token));
     }
+  }
+
+  template<std::size_t N>
+  void feed(syntax_parser& p, const char (&s)[N]) {
+    char q[N + 1];
+    std::copy(begin(s), end(s), begin(q));
+    q[N] = '\0';
+    incremental_feed(p, q);
   }
 }
 
@@ -73,13 +80,37 @@ TEST_CASE("test_parsing_variable_expression", "[syntax_parser]") {
     *variable->get_variable()->get_data_type());
 }
 
+TEST_CASE("test_parsing_no_line_break", "[syntax_parser]") {
+  SECTION("Test two literal expressions one after another.") {
+    syntax_parser p;
+    feed(p, "1 2");
+    REQUIRE_THROWS(p.parse_node());
+  }
+  SECTION("Test a let expression followed by the declared variable.") {
+    syntax_parser p;
+    feed(p, "let x = true x");
+    REQUIRE_THROWS(p.parse_node());
+  }
+}
+
+TEST_CASE("test_incremental_parsing", "[syntax_parser]") {
+  SECTION("Test feeding a few tokens at a time.") {
+    syntax_parser p;
+    incremental_feed(p, "let x ");
+    REQUIRE(p.parse_node() == nullptr);
+    feed(p, "= false");
+    auto expression = p.parse_node();
+    auto let = dynamic_cast<let_expression*>(expression.get());
+  }
+}
+
 TEST_CASE("test_parsing_arithmetic_expression", "[syntax_parser]") {
-  SECTION("Parse literal expression") {
+  SECTION("Parse literal expression.") {
     syntax_parser p;
     feed(p, "1 + 2 * 3");
     auto e = p.parse_node();
   }
-  SECTION("Parse variable expression") {
+  SECTION("Parse variable expression.") {
     syntax_parser p;
     feed(p,
       "let x = 1\n"

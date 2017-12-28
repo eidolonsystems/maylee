@@ -69,6 +69,15 @@ namespace maylee {
       int m_column_number;
   };
 
+  //! Tests if a token represents a terminal token.
+  /*!
+    \param t The token to test.
+    \return <code>true</code> iff the token is a terminal symbol.
+  */
+  inline bool is_terminal(const token& t) {
+    return std::get_if<terminal>(&t.get_instance()) != nullptr;
+  }
+
   //! Tests if a token represents a particular instance.
   /*!
     \param t The token to test.

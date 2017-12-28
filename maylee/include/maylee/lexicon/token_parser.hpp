@@ -41,6 +41,7 @@ namespace maylee {
       int m_column_number;
       const char* m_cursor;
       std::size_t m_remaining_size;
+      bool m_parsed_new_line;
 
       token_parser(const token_parser&) = delete;
       token_parser& operator =(const token_parser&) = delete;
@@ -50,7 +51,8 @@ namespace maylee {
       : m_line_number(0),
         m_column_number(0),
         m_cursor(m_data.data()),
-        m_remaining_size(0) {}
+        m_remaining_size(0),
+        m_parsed_new_line(true) {}
 
   inline void token_parser::feed(const char* data, std::size_t size) {
     auto position = m_cursor - m_data.data();
@@ -68,6 +70,17 @@ namespace maylee {
     while(m_remaining_size != 0) {
       if(std::isspace(*m_cursor)) {
         if(*m_cursor == '\n') {
+          if(!m_parsed_new_line) {
+            ++m_cursor;
+            --m_remaining_size;
+            auto line_number = m_line_number;
+            auto column_number = m_column_number;
+            ++m_line_number;
+            m_column_number = 0;
+            m_parsed_new_line = true;
+            return std::make_optional<token>(
+              {terminal::type::new_line, line_number, column_number});
+          }
           ++m_line_number;
           m_column_number = 0;
         } else {
@@ -79,6 +92,10 @@ namespace maylee {
         break;
       }
     }
+    if(m_remaining_size == 0) {
+      return std::nullopt;
+    }
+    m_parsed_new_line = false;
     auto remaining_size = m_remaining_size;
     if(auto keyword = parse_keyword(m_cursor, remaining_size)) {
       auto column_number = m_column_number;

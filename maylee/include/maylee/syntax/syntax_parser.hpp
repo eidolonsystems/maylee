@@ -43,6 +43,7 @@ namespace maylee {
       std::size_t m_remaining_size;
       std::deque<std::unique_ptr<scope>> m_scopes;
       std::string m_current_module;
+      int m_new_lines;
 
       syntax_parser(const syntax_parser&) = delete;
       syntax_parser& operator =(const syntax_parser&) = delete;
@@ -137,12 +138,16 @@ namespace maylee {
 
   inline syntax_parser::syntax_parser()
       : m_cursor(m_tokens.begin()),
-        m_remaining_size(0) {
+        m_remaining_size(0),
+        m_new_lines(0) {
     m_scopes.push_back(std::make_unique<scope>());
     populate_global_scope(*m_scopes.back());
   }
 
   inline void syntax_parser::feed(token t) {
+    if(is_terminal(t)) {
+      ++m_new_lines;
+    }
     auto position = m_cursor - m_tokens.begin();
     m_tokens.push_back(std::move(t));
     m_cursor = m_tokens.begin() + position;
@@ -150,10 +155,20 @@ namespace maylee {
   }
 
   inline std::unique_ptr<syntax_node> syntax_parser::parse_node() {
-    if(auto node = parse_expression(m_cursor, m_remaining_size)) {
-      return node;
-    } else if(auto node = parse_terminal_node(m_cursor, m_remaining_size)) {
-      return node;
+    if(m_new_lines == 0) {
+      return nullptr;
+    }
+    std::unique_ptr<syntax_node> node;
+    if(((node = parse_expression(m_cursor, m_remaining_size)) != nullptr) ||
+        ((node = parse_terminal_node(m_cursor, m_remaining_size)) != nullptr)) {
+      if(is_terminal(*m_cursor)) {
+        --m_new_lines;
+        ++m_cursor;
+        --m_remaining_size;
+        return node;
+      }
+      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
+        location(get_current_module(), *m_cursor));
     }
     return nullptr;
   }
@@ -178,9 +193,7 @@ namespace maylee {
 
   inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(
       std::vector<token>::iterator& cursor, std::size_t& size) {
-    if(size != 0 && match(*cursor, terminal())) {
-      ++cursor;
-      --size;
+    if(size != 0 && match(*cursor, terminal::type::end_of_file)) {
       return std::make_unique<terminal_node>();
     }
     return nullptr;

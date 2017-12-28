@@ -37,7 +37,7 @@ TEST_CASE("test_token_stream", "[token]") {
     REQUIRE(ss.str() == "123");
   }
   SECTION("Terminal") {
-    token t(terminal(), 0, 0);
+    token t(terminal::type::end_of_file, 0, 0);
     stringstream ss;
     ss << t;
     REQUIRE(ss.str().empty());
