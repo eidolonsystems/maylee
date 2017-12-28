@@ -123,3 +123,16 @@ TEST_CASE("test_parsing_arithmetic_expression", "[syntax_parser]") {
     auto expression = p.parse_node();
   }
 }
+
+TEST_CASE("test_parsing_with_line_continuations", "[syntax_parser]") {
+  SECTION("Parse continuation from a bracket.") {
+    syntax_parser p;
+    feed(p, "let x = 1 + (2 *\n 3)");
+    auto e = p.parse_node();
+  }
+  SECTION("Parse continuation from an operator.") {
+    syntax_parser p;
+    feed(p, "let x = 1 +\n 2 * 3");
+    auto e = p.parse_node();
+  }
+}

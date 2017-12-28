@@ -1,5 +1,6 @@
 #ifndef MAYLEE_TOKEN_PARSER_HPP
 #define MAYLEE_TOKEN_PARSER_HPP
+#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -42,9 +43,13 @@ namespace maylee {
       const char* m_cursor;
       std::size_t m_remaining_size;
       bool m_parsed_new_line;
+      bool m_parsed_line_continuation;
+      std::array<int, 2> m_bracket_count;
 
       token_parser(const token_parser&) = delete;
       token_parser& operator =(const token_parser&) = delete;
+      void update_bracket_count(const punctuation& p);
+      bool is_new_line_signifcant() const;
   };
 
   inline token_parser::token_parser()
@@ -52,7 +57,10 @@ namespace maylee {
         m_column_number(0),
         m_cursor(m_data.data()),
         m_remaining_size(0),
-        m_parsed_new_line(true) {}
+        m_parsed_new_line(true),
+        m_parsed_line_continuation(false) {
+    m_bracket_count.fill(0);
+  }
 
   inline void token_parser::feed(const char* data, std::size_t size) {
     auto position = m_cursor - m_data.data();
@@ -70,7 +78,7 @@ namespace maylee {
     while(m_remaining_size != 0) {
       if(std::isspace(*m_cursor)) {
         if(*m_cursor == '\n') {
-          if(!m_parsed_new_line) {
+          if(is_new_line_signifcant()) {
             ++m_cursor;
             --m_remaining_size;
             auto line_number = m_line_number;
@@ -95,6 +103,8 @@ namespace maylee {
     if(m_remaining_size == 0) {
       return std::nullopt;
     }
+    auto parsed_line_continuation = m_parsed_line_continuation;
+    m_parsed_line_continuation = false;
     m_parsed_new_line = false;
     auto remaining_size = m_remaining_size;
     if(auto keyword = parse_keyword(m_cursor, remaining_size)) {
@@ -107,12 +117,14 @@ namespace maylee {
       auto column_number = m_column_number;
       m_column_number += (m_remaining_size - remaining_size);
       m_remaining_size = remaining_size;
+      update_bracket_count(*punctuation);
       return std::make_optional<token>(
         {std::move(*punctuation), m_line_number, column_number});
     } else if(auto operation = parse_operation(m_cursor, remaining_size)) {
       auto column_number = m_column_number;
       m_column_number += (m_remaining_size - remaining_size);
       m_remaining_size = remaining_size;
+      m_parsed_line_continuation = true;
       return std::make_optional<token>(
         {std::move(*operation), m_line_number, column_number});
     } else if(auto literal = parse_literal(m_cursor, remaining_size)) {
@@ -135,7 +147,31 @@ namespace maylee {
       return std::make_optional<token>(
         {std::move(*terminal), line_number, column_number});
     }
+    m_parsed_line_continuation = parsed_line_continuation;
     return std::nullopt;
+  }
+
+  inline void token_parser::update_bracket_count(const punctuation& p) {
+    switch(p.get_mark()) {
+      case punctuation::mark::OPEN_BRACKET:
+        ++m_bracket_count[0];
+        return;
+      case punctuation::mark::CLOSE_BRACKET:
+        --m_bracket_count[0];
+        return;
+    }
+  }
+
+  inline bool token_parser::is_new_line_signifcant() const {
+    if(m_parsed_line_continuation || m_parsed_new_line) {
+      return false;
+    }
+    for(auto& count : m_bracket_count) {
+      if(count != 0) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

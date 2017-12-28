@@ -63,14 +63,24 @@ namespace maylee {
       std::size_t& size) {
     if(size >= 1) {
       if(*cursor == '(') {
+        ++cursor;
+        --size;
         return punctuation::mark::OPEN_BRACKET;
       } else if(*cursor == ')') {
+        ++cursor;
+        --size;
         return punctuation::mark::CLOSE_BRACKET;
       } else if(*cursor == ':') {
+        ++cursor;
+        --size;
         return punctuation::mark::COLON;
       } else if(*cursor == ',') {
+        ++cursor;
+        --size;
         return punctuation::mark::COMMA;
       } else if(*cursor == '.') {
+        ++cursor;
+        --size;
         return punctuation::mark::DOT;
       }
     }

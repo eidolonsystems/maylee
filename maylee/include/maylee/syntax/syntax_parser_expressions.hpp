@@ -162,15 +162,10 @@ namespace maylee {
           --s;
         } else if(auto node = parse_expression_term(c, s)) {
           expressions.push_back(std::move(node));
-        } else if(c == cursor) {
-          break;
+          mode = parse_mode::OPERATOR;
         } else {
-
-          // TODO
-          throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
-            location(get_current_module(), *c));
+          break;
         }
-        mode = parse_mode::OPERATOR;
       } else {
         if(c->get_type() == token::type::OPERATION) {
           auto o = get_binary_op(std::get<operation>(c->get_instance()));
@@ -186,6 +181,7 @@ namespace maylee {
           operators.push({o, location(get_current_module(), *c)});
           ++c;
           --s;
+          mode = parse_mode::TERM;
         } else if(match(*c, punctuation::mark::CLOSE_BRACKET)) {
           auto found_open_bracket = false;
           while(!operators.empty()) {
@@ -198,6 +194,8 @@ namespace maylee {
               build_call_expression(o);
             }
           }
+          ++c;
+          --s;
           if(!found_open_bracket) {
             throw unmatched_bracket_syntax_error(
               location(get_current_module(), *c),
@@ -206,7 +204,6 @@ namespace maylee {
         } else {
           break;
         }
-        mode = parse_mode::TERM;
       }
     }
     while(!operators.empty()) {
