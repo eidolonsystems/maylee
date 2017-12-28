@@ -19,6 +19,8 @@ namespace maylee {
       */
       variable(std::string name, std::shared_ptr<data_type> data_type);
 
+      virtual ~variable() = default;
+
       //! Returns the name of the variable.
       const std::string& get_name() const;
 

@@ -6,6 +6,7 @@ namespace maylee {
   class element;
   class expression;
   class function;
+  class function_not_found_syntax_error;
   class let_expression;
   class literal_expression;
   enum class op;

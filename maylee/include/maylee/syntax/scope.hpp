@@ -10,6 +10,8 @@
 #include "maylee/data_types/scalar_data_type.hpp"
 #include "maylee/data_types/size_data_type.hpp"
 #include "maylee/syntax/element.hpp"
+#include "maylee/syntax/function_not_found_syntax_error.hpp"
+#include "maylee/syntax/ops.hpp"
 #include "maylee/syntax/syntax.hpp"
 
 namespace maylee {
@@ -35,6 +37,8 @@ namespace maylee {
       //! Finds an element accessible from within this scope (ie. contained
       //! within this scope or a parent scope).
       std::optional<element> find(const std::string& name) const;
+
+      //! Finds 
 
       //! Finds an element within this scope (ie. contained strictly within this
       //! scope, not a parent scope).
@@ -74,6 +78,42 @@ namespace maylee {
     scope.add(element(scalar_data_type::get_uint32(), location::global()));
     scope.add(element(scalar_data_type::get_uint64(), location::global()));
     scope.add(element(size_data_type::get_instance(), location::global()));
+    scope.add(element(get_add_function(*scalar_data_type::get_int32(),
+      *scalar_data_type::get_int32()), location::global()));
+    scope.add(element(get_subtract_function(*scalar_data_type::get_int32(),
+      *scalar_data_type::get_int32()), location::global()));
+    scope.add(element(get_multiply_function(*scalar_data_type::get_int32(),
+      *scalar_data_type::get_int32()), location::global()));
+    scope.add(element(get_divide_function(*scalar_data_type::get_int32(),
+      *scalar_data_type::get_int32()), location::global()));
+  }
+
+  //! Given a function name and a list of parameters, finds the correct
+  //! function overload to apply.
+  /*!
+    \param s The scope to search.
+    \param name The name of the function.
+    \param parameters The parameters to apply.
+    \param l The location of the function call.
+    \return The correct function overload accessible from scope <i>s</i> with
+            the specified name applied to the specified parameters.
+  */
+  inline std::shared_ptr<function> resolve_overload(const scope& s,
+      const std::string& name,
+      const std::vector<std::unique_ptr<expression>>& parameters,
+      const location& l) {
+    auto e = s.find(name);
+    if(!e.has_value()) {
+      throw function_not_found_syntax_error(l, name);
+    }
+    if(auto v = std::get_if<std::shared_ptr<variable>>(&e->get_instance())) {
+      auto f = std::dynamic_pointer_cast<function>(*v);
+      if(f == nullptr) {
+        throw syntax_error(syntax_error_code::EXPRESSION_NOT_CALLABLE, l);
+      }
+      return f;
+    }
+    throw syntax_error(syntax_error_code::EXPRESSION_NOT_CALLABLE, l);
   }
 
   inline scope::scope()

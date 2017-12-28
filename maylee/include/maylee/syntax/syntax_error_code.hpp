@@ -20,7 +20,13 @@ namespace maylee {
     INSUFFICIENT_ARGUMENTS,
 
     //! An opening bracket is missing a closing bracket or vice-versa.
-    UNMATCHED_BRACKET
+    UNMATCHED_BRACKET,
+
+    //! No function with a specified name was found.
+    FUNCTION_NOT_FOUND,
+
+    //! The expression can not be called like a function.
+    EXPRESSION_NOT_CALLABLE
   };
 }
 

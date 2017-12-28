@@ -135,10 +135,13 @@ namespace maylee {
           expressions.pop_back();
           --arity;
         }
-
-        // TODO: Resolve missing return type.
-        auto call = std::make_unique<call_expression>(nullptr,
-          std::move(parameters), bool_data_type::get_instance());
+        auto& function_name = get_function_name(o.m_op);
+        auto function = resolve_overload(get_scope(), function_name,
+          parameters, o.m_location);
+        auto return_type = function->get_signature()->get_return_type();
+        auto call = std::make_unique<call_expression>(
+          std::make_unique<variable_expression>(std::move(function)),
+          std::move(parameters), return_type);
         expressions.push_back(std::move(call));
       };
     auto c = cursor;

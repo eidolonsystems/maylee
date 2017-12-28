@@ -4,11 +4,12 @@
 #include <utility>
 #include "maylee/data_types/function_data_type.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/variable.hpp"
 
 namespace maylee {
 
   //! Represents a function.
-  class function {
+  class function : public variable {
     public:
 
       //! Constructs a function.
@@ -18,29 +19,16 @@ namespace maylee {
       */
       function(std::string name, std::shared_ptr<function_data_type> signature);
 
-      //! Returns the name of the function.
-      const std::string& get_name() const;
-
       //! Returns the function's signature.
-      const std::shared_ptr<function_data_type>& get_signature() const;
-
-    private:
-      std::string m_name;
-      std::shared_ptr<function_data_type> m_signature;
+      std::shared_ptr<function_data_type> get_signature() const;
   };
 
   inline function::function(std::string name,
       std::shared_ptr<function_data_type> signature)
-      : m_name(std::move(name)),
-        m_signature(std::move(signature)) {}
+      : variable(std::move(name), std::move(signature)) {}
 
-  inline const std::string& function::get_name() const {
-    return m_name;
-  }
-
-  inline const std::shared_ptr<function_data_type>&
-      function::get_signature() const {
-    return m_signature;
+  inline std::shared_ptr<function_data_type> function::get_signature() const {
+    return std::static_pointer_cast<function_data_type>(get_data_type());
   }
 }
 

@@ -1,6 +1,10 @@
 #ifndef MAYLEE_OPS_HPP
 #define MAYLEE_OPS_HPP
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include "maylee/data_types/function_data_type.hpp"
+#include "maylee/data_types/scalar_data_type.hpp"
 #include "maylee/lexicon/operation.hpp"
 #include "maylee/syntax/syntax.hpp"
 
@@ -155,6 +159,134 @@ namespace maylee {
         return op::MULTIPLY;
       case operation::symbol::DIVIDE:
         return op::DIVIDE;
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns an operation's function name.
+  inline const std::string& get_function_name(op o) {
+    switch(o) {
+      case op::PLUS:
+        {
+          static std::string value = "plus";
+          return value;
+        }
+      case op::MINUS:
+        {
+          static std::string value = "minus";
+          return value;
+        }
+      case op::ADD:
+        {
+          static std::string value = "add";
+          return value;
+        }
+      case op::SUBTRACT:
+        {
+          static std::string value = "subtract";
+          return value;
+        }
+      case op::MULTIPLY:
+        {
+          static std::string value = "multiply";
+          return value;
+        }
+      case op::DIVIDE:
+        {
+          static std::string value = "divide";
+          return value;
+        }
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns the function used to add two parameters of a specified data type.
+  /*!
+    \param left The type used on the left hand side.
+    \param right The type used on the right hand side.
+    \return The function used to add parameters of the specified types.
+  */
+  inline const std::shared_ptr<function> get_add_function(const data_type& left,
+      const data_type& right) {
+    if(left == *scalar_data_type::get_int32()) {
+      if(right == *scalar_data_type::get_int32()) {
+        static auto f = std::make_shared<function>("add",
+          std::make_shared<function_data_type>(
+          std::vector<function_data_type::parameter>{
+          {"left", scalar_data_type::get_int32()},
+          {"right", scalar_data_type::get_int32()}},
+          scalar_data_type::get_int32()));
+        return f;
+      }
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns the function used to subtract two parameters of a specified data
+  //! type.
+  /*!
+    \param left The type used on the left hand side.
+    \param right The type used on the right hand side.
+    \return The function used to subtract parameters of the specified types.
+  */
+  inline const std::shared_ptr<function> get_subtract_function(
+      const data_type& left, const data_type& right) {
+    if(left == *scalar_data_type::get_int32()) {
+      if(right == *scalar_data_type::get_int32()) {
+        static auto f = std::make_shared<function>("subtract",
+          std::make_shared<function_data_type>(
+          std::vector<function_data_type::parameter>{
+          {"left", scalar_data_type::get_int32()},
+          {"right", scalar_data_type::get_int32()}},
+          scalar_data_type::get_int32()));
+        return f;
+      }
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns the function used to multiply two parameters of a specified data
+  //! type.
+  /*!
+    \param left The type used on the left hand side.
+    \param right The type used on the right hand side.
+    \return The function used to multiply parameters of the specified types.
+  */
+  inline const std::shared_ptr<function> get_multiply_function(
+      const data_type& left, const data_type& right) {
+    if(left == *scalar_data_type::get_int32()) {
+      if(right == *scalar_data_type::get_int32()) {
+        static auto f = std::make_shared<function>("multiply",
+          std::make_shared<function_data_type>(
+          std::vector<function_data_type::parameter>{
+          {"left", scalar_data_type::get_int32()},
+          {"right", scalar_data_type::get_int32()}},
+          scalar_data_type::get_int32()));
+        return f;
+      }
+    }
+    throw std::runtime_error("Invalid operation specified.");
+  }
+
+  //! Returns the function used to divide two parameters of a specified data
+  //! type.
+  /*!
+    \param left The type used on the left hand side.
+    \param right The type used on the right hand side.
+    \return The function used to divide parameters of the specified types.
+  */
+  inline const std::shared_ptr<function> get_divide_function(
+      const data_type& left, const data_type& right) {
+    if(left == *scalar_data_type::get_int32()) {
+      if(right == *scalar_data_type::get_int32()) {
+        static auto f = std::make_shared<function>("divide",
+          std::make_shared<function_data_type>(
+          std::vector<function_data_type::parameter>{
+          {"left", scalar_data_type::get_int32()},
+          {"right", scalar_data_type::get_int32()}},
+          scalar_data_type::get_int32()));
+        return f;
+      }
     }
     throw std::runtime_error("Invalid operation specified.");
   }

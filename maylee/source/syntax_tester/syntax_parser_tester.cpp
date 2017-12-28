@@ -74,7 +74,21 @@ TEST_CASE("test_parsing_variable_expression", "[syntax_parser]") {
 }
 
 TEST_CASE("test_parsing_arithmetic_expression", "[syntax_parser]") {
-  syntax_parser p;
-  feed(p, "1 + 2 * 3");
-  auto e = p.parse_node();
+  SECTION("Parse literal expression") {
+    syntax_parser p;
+    feed(p, "1 + 2 * 3");
+    auto e = p.parse_node();
+  }
+  SECTION("Parse variable expression") {
+    syntax_parser p;
+    feed(p,
+      "let x = 1\n"
+      "let y = 2\n"
+      "let z = 3\n"
+      "x + y * z");
+    auto let_x = p.parse_node();
+    auto let_y = p.parse_node();
+    auto let_z = p.parse_node();
+    auto expression = p.parse_node();
+  }
 }
