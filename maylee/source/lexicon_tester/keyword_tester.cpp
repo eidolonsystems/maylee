@@ -20,17 +20,35 @@ TEST_CASE("test_keyword_stream", "[keyword]") {
     ss << k;
     REQUIRE(ss.str() == "def");
   }
-  SECTION("end") {
-    keyword k(keyword::word::END);
-    stringstream ss;
-    ss << k;
-    REQUIRE(ss.str() == "end");
-  }
   SECTION("let") {
     keyword k(keyword::word::LET);
     stringstream ss;
     ss << k;
     REQUIRE(ss.str() == "let");
+  }
+  SECTION("if") {
+    keyword k(keyword::word::IF);
+    stringstream ss;
+    ss << k;
+    REQUIRE(ss.str() == "if");
+  }
+  SECTION("else") {
+    keyword k(keyword::word::ELSE);
+    stringstream ss;
+    ss << k;
+    REQUIRE(ss.str() == "else");
+  }
+  SECTION("else if") {
+    keyword k(keyword::word::ELSE_IF);
+    stringstream ss;
+    ss << k;
+    REQUIRE(ss.str() == "else if");
+  }
+  SECTION("end") {
+    keyword k(keyword::word::END);
+    stringstream ss;
+    ss << k;
+    REQUIRE(ss.str() == "end");
   }
   SECTION("return") {
     keyword k(keyword::word::RETURN);
@@ -58,8 +76,12 @@ TEST_CASE("test_keyword_equality", "[keyword]") {
 TEST_CASE("test_parse_keyword", "[keyword]") {
   SECTION("Valid Keywords") {
     REQUIRE(parse_keyword("def") == keyword::word::DEFINE);
-    REQUIRE(parse_keyword("end") == keyword::word::END);
     REQUIRE(parse_keyword("let") == keyword::word::LET);
+    REQUIRE(parse_keyword("if") == keyword::word::IF);
+    REQUIRE(parse_keyword("else") == keyword::word::ELSE);
+    REQUIRE(parse_keyword("if") == keyword::word::IF);
+    REQUIRE(parse_keyword("else if") == keyword::word::ELSE_IF);
+    REQUIRE(parse_keyword("end") == keyword::word::END);
     REQUIRE(parse_keyword("return") == keyword::word::RETURN);
     REQUIRE(parse_keyword("_") == keyword::word::IGNORE);
   }
@@ -74,5 +96,34 @@ TEST_CASE("test_parse_keyword", "[keyword]") {
   SECTION("Invalid Keywords") {
     REQUIRE(parse_keyword("abc") == std::nullopt);
     REQUIRE(parse_keyword("123") == std::nullopt);
+  }
+  SECTION("if/else/else if") {
+    auto c = "else";
+    auto s = std::strlen(c) + 1;
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
+    c = "else if";
+    s = std::strlen(c) + 1;
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE_IF);
+    c = "else else";
+    s = std::strlen(c) + 1;
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
+    c = "else i";
+    s = std::strlen(c);
+    REQUIRE(parse_keyword(c, s) == std::nullopt);
+    c = "else if";
+    s = std::strlen(c);
+    REQUIRE(parse_keyword(c, s) == std::nullopt);
+    c = "else ib";
+    s = std::strlen(c);
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
+    c = "else i b";
+    s = std::strlen(c);
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
+    c = "else ifb";
+    s = std::strlen(c);
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
+    c = "else                \n\n\n\n               if";
+    s = std::strlen(c) + 1;
+    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE_IF);
   }
 }

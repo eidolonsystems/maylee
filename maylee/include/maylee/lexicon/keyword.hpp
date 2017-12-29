@@ -20,11 +20,20 @@ namespace maylee {
         //! def
         DEFINE,
 
-        //! end
-        END,
-
         //! let
         LET,
+
+        //! if
+        IF,
+
+        //! else
+        ELSE,
+
+        //! else if
+        ELSE_IF,
+
+        //! end
+        END,
 
         //! return
         RETURN,
@@ -71,14 +80,33 @@ namespace maylee {
       std::size_t& size) {
     if(prefix_match(cursor, size, "def")) {
       return keyword::word::DEFINE;
-    } else if(prefix_match(cursor, size, "end")) {
-      return keyword::word::END;
     } else if(prefix_match(cursor, size, "let")) {
       return keyword::word::LET;
+    } else if(prefix_match(cursor, size, "if")) {
+      return keyword::word::IF;
+    } else if(prefix_match(cursor, size, "end")) {
+      return keyword::word::END;
     } else if(prefix_match(cursor, size, "return")) {
       return keyword::word::RETURN;
     } else if(prefix_match(cursor, size, "_")) {
       return keyword::word::IGNORE;
+    }
+    auto c = cursor;
+    auto s = size;
+    if(prefix_match(c, s, "else")) {
+      while(s != 0 && std::isspace(*c)) {
+        ++c;
+        --s;
+      }
+      if(s == 0) {
+        return std::nullopt;
+      } else if(prefix_match(c, s, "if")) {
+        cursor = c;
+        size = s;
+        return keyword::word::ELSE_IF;
+      } else if(*c != 'i' || s > 1 && c[1] != 'f' || s > 2) {
+        return keyword::word::ELSE;
+      }
     }
     return std::nullopt;
   }
@@ -87,10 +115,16 @@ namespace maylee {
     switch(value.get_word()) {
       case keyword::word::DEFINE:
         return out << "def";
-      case keyword::word::END:
-        return out << "end";
       case keyword::word::LET:
         return out << "let";
+      case keyword::word::IF:
+        return out << "if";
+      case keyword::word::ELSE:
+        return out << "else";
+      case keyword::word::ELSE_IF:
+        return out << "else if";
+      case keyword::word::END:
+        return out << "end";
       case keyword::word::RETURN:
         return out << "return";
       case keyword::word::IGNORE:
