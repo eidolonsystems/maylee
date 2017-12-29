@@ -1,5 +1,6 @@
 #ifndef MAYLEE_UNION_DATA_TYPE_HPP
 #define MAYLEE_UNION_DATA_TYPE_HPP
+#include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
@@ -44,10 +45,9 @@ namespace maylee {
   inline union_data_type::union_data_type(
       std::vector<std::shared_ptr<data_type>> variants)
       : m_variants(std::move(variants)) {
+    assert(m_variants.size() != 1);
     if(m_variants.empty()) {
       m_name = "(|)";
-    } else if(m_variants.size() == 1) {
-      m_name = "(" + m_variants.front()->get_name() + "|)";
     } else {
       m_name = "(";
       auto is_first = true;

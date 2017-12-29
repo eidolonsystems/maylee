@@ -38,6 +38,12 @@ TEST_CASE("test_keyword_stream", "[keyword]") {
     ss << k;
     REQUIRE(ss.str() == "return");
   }
+  SECTION("ignore") {
+    keyword k(keyword::word::IGNORE);
+    stringstream ss;
+    ss << k;
+    REQUIRE(ss.str() == "_");
+  }
 }
 
 TEST_CASE("test_keyword_equality", "[keyword]") {
@@ -55,12 +61,15 @@ TEST_CASE("test_parse_keyword", "[keyword]") {
     REQUIRE(parse_keyword("end") == keyword::word::END);
     REQUIRE(parse_keyword("let") == keyword::word::LET);
     REQUIRE(parse_keyword("return") == keyword::word::RETURN);
+    REQUIRE(parse_keyword("_") == keyword::word::IGNORE);
   }
   SECTION("Delimiters") {
     REQUIRE(parse_keyword("def+") == keyword::word::DEFINE);
     REQUIRE(parse_keyword("def.") == keyword::word::DEFINE);
     REQUIRE(parse_keyword("def5") == nullopt);
     REQUIRE(parse_keyword("defs") == std::nullopt);
+    REQUIRE(parse_keyword("_s") == std::nullopt);
+    REQUIRE(parse_keyword("s_") == std::nullopt);
   }
   SECTION("Invalid Keywords") {
     REQUIRE(parse_keyword("abc") == std::nullopt);

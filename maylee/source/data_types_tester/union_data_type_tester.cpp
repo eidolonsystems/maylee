@@ -11,3 +11,10 @@ TEST_CASE("test_bottom_union", "[union_data_type]") {
   REQUIRE(b->get_name() == "(|)");
   REQUIRE(*b == union_data_type({}));
 }
+
+TEST_CASE("test_double_union", "[union_data_type]") {
+  union_data_type b(std::vector<std::shared_ptr<data_type>>({
+    bool_data_type::get_instance(), char_data_type::get_instance()}));
+  REQUIRE(b.get_name() == "(Bool | Char)");
+  REQUIRE(b == b);
+}

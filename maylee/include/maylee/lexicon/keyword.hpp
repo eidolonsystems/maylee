@@ -27,7 +27,10 @@ namespace maylee {
         LET,
 
         //! return
-        RETURN
+        RETURN,
+
+        //! _
+        IGNORE,
       };
 
       //! Constructs a keyword.
@@ -74,6 +77,8 @@ namespace maylee {
       return keyword::word::LET;
     } else if(prefix_match(cursor, size, "return")) {
       return keyword::word::RETURN;
+    } else if(prefix_match(cursor, size, "_")) {
+      return keyword::word::IGNORE;
     }
     return std::nullopt;
   }
@@ -88,6 +93,8 @@ namespace maylee {
         return out << "let";
       case keyword::word::RETURN:
         return out << "return";
+      case keyword::word::IGNORE:
+        return out << "_";
       default:
         throw std::runtime_error("Invalid keyword.");
     }

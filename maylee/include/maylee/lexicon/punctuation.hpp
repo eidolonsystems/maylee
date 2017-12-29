@@ -27,7 +27,10 @@ namespace maylee {
         COMMA,
 
         //! '.'
-        DOT
+        DOT,
+
+        //! '|'
+        BAR
       };
 
       //! Constructs a punctuation.
@@ -48,7 +51,7 @@ namespace maylee {
     \param c The character to test.
   */
   inline bool is_punctuation(char c) {
-    return c == '(' || c == ')' || c == ':' || c == ',' || c == '.';
+    return c == '(' || c == ')' || c == ':' || c == ',' || c == '.' || c == '|';
   }
 
   //! Parses a punctuation.
@@ -82,6 +85,10 @@ namespace maylee {
         ++cursor;
         --size;
         return punctuation::mark::DOT;
+      } else if(*cursor == '|') {
+        ++cursor;
+        --size;
+        return punctuation::mark::BAR;
       }
     }
     return std::nullopt;
@@ -100,6 +107,8 @@ namespace maylee {
         return out << ',';
       case punctuation::mark::DOT:
         return out << '.';
+      case punctuation::mark::BAR:
+        return out << '|';
       default:
         throw std::runtime_error("Invalid punctuation mark.");
     }

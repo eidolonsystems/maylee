@@ -44,6 +44,12 @@ TEST_CASE("test_punctuation_stream", "[punctuation]") {
     ss << p;
     REQUIRE(ss.str() == ".");
   }
+  SECTION("Bar") {
+    punctuation p(punctuation::mark::BAR);
+    stringstream ss;
+    ss << p;
+    REQUIRE(ss.str() == "|");
+  }
 }
 
 TEST_CASE("test_punctuation_equality", "[punctuation]") {
@@ -62,6 +68,7 @@ TEST_CASE("test_parse_punctuation", "[punctuation]") {
     REQUIRE(parse_punctuation(":") == punctuation::mark::COLON);
     REQUIRE(parse_punctuation(",") == punctuation::mark::COMMA);
     REQUIRE(parse_punctuation(".") == punctuation::mark::DOT);
+    REQUIRE(parse_punctuation("|") == punctuation::mark::BAR);
   }
   SECTION("Delimiters") {
     REQUIRE(parse_punctuation(":5") == punctuation::mark::COLON);
