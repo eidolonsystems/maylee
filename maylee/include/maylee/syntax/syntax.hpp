@@ -7,6 +7,7 @@ namespace maylee {
   class expression;
   class function;
   class function_not_found_syntax_error;
+  class if_expression;
   class let_expression;
   class literal_expression;
   enum class op;
@@ -20,6 +21,7 @@ namespace maylee {
   class unmatched_bracket_syntax_error;
   class variable;
   class variable_expression;
+  class void_expression;
 }
 
 #endif

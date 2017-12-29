@@ -1,5 +1,6 @@
 #ifndef MAYLEE_UNION_DATA_TYPE_HPP
 #define MAYLEE_UNION_DATA_TYPE_HPP
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string>
@@ -35,6 +36,35 @@ namespace maylee {
       std::vector<std::shared_ptr<data_type>> m_variants;
       std::string m_name;
   };
+
+  //! Constructs the appropriate union type from a list of variants.
+  /*!
+    \param variants The list of data types to represent by the union.
+    \return If <i>variants</i> is empty then the bottom union type is returned.
+            If <i>variants</i> consists of one unique data type then that
+            data type is returned.
+            Otherwise a union data type consisting of the unique data types in
+            the list of <i>variants</i>.
+  */
+  inline std::shared_ptr<data_type> make_union_data_type(
+      std::vector<std::shared_ptr<data_type>> variants) {
+    if(variants.empty()) {
+      return union_data_type::get_bottom();
+    }
+    auto remove_location = variants.end();
+    for(auto i = variants.begin(); i != remove_location; ++i) {
+      remove_location = std::min(remove_location,
+        std::remove_if(i + 1, remove_location,
+        [&] (auto& type) {
+          return *type == **i;
+        }));
+    }
+    variants.erase(remove_location, variants.end());
+    if(variants.size() == 1) {
+      return variants.front();
+    }
+    return std::make_shared<union_data_type>(std::move(variants));
+  }
 
   inline std::shared_ptr<union_data_type> union_data_type::get_bottom() {
     static auto t = std::make_shared<union_data_type>(

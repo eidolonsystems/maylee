@@ -25,7 +25,7 @@ namespace maylee {
       };
 
       //! Returns the void data type.
-      static std::shared_ptr<tuple_data_type> get_void();
+      static const std::shared_ptr<tuple_data_type>& get_void();
 
       //! Constructs a tuple data type.
       /*!
@@ -63,7 +63,7 @@ namespace maylee {
     return !(lhs == rhs);
   }
 
-  inline std::shared_ptr<tuple_data_type> tuple_data_type::get_void() {
+  inline const std::shared_ptr<tuple_data_type>& tuple_data_type::get_void() {
     static auto t = std::make_shared<tuple_data_type>(std::vector<member>());
     return t;
   }
