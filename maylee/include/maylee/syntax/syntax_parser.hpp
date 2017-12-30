@@ -14,6 +14,7 @@
 #include "maylee/syntax/syntax.hpp"
 #include "maylee/syntax/syntax_node.hpp"
 #include "maylee/syntax/terminal_node.hpp"
+#include "maylee/syntax/token_iterator.hpp"
 
 namespace maylee {
 
@@ -39,10 +40,8 @@ namespace maylee {
 
     private:
       std::vector<token> m_tokens;
-      std::vector<token>::iterator m_cursor;
-      std::size_t m_remaining_size;
+      token_iterator m_cursor;
       std::deque<std::unique_ptr<scope>> m_scopes;
-      std::string m_current_module;
       int m_new_lines;
 
       syntax_parser(const syntax_parser&) = delete;
@@ -50,46 +49,39 @@ namespace maylee {
       scope& get_scope();
       scope& push_scope();
       scope& pop_scope();
-      const std::string& get_current_module() const;
       std::unique_ptr<terminal_node> parse_terminal_node(
-        std::vector<token>::iterator& cursor, std::size_t& size);
+        token_iterator& cursor);
       std::unique_ptr<if_expression> parse_if_expression(
-        std::vector<token>::iterator& cursor, std::size_t& size);
+        token_iterator& cursor);
       std::unique_ptr<let_expression> parse_let_expression(
-        std::vector<token>::iterator& cursor, std::size_t& size);
+        token_iterator& cursor);
       std::unique_ptr<literal_expression> parse_literal_expression(
-        std::vector<token>::iterator& cursor, std::size_t& size);
+        token_iterator& cursor);
       std::unique_ptr<variable_expression> parse_variable_expression(
-        std::vector<token>::iterator& cursor, std::size_t& size);
-      std::unique_ptr<expression> parse_expression_term(
-        std::vector<token>::iterator& cursor, std::size_t& size);
-      std::unique_ptr<expression> parse_expression(
-        std::vector<token>::iterator& cursor, std::size_t& size);
+        token_iterator& cursor);
+      std::unique_ptr<expression> parse_expression_term(token_iterator& cursor);
+      std::unique_ptr<expression> parse_expression(token_iterator& cursor);
   };
 
   //! Parses an identifier from a token stream.
   /*!
     \param cursor An iterator to the first token to parse.
-    \param size The number of tokens remaining.
     \return The symbol represented by the parsed identifier.
   */
-  template<typename I>
-  const std::string& parse_identifier(const std::string& module, I& cursor,
-      std::size_t& size) {
-    if(size == 0) {
+  inline const std::string& parse_identifier(token_iterator& cursor) {
+    if(cursor.is_empty()) {
       throw syntax_error(syntax_error_code::IDENTIFIER_EXPECTED,
-        location(module, *cursor));
+        cursor.get_location());
     }
     return std::visit(
       [&] (auto&& value) -> const std::string& {
         using T = std::decay_t<decltype(value)>;
         if constexpr(std::is_same_v<T, identifier>) {
           ++cursor;
-          --size;
           return value.get_symbol();
         }
         throw syntax_error(syntax_error_code::IDENTIFIER_EXPECTED,
-          location(module, *cursor));
+          cursor.get_location());
       },
       cursor->get_instance());
   }
@@ -97,14 +89,12 @@ namespace maylee {
   //! Parses an identifier from a token stream.
   /*!
     \param cursor An iterator to the first token to parse.
-    \param size The number of tokens remaining.
     \return The symbol represented by the parsed identifier.
   */
-  template<typename I>
-  std::optional<std::string> try_parse_identifier(const std::string& module,
-      I& cursor, std::size_t& size) {
+  inline std::optional<std::string> try_parse_identifier(
+      token_iterator& cursor) {
     try {
-      return parse_identifier(module, cursor, size);
+      return parse_identifier(cursor);
     } catch(const syntax_error&) {
       return std::nullopt;
     }
@@ -115,12 +105,10 @@ namespace maylee {
     \param cursor An iterator to the first token to parse.
     \param size The number of tokens remaining.
   */
-  template<typename I>
-  void require_assignment(const std::string& module, I& cursor,
-      std::size_t& size) {
-    if(size == 0) {
+  inline void require_assignment(token_iterator& cursor) {
+    if(cursor.is_empty()) {
       throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
-        location(module, *cursor));
+        cursor.get_location());
     }
     std::visit(
       [&] (auto&& value) {
@@ -128,20 +116,17 @@ namespace maylee {
         if constexpr(std::is_same_v<T, operation>) {
           if(value.get_symbol() == operation::symbol::ASSIGN) {
             ++cursor;
-            --size;
             return;
           }
         }
         throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
-          location(module, *cursor));
+          cursor.get_location());
       },
       cursor->get_instance());
   }
 
   inline syntax_parser::syntax_parser()
-      : m_cursor(m_tokens.begin()),
-        m_remaining_size(0),
-        m_new_lines(0) {
+      : m_new_lines(0) {
     m_scopes.push_back(std::make_unique<scope>());
     populate_global_scope(*m_scopes.back());
   }
@@ -150,10 +135,10 @@ namespace maylee {
     if(is_terminal(t)) {
       ++m_new_lines;
     }
-    auto position = m_cursor - m_tokens.begin();
+    auto position = &*m_cursor - m_tokens.data();
     m_tokens.push_back(std::move(t));
-    m_cursor = m_tokens.begin() + position;
-    ++m_remaining_size;
+    m_cursor.adjust(m_tokens.data() + position,
+      m_cursor.get_size_remaining() + 1);
   }
 
   inline std::unique_ptr<syntax_node> syntax_parser::parse_node() {
@@ -161,16 +146,15 @@ namespace maylee {
       return nullptr;
     }
     std::unique_ptr<syntax_node> node;
-    if(((node = parse_expression(m_cursor, m_remaining_size)) != nullptr) ||
-        ((node = parse_terminal_node(m_cursor, m_remaining_size)) != nullptr)) {
+    if(((node = parse_expression(m_cursor)) != nullptr) ||
+        ((node = parse_terminal_node(m_cursor)) != nullptr)) {
       if(is_terminal(*m_cursor)) {
         --m_new_lines;
         ++m_cursor;
-        --m_remaining_size;
         return node;
       }
       throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
-        location(get_current_module(), *m_cursor));
+        m_cursor.get_location());
     }
     return nullptr;
   }
@@ -189,13 +173,9 @@ namespace maylee {
     return get_scope();
   }
 
-  inline const std::string& syntax_parser::get_current_module() const {
-    return m_current_module;
-  }
-
   inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(
-      std::vector<token>::iterator& cursor, std::size_t& size) {
-    if(size != 0 && match(*cursor, terminal::type::end_of_file)) {
+      token_iterator& cursor) {
+    if(!cursor.is_empty() && match(*cursor, terminal::type::end_of_file)) {
       return std::make_unique<terminal_node>();
     }
     return nullptr;

@@ -7,14 +7,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_literal(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_literal(c, s);
-  }
-}
-
 TEST_CASE("test_if_expression", "[if_expression]") {
   SECTION("Consequent and alternative have the same type.") {
     if_expression e(

@@ -19,66 +19,35 @@
 
 namespace maylee {
   inline std::unique_ptr<if_expression>
-      syntax_parser::parse_if_expression(std::vector<token>::iterator& cursor,
-      std::size_t& size) {
-    if(size == 0) {
-      return nullptr;
-    }
-    auto c = cursor;
-    auto s = size;
-    if(!match(*c, keyword::word::IF)) {
-      return nullptr;
-    }
-/*
-    ++c1;
-    --s1;
-    auto c1 = c;
-    auto s1 = s;
-    seek(punctuation::mark::COLON, c1, s1);
-
-    ++c;
-    --s;
-    auto condition = parse_expression(c, s);
-    if(condition == nullptr) {
-      return nullptr;
-    }
-    if(!match(*c, punctuation::mark::COLON)) {
-      return nullptr;
-    }
-    ++c;
-    --s;
-*/
+      syntax_parser::parse_if_expression(token_iterator& cursor) {
     return nullptr;
   }
 
   inline std::unique_ptr<let_expression> syntax_parser::parse_let_expression(
-      std::vector<token>::iterator& cursor, std::size_t& size) {
-    if(size == 0) {
+      token_iterator& cursor) {
+    if(cursor.is_empty()) {
       return nullptr;
     }
     auto c = cursor;
-    auto s = size;
     if(!match(*c, keyword::word::LET)) {
       return nullptr;
     }
     ++c;
-    --s;
-    if(s == 0) {
+    if(c.is_empty()) {
       return nullptr;
     }
-    auto identifier_token = *c;
-    auto& name = parse_identifier(get_current_module(), c, s);
+    auto identifier_cursor = c;
+    auto& name = parse_identifier(c);
     auto existing_element = get_scope().find_within(name);
     if(existing_element.has_value()) {
-      throw redefinition_syntax_error(
-        location(get_current_module(), identifier_token), name,
+      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
         existing_element->get_location());
     }
-    if(s == 0) {
+    if(c.is_empty()) {
       return nullptr;
     }
-    require_assignment(get_current_module(), c, s);
-    auto initializer = parse_expression(c, s);
+    require_assignment(c);
+    auto initializer = parse_expression(c);
     if(initializer == nullptr) {
       return nullptr;
     }
@@ -86,16 +55,14 @@ namespace maylee {
       initializer->get_evaluation_type(), std::move(initializer));
     m_scopes.back()->add(element(std::make_shared<variable>(
       name, expression->get_evaluation_type()),
-      location("", identifier_token)));
+      identifier_cursor.get_location()));
     cursor = c;
-    size = s;
     return expression;
   }
 
   inline std::unique_ptr<literal_expression> syntax_parser::
-      parse_literal_expression(std::vector<token>::iterator& cursor,
-      std::size_t& size) {
-    if(size == 0) {
+      parse_literal_expression(token_iterator& cursor) {
+    if(cursor.is_empty()) {
       return nullptr;
     }
     return std::visit(
@@ -104,7 +71,6 @@ namespace maylee {
         if constexpr(std::is_same_v<T, literal>) {
           auto expression = std::make_unique<literal_expression>(value);
           ++cursor;
-          --size;
           return expression;
         }
         return nullptr;
@@ -113,11 +79,9 @@ namespace maylee {
   }
 
   inline std::unique_ptr<variable_expression>
-      syntax_parser::parse_variable_expression(
-      std::vector<token>::iterator& cursor, std::size_t& size) {
+      syntax_parser::parse_variable_expression(token_iterator& cursor) {
     auto c = cursor;
-    auto s = size;
-    auto name = try_parse_identifier(get_current_module(), c, s);
+    auto name = try_parse_identifier(c);
     if(!name.has_value()) {
       return nullptr;
     }
@@ -128,28 +92,27 @@ namespace maylee {
     if(auto v = std::get_if<std::shared_ptr<variable>>(
         &element->get_instance())) {
       cursor = c;
-      size = s;
       return std::make_unique<variable_expression>(*v);
     }
     return nullptr;
   }
 
   inline std::unique_ptr<expression> syntax_parser::parse_expression_term(
-      std::vector<token>::iterator& cursor, std::size_t& size) {
-    if(auto node = parse_literal_expression(cursor, size)) {
+      token_iterator& cursor) {
+    if(auto node = parse_literal_expression(cursor)) {
       return node;
-    } else if(auto node = parse_let_expression(cursor, size)) {
+    } else if(auto node = parse_let_expression(cursor)) {
       return node;
-    } else if(auto node = parse_variable_expression(cursor, size)) {
+    } else if(auto node = parse_variable_expression(cursor)) {
       return node;
-    } else if(auto node = parse_if_expression(cursor, size)) {
+    } else if(auto node = parse_if_expression(cursor)) {
       return node;
     }
     return nullptr;
   }
 
   inline std::unique_ptr<expression> syntax_parser::parse_expression(
-      std::vector<token>::iterator& cursor, std::size_t& size) {
+      token_iterator& cursor) {
     struct op_token {
       op m_op;
       location m_location;
@@ -181,22 +144,19 @@ namespace maylee {
         expressions.push_back(std::move(call));
       };
     auto c = cursor;
-    auto s = size;
     enum class parse_mode {
       TERM,
       OPERATOR
     };
     auto mode = parse_mode::TERM;
-    while(s != 0) {
+    while(!c.is_empty()) {
       if(mode == parse_mode::TERM) {
         if(is_terminal(*c)) {
           break;
         } else if(match(*c, punctuation::mark::OPEN_BRACKET)) {
-          operators.push({op::OPEN_BRACKET,
-            location(get_current_module(), *c)});
+          operators.push({op::OPEN_BRACKET, c.get_location()});
           ++c;
-          --s;
-        } else if(auto node = parse_expression_term(c, s)) {
+        } else if(auto node = parse_expression_term(c)) {
           expressions.push_back(std::move(node));
           mode = parse_mode::OPERATOR;
         } else {
@@ -214,9 +174,8 @@ namespace maylee {
             build_call_expression(operators.top());
             operators.pop();
           }
-          operators.push({o, location(get_current_module(), *c)});
+          operators.push({o, c.get_location()});
           ++c;
-          --s;
           mode = parse_mode::TERM;
         } else if(match(*c, punctuation::mark::CLOSE_BRACKET)) {
           auto found_open_bracket = false;
@@ -231,10 +190,8 @@ namespace maylee {
             }
           }
           ++c;
-          --s;
           if(!found_open_bracket) {
-            throw unmatched_bracket_syntax_error(
-              location(get_current_module(), *c),
+            throw unmatched_bracket_syntax_error(c.get_location(),
               punctuation::mark::CLOSE_BRACKET);
           }
         } else {
@@ -264,7 +221,6 @@ namespace maylee {
     expressions.pop_front();
     assert(expressions.empty());
     cursor = c;
-    size = s;
     return e;
   }
 }

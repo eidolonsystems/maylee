@@ -18,6 +18,7 @@ namespace maylee {
   class syntax_node;
   class syntax_parser;
   class terminal_node;
+  class token_iterator;
   class unmatched_bracket_syntax_error;
   class variable;
   class variable_expression;
