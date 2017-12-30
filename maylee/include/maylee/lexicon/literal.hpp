@@ -9,6 +9,7 @@
 #include "maylee/data_types/float_data_type.hpp"
 #include "maylee/data_types/scalar_data_type.hpp"
 #include "maylee/lexicon/keyword.hpp"
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/operation.hpp"
 #include "maylee/lexicon/punctuation.hpp"
@@ -39,68 +40,70 @@ namespace maylee {
 
   //! Parses a literal.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The literal that was parsed.
   */
-  inline std::optional<literal> parse_literal(const char*& cursor,
-      std::size_t& size) {
+  inline std::optional<literal> parse_literal(lexical_iterator& cursor) {
     auto is_separator =
       [] (char c) {
         return std::isspace(c) || is_punctuation(c) ||
           is_operation_delimiter(c) || c == '\0';
       };
     auto parse_decimal =
-      [] (const char*& cursor, std::size_t& size) {
-        while(size != 0 && std::isdigit(*cursor)) {
+      [] (lexical_iterator& cursor) {
+        while(!cursor.is_empty() && std::isdigit(*cursor)) {
           ++cursor;
-          --size;
         }
       };
-    if(size == 0) {
+    if(cursor.is_empty()) {
       return std::nullopt;
     }
-    if(prefix_match(cursor, size, "true")) {
+    if(prefix_match(cursor, "true")) {
       return literal("true", bool_data_type::get_instance());
     }
-    if(prefix_match(cursor, size, "false")) {
+    if(prefix_match(cursor, "false")) {
       return literal("false", bool_data_type::get_instance());
     }
     auto c = cursor;
-    auto s = size;
     if(std::isdigit(*c)) {
-      parse_decimal(c, s);
-      if(s == 0) {
+      parse_decimal(c);
+      if(c.is_empty()) {
         return std::nullopt;
       }
       if(*c != '.') {
         if(!is_separator(*c)) {
           return std::nullopt;
         }
-        auto value = std::string(cursor, c - cursor);
+        auto value = std::string(&*cursor, c - cursor);
         cursor = c;
-        size = s;
         return literal(std::move(value), scalar_data_type::get_int32());
       } else {
         ++c;
-        --s;
-        parse_decimal(c, s);
-        if(s == 0) {
+        parse_decimal(c);
+        if(c.is_empty()) {
           return std::nullopt;
         }
         if(!is_separator(*c)) {
           return std::nullopt;
         }
-        auto value = std::string(cursor, c - cursor);
+        auto value = std::string(&*cursor, c - cursor);
         cursor = c;
-        size = s;
         return literal(std::move(value),
           float_data_type::get_instance(float_data_type::type::FLOAT64));
       }
     }
     return std::nullopt;
+  }
+
+  //! Parses a literal from a string.
+  /*!
+    \param source The string to parse.
+    \return The literal that was parsed.
+  */
+  inline auto parse_literal(const std::string_view& source) {
+    return maylee::parse_literal(
+      lexical_iterator(source.data(), source.size() + 1));
   }
 
   inline std::ostream& operator <<(std::ostream& out, const literal& value) {

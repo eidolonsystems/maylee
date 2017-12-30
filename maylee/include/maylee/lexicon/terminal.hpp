@@ -2,6 +2,7 @@
 #define MAYLEE_TERMINAL_HPP
 #include <optional>
 #include <ostream>
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 
 namespace maylee {
@@ -35,26 +36,31 @@ namespace maylee {
 
   //! Parses a terminal token.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The terminal token that was parsed.
   */
-  inline std::optional<terminal> parse_terminal(const char*& cursor,
-      std::size_t remaining_size) {
-    if(remaining_size != 0) {
+  inline std::optional<terminal> parse_terminal(lexical_iterator& cursor) {
+    if(!cursor.is_empty()) {
       if(*cursor == '\0') {
         ++cursor;
-        --remaining_size;
         return terminal(terminal::type::end_of_file);
       } else if(*cursor == '\n') {
         ++cursor;
-        --remaining_size;
         return terminal(terminal::type::new_line);
       }
     }
     return std::nullopt;
+  }
+
+  //! Parses a terminal from a string.
+  /*!
+    \param source The string to parse.
+    \return The terminal that was parsed.
+  */
+  inline auto parse_terminal(const std::string_view& source) {
+    return maylee::parse_terminal(
+      lexical_iterator(source.data(), source.size()));
   }
 
   inline std::ostream& operator <<(std::ostream& out, const terminal& value) {

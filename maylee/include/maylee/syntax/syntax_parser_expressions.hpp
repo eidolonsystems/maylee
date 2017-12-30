@@ -6,6 +6,7 @@
 #include "maylee/lexicon/token.hpp"
 #include "maylee/syntax/arity_syntax_error.hpp"
 #include "maylee/syntax/call_expression.hpp"
+#include "maylee/syntax/if_expression.hpp"
 #include "maylee/syntax/let_expression.hpp"
 #include "maylee/syntax/literal_expression.hpp"
 #include "maylee/syntax/ops.hpp"
@@ -17,6 +18,39 @@
 #include "maylee/syntax/variable_expression.hpp"
 
 namespace maylee {
+  inline std::unique_ptr<if_expression>
+      syntax_parser::parse_if_expression(std::vector<token>::iterator& cursor,
+      std::size_t& size) {
+    if(size == 0) {
+      return nullptr;
+    }
+    auto c = cursor;
+    auto s = size;
+    if(!match(*c, keyword::word::IF)) {
+      return nullptr;
+    }
+/*
+    ++c1;
+    --s1;
+    auto c1 = c;
+    auto s1 = s;
+    seek(punctuation::mark::COLON, c1, s1);
+
+    ++c;
+    --s;
+    auto condition = parse_expression(c, s);
+    if(condition == nullptr) {
+      return nullptr;
+    }
+    if(!match(*c, punctuation::mark::COLON)) {
+      return nullptr;
+    }
+    ++c;
+    --s;
+*/
+    return nullptr;
+  }
+
   inline std::unique_ptr<let_expression> syntax_parser::parse_let_expression(
       std::vector<token>::iterator& cursor, std::size_t& size) {
     if(size == 0) {
@@ -107,6 +141,8 @@ namespace maylee {
     } else if(auto node = parse_let_expression(cursor, size)) {
       return node;
     } else if(auto node = parse_variable_expression(cursor, size)) {
+      return node;
+    } else if(auto node = parse_if_expression(cursor, size)) {
       return node;
     }
     return nullptr;

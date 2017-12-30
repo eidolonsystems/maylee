@@ -5,14 +5,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_keyword(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_keyword(c, s);
-  }
-}
-
 TEST_CASE("test_keyword_stream", "[keyword]") {
   SECTION("define") {
     keyword k(keyword::word::DEFINE);
@@ -98,32 +90,23 @@ TEST_CASE("test_parse_keyword", "[keyword]") {
     REQUIRE(parse_keyword("123") == std::nullopt);
   }
   SECTION("if/else/else if") {
-    auto c = "else";
-    auto s = std::strlen(c) + 1;
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
-    c = "else if";
-    s = std::strlen(c) + 1;
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE_IF);
-    c = "else else";
-    s = std::strlen(c) + 1;
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
-    c = "else i";
-    s = std::strlen(c);
-    REQUIRE(parse_keyword(c, s) == std::nullopt);
-    c = "else if";
-    s = std::strlen(c);
-    REQUIRE(parse_keyword(c, s) == std::nullopt);
-    c = "else ib";
-    s = std::strlen(c);
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
-    c = "else i b";
-    s = std::strlen(c);
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
-    c = "else ifb";
-    s = std::strlen(c);
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE);
-    c = "else                \n\n\n\n               if";
-    s = std::strlen(c) + 1;
-    REQUIRE(parse_keyword(c, s) == keyword::word::ELSE_IF);
+    REQUIRE(parse_keyword("else") == keyword::word::ELSE);
+    REQUIRE(parse_keyword("else if") == keyword::word::ELSE_IF);
+    REQUIRE(parse_keyword("else else") == keyword::word::ELSE);
+    auto s = "else i";
+    REQUIRE(parse_keyword(lexical_iterator(s, std::strlen(s))) == std::nullopt);
+    s = "else if";
+    REQUIRE(parse_keyword(lexical_iterator(s, std::strlen(s))) == std::nullopt);
+    s = "else ib";
+    REQUIRE(parse_keyword(lexical_iterator(s, std::strlen(s))) ==
+      keyword::word::ELSE);
+    s = "else i b";
+    REQUIRE(parse_keyword(lexical_iterator(s, std::strlen(s))) ==
+      keyword::word::ELSE);
+    s = "else ifb";
+    REQUIRE(parse_keyword(lexical_iterator(s, std::strlen(s))) ==
+      keyword::word::ELSE);
+    REQUIRE(parse_keyword("else                \n\n\n\n               if") ==
+      keyword::word::ELSE_IF);
   }
 }

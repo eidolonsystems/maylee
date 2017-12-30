@@ -4,6 +4,7 @@
 #include <ostream>
 #include <stdexcept>
 #include "maylee/lexicon/keyword.hpp"
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 
 namespace maylee {
@@ -80,44 +81,40 @@ namespace maylee {
 
   //! Parses an operation.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The operation that was parsed.
   */
-  inline std::optional<operation> parse_operation(const char*& cursor,
-      std::size_t& size) {
-    if(prefix_match(cursor, size, "and")) {
+  inline std::optional<operation> parse_operation(lexical_iterator& cursor) {
+    if(prefix_match(cursor, "and")) {
       return operation::symbol::AND;
     }
-    if(prefix_match(cursor, size, "or")) {
+    if(prefix_match(cursor, "or")) {
       return operation::symbol::OR;
     }
-    if(prefix_match(cursor, size, "not")) {
+    if(prefix_match(cursor, "not")) {
       return operation::symbol::NOT;
     }
-    if(size >= 2) {
+    if(cursor.get_size_remaining() >= 2) {
       auto symbol =
         [&] {
-          if(std::equal(cursor, cursor + 2, "<=")) {
+          if(std::equal(&*cursor, &*cursor + 2, "<=")) {
             return operation::symbol::LESS_OR_EQUAL;
           }
-          if(std::equal(cursor, cursor + 2, "==")) {
+          if(std::equal(&*cursor, &*cursor + 2, "==")) {
             return operation::symbol::EQUAL;
           }
-          if(std::equal(cursor, cursor + 2, ">=")) {
+          if(std::equal(&*cursor, &*cursor + 2, ">=")) {
             return operation::symbol::GREATER_OR_EQUAL;
           }
           return static_cast<operation::symbol>(-1);
         }();
       if(symbol != static_cast<operation::symbol>(-1)) {
         cursor += 2;
-        size -= 2;
         return symbol;
       }
     }
-    if(size > 1) {
+    if(cursor.get_size_remaining() > 1) {
       auto symbol =
         [&] {
           if(*cursor == '+') {
@@ -145,11 +142,20 @@ namespace maylee {
         }();
       if(symbol != static_cast<operation::symbol>(-1)) {
         ++cursor;
-        --size;
         return symbol;
       }
     }
     return std::nullopt;
+  }
+
+  //! Parses an operation from a string.
+  /*!
+    \param source The string to parse.
+    \return The operation that was parsed.
+  */
+  inline auto parse_operation(const std::string_view& source) {
+    return maylee::parse_operation(
+      lexical_iterator(source.data(), source.size() + 1));
   }
 
   inline std::ostream& operator <<(std::ostream& out, const operation& value) {

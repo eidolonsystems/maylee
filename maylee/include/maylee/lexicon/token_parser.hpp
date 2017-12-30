@@ -1,9 +1,9 @@
 #ifndef MAYLEE_TOKEN_PARSER_HPP
 #define MAYLEE_TOKEN_PARSER_HPP
 #include <array>
-#include <memory>
 #include <optional>
 #include <vector>
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/token.hpp"
 
@@ -38,10 +38,7 @@ namespace maylee {
 
     private:
       std::vector<char> m_data;
-      int m_line_number;
-      int m_column_number;
-      const char* m_cursor;
-      std::size_t m_remaining_size;
+      lexical_iterator m_cursor;
       bool m_parsed_new_line;
       bool m_parsed_line_continuation;
       std::array<int, 2> m_bracket_count;
@@ -53,20 +50,16 @@ namespace maylee {
   };
 
   inline token_parser::token_parser()
-      : m_line_number(0),
-        m_column_number(0),
-        m_cursor(m_data.data()),
-        m_remaining_size(0),
-        m_parsed_new_line(true),
+      : m_parsed_new_line(true),
         m_parsed_line_continuation(false) {
     m_bracket_count.fill(0);
   }
 
   inline void token_parser::feed(const char* data, std::size_t size) {
-    auto position = m_cursor - m_data.data();
+    auto position = &*m_cursor - m_data.data();
     m_data.insert(m_data.end(), data, data + size);
-    m_cursor = m_data.data() + position;
-    m_remaining_size += size;
+    m_cursor.adjust(m_data.data() + position,
+      m_cursor.get_size_remaining() + size);
   }
 
   template<std::size_t N>
@@ -75,77 +68,50 @@ namespace maylee {
   }
 
   inline std::optional<token> token_parser::parse_token() {
-    while(m_remaining_size != 0) {
+    while(!m_cursor.is_empty()) {
       if(std::isspace(*m_cursor)) {
         if(*m_cursor == '\n') {
           if(is_new_line_signifcant()) {
+            token t(terminal::type::new_line,
+              m_cursor.get_location().get_line_number(),
+              m_cursor.get_location().get_column_number());
             ++m_cursor;
-            --m_remaining_size;
-            auto line_number = m_line_number;
-            auto column_number = m_column_number;
-            ++m_line_number;
-            m_column_number = 0;
             m_parsed_new_line = true;
-            return std::make_optional<token>(
-              {terminal::type::new_line, line_number, column_number});
+            return t;
           }
-          ++m_line_number;
-          m_column_number = 0;
-        } else {
-          ++m_column_number;
         }
         ++m_cursor;
-        --m_remaining_size;
       } else {
         break;
       }
     }
-    if(m_remaining_size == 0) {
+    if(m_cursor.is_empty()) {
       return std::nullopt;
     }
     auto parsed_line_continuation = m_parsed_line_continuation;
     m_parsed_line_continuation = false;
     m_parsed_new_line = false;
-    auto remaining_size = m_remaining_size;
-    if(auto keyword = parse_keyword(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
-      return std::make_optional<token>(
-        {std::move(*keyword), m_line_number, column_number});
-    } else if(auto punctuation = parse_punctuation(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
+    auto l = m_cursor.get_location();
+    if(auto keyword = parse_keyword(m_cursor)) {
+      return token(std::move(*keyword), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto punctuation = parse_punctuation(m_cursor)) {
       update_bracket_count(*punctuation);
-      return std::make_optional<token>(
-        {std::move(*punctuation), m_line_number, column_number});
-    } else if(auto operation = parse_operation(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
+      return token(std::move(*punctuation), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto operation = parse_operation(m_cursor)) {
       m_parsed_line_continuation = true;
-      return std::make_optional<token>(
-        {std::move(*operation), m_line_number, column_number});
-    } else if(auto literal = parse_literal(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
-      return std::make_optional<token>(
-        {std::move(*literal), m_line_number, column_number});
-    } else if(auto identifier = parse_identifier(m_cursor, remaining_size)) {
-      auto column_number = m_column_number;
-      m_column_number += (m_remaining_size - remaining_size);
-      m_remaining_size = remaining_size;
-      return std::make_optional<token>(
-        {std::move(*identifier), m_line_number, column_number});
-    } else if(auto terminal = parse_terminal(m_cursor, remaining_size)) {
-      auto line_number = m_line_number;
-      auto column_number = m_column_number;
-      m_line_number = 0;
-      m_column_number = 0;
-      return std::make_optional<token>(
-        {std::move(*terminal), line_number, column_number});
+      return token(std::move(*operation), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto literal = parse_literal(m_cursor)) {
+      return token(std::move(*literal), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto identifier = parse_identifier(m_cursor)) {
+      return token(std::move(*identifier), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto terminal = parse_terminal(m_cursor)) {
+      return token(std::move(*terminal), l.get_line_number(),
+        l.get_column_number());
     }
     m_parsed_line_continuation = parsed_line_continuation;
     return std::nullopt;

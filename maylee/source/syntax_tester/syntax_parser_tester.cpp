@@ -136,3 +136,11 @@ TEST_CASE("test_parsing_with_line_continuations", "[syntax_parser]") {
     auto e = p.parse_node();
   }
 }
+
+TEST_CASE("test_parsing_if_expression", "[syntax_parser]") {
+  syntax_parser p;
+  feed(p, "if true: 123 end");
+  auto n = p.parse_node();
+  auto e = dynamic_cast<const if_expression*>(n.get());
+  REQUIRE(e != nullptr);
+}

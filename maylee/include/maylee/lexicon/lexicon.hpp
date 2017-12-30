@@ -4,6 +4,7 @@
 namespace maylee {
   class identifier;
   class keyword;
+  class lexical_iterator;
   class literal;
   class location;
   class operation;

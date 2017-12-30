@@ -5,6 +5,8 @@
 #include <optional>
 #include <ostream>
 #include <string>
+#include <string_view>
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 
 namespace maylee {
@@ -28,35 +30,38 @@ namespace maylee {
 
   //! Parses an identifier.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The identifier that was parsed.
   */
-  inline std::optional<identifier> parse_identifier(const char*& cursor,
-      std::size_t& size) {
-    if(size == 0) {
+  inline std::optional<identifier> parse_identifier(lexical_iterator& cursor) {
+    if(cursor.is_empty()) {
       return std::nullopt;
     }
     auto c = cursor;
-    auto s = size;
-    if(!std::isalpha(*cursor) && *cursor != '_') {
+    if(!std::isalpha(*c) && *c != '_') {
       return std::nullopt;
     }
     ++c;
-    --s;
-    while(s != 0) {
+    while(!c.is_empty()) {
       if(!std::isalnum(*c) && *c != '_') {
-        std::string identifier(cursor, (c - cursor));
+        std::string identifier(&*cursor, (c - cursor));
         cursor = c;
-        size = s;
         return identifier;
       }
       ++c;
-      --s;
     }
     return std::nullopt;
+  }
+
+  //! Parses an identifier from a string.
+  /*!
+    \param source The string to parse.
+    \return The identifier that was parsed.
+  */
+  inline auto parse_identifier(const std::string_view& source) {
+    return maylee::parse_identifier(
+      lexical_iterator(source.data(), source.size() + 1));
   }
 
   inline std::ostream& operator <<(std::ostream& out, const identifier& value) {

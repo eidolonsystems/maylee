@@ -6,14 +6,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_literal(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_literal(c, s);
-  }
-}
-
 TEST_CASE("test_literal_stream", "[literal]") {
   literal l("5", scalar_data_type::get_int32());
   stringstream ss;

@@ -6,6 +6,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <string_view>
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 
 namespace maylee {
@@ -56,13 +57,17 @@ namespace maylee {
   };
 
   //! Checks if a string prefix matches a string literal.
+  /*!
+    \param lhs An iterator to the first character to match.
+    \param rhs The string prefix to match against.
+    \return <code>true</code> iff the iterator contains <i>rhs</i> as a prefix.
+  */
   template<std::size_t N>
-  inline bool prefix_match(const char*& lhs, std::size_t& size,
-      const char (&rhs)[N]) {
-    if(size >= N && std::equal(lhs, lhs + (N - 1), rhs) &&
-        !std::isalnum(lhs[N - 1]) && lhs[N - 1] != '_') {
+  bool prefix_match(lexical_iterator& lhs, const char (&rhs)[N]) {
+    if(lhs.get_size_remaining() >= N &&
+        std::equal(&*lhs, &*lhs + (N - 1), rhs) &&
+        !std::isalnum(*(lhs + (N - 1))) && *(lhs + (N - 1)) != '_') {
       lhs += N - 1;
-      size -= N - 1;
       return true;
     }
     return false;
@@ -70,45 +75,51 @@ namespace maylee {
 
   //! Parses a keyword.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The keyword that was parsed.
   */
-  inline std::optional<keyword> parse_keyword(const char*& cursor,
-      std::size_t& size) {
-    if(prefix_match(cursor, size, "def")) {
+  inline std::optional<keyword> parse_keyword(lexical_iterator& cursor) {
+    if(prefix_match(cursor, "def")) {
       return keyword::word::DEFINE;
-    } else if(prefix_match(cursor, size, "let")) {
+    } else if(prefix_match(cursor, "let")) {
       return keyword::word::LET;
-    } else if(prefix_match(cursor, size, "if")) {
+    } else if(prefix_match(cursor, "if")) {
       return keyword::word::IF;
-    } else if(prefix_match(cursor, size, "end")) {
+    } else if(prefix_match(cursor, "end")) {
       return keyword::word::END;
-    } else if(prefix_match(cursor, size, "return")) {
+    } else if(prefix_match(cursor, "return")) {
       return keyword::word::RETURN;
-    } else if(prefix_match(cursor, size, "_")) {
+    } else if(prefix_match(cursor, "_")) {
       return keyword::word::IGNORE;
     }
     auto c = cursor;
-    auto s = size;
-    if(prefix_match(c, s, "else")) {
-      while(s != 0 && std::isspace(*c)) {
+    if(prefix_match(c, "else")) {
+      while(!c.is_empty() && std::isspace(*c)) {
         ++c;
-        --s;
       }
-      if(s == 0) {
+      if(c.is_empty()) {
         return std::nullopt;
-      } else if(prefix_match(c, s, "if")) {
+      } else if(prefix_match(c, "if")) {
         cursor = c;
-        size = s;
         return keyword::word::ELSE_IF;
-      } else if(*c != 'i' || s > 1 && c[1] != 'f' || s > 2) {
+      } else if(*c != 'i' ||
+          c.get_size_remaining() > 1 && *(c + 1) != 'f' ||
+          c.get_size_remaining() > 2) {
         return keyword::word::ELSE;
       }
     }
     return std::nullopt;
+  }
+
+  //! Parses a keyword from a string.
+  /*!
+    \param source The string to parse.
+    \return The keyword that was parsed.
+  */
+  inline auto parse_keyword(const std::string_view& source) {
+    return maylee::parse_keyword(
+      lexical_iterator(source.data(), source.size() + 1));
   }
 
   inline std::ostream& operator <<(std::ostream& out, const keyword& value) {

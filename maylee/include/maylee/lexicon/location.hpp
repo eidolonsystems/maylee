@@ -4,7 +4,6 @@
 #include <string>
 #include <utility>
 #include "maylee/lexicon/lexicon.hpp"
-#include "maylee/lexicon/token.hpp"
 
 namespace maylee {
 
@@ -22,13 +21,6 @@ namespace maylee {
         \param column_number The source code's column number.
       */
       location(std::string path, int line_number, int column_number);
-
-      //! Constructs a location representing a token.
-      /*!
-        \param path The path to the file containing the token.
-        \param token The token whose location is to be represented.
-      */
-      location(std::string path, const token& token);
 
       //! Returns the path to the file containing the source code.
       const std::string& get_path() const;
@@ -60,10 +52,6 @@ namespace maylee {
       : m_path(std::move(path)),
         m_line_number(line_number),
         m_column_number(column_number) {}
-
-  inline location::location(std::string path, const token& token)
-      : location(std::move(path), token.get_line_number(),
-          token.get_column_number()) {}
 
   inline const std::string& location::get_path() const {
     return m_path;

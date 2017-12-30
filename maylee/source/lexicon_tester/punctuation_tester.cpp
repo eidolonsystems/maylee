@@ -5,14 +5,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_punctuation(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_punctuation(c, s);
-  }
-}
-
 TEST_CASE("test_punctuation_stream", "[punctuation]") {
   SECTION("Open bracket") {
     punctuation p(punctuation::mark::OPEN_BRACKET);

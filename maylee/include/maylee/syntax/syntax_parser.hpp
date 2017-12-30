@@ -53,6 +53,8 @@ namespace maylee {
       const std::string& get_current_module() const;
       std::unique_ptr<terminal_node> parse_terminal_node(
         std::vector<token>::iterator& cursor, std::size_t& size);
+      std::unique_ptr<if_expression> parse_if_expression(
+        std::vector<token>::iterator& cursor, std::size_t& size);
       std::unique_ptr<let_expression> parse_let_expression(
         std::vector<token>::iterator& cursor, std::size_t& size);
       std::unique_ptr<literal_expression> parse_literal_expression(

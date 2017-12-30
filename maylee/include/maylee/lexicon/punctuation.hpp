@@ -3,6 +3,7 @@
 #include <optional>
 #include <ostream>
 #include <stdexcept>
+#include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 
 namespace maylee {
@@ -56,42 +57,44 @@ namespace maylee {
 
   //! Parses a punctuation.
   /*!
-    \param cursor A pointer to the first character to parse, this pointer will
-           be adjusted to one past the last character that was parsed.
-    \param size The number of characters available, this number will be adjusted
-           by the number of characters parsed.
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
     \return The punctuation that was parsed.
   */
-  inline std::optional<punctuation> parse_punctuation(const char*& cursor,
-      std::size_t& size) {
-    if(size >= 1) {
+  inline std::optional<punctuation> parse_punctuation(
+      lexical_iterator& cursor) {
+    if(!cursor.is_empty()) {
       if(*cursor == '(') {
         ++cursor;
-        --size;
         return punctuation::mark::OPEN_BRACKET;
       } else if(*cursor == ')') {
         ++cursor;
-        --size;
         return punctuation::mark::CLOSE_BRACKET;
       } else if(*cursor == ':') {
         ++cursor;
-        --size;
         return punctuation::mark::COLON;
       } else if(*cursor == ',') {
         ++cursor;
-        --size;
         return punctuation::mark::COMMA;
       } else if(*cursor == '.') {
         ++cursor;
-        --size;
         return punctuation::mark::DOT;
       } else if(*cursor == '|') {
         ++cursor;
-        --size;
         return punctuation::mark::BAR;
       }
     }
     return std::nullopt;
+  }
+
+  //! Parses a punctuation from a string.
+  /*!
+    \param source The string to parse.
+    \return The punctuation that was parsed.
+  */
+  inline auto parse_punctuation(const std::string_view& source) {
+    return maylee::parse_punctuation(
+      lexical_iterator(source.data(), source.size() + 1));
   }
 
   inline std::ostream& operator <<(std::ostream& out,

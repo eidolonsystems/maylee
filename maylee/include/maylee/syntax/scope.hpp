@@ -2,7 +2,6 @@
 #define MAYLEE_SCOPE_HPP
 #include <memory>
 #include <optional>
-#include <string_view>
 #include <unordered_map>
 #include "maylee/data_types/bool_data_type.hpp"
 #include "maylee/data_types/char_data_type.hpp"

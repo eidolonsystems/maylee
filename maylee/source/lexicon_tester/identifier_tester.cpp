@@ -5,14 +5,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_identifier(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_identifier(c, s);
-  }
-}
-
 TEST_CASE("test_identifier_stream", "[identifier]") {
   identifier id("hello");
   stringstream ss;

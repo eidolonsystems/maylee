@@ -5,14 +5,6 @@
 using namespace maylee;
 using namespace std;
 
-namespace {
-  auto parse_operation(const char* source) {
-    auto c = source;
-    std::size_t s = std::strlen(c) + 1;
-    return maylee::parse_operation(c, s);
-  }
-}
-
 TEST_CASE("test_operation_stream", "[operation]") {
   SECTION("Plus") {
     operation p(operation::symbol::PLUS);
