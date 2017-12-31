@@ -41,11 +41,11 @@ namespace maylee {
       lexical_iterator m_cursor;
       bool m_parsed_new_line;
       bool m_parsed_line_continuation;
-      std::array<int, 2> m_bracket_count;
+      std::array<int, 1> m_bracket_count;
 
       token_parser(const token_parser&) = delete;
       token_parser& operator =(const token_parser&) = delete;
-      void update_bracket_count(const punctuation& p);
+      void update_bracket_count(const bracket& p);
       bool is_new_line_signifcant() const;
   };
 
@@ -96,8 +96,11 @@ namespace maylee {
       return token(std::move(*keyword), l.get_line_number(),
         l.get_column_number());
     } else if(auto punctuation = parse_punctuation(m_cursor)) {
-      update_bracket_count(*punctuation);
       return token(std::move(*punctuation), l.get_line_number(),
+        l.get_column_number());
+    } else if(auto bracket = parse_bracket(m_cursor)) {
+      update_bracket_count(*bracket);
+      return token(std::move(*bracket), l.get_line_number(),
         l.get_column_number());
     } else if(auto operation = parse_operation(m_cursor)) {
       m_parsed_line_continuation = true;
@@ -117,12 +120,12 @@ namespace maylee {
     return std::nullopt;
   }
 
-  inline void token_parser::update_bracket_count(const punctuation& p) {
-    switch(p.get_mark()) {
-      case punctuation::mark::OPEN_BRACKET:
+  inline void token_parser::update_bracket_count(const bracket& b) {
+    switch(b.get_type()) {
+      case bracket::type::OPEN_ROUND_BRACKET:
         ++m_bracket_count[0];
         return;
-      case punctuation::mark::CLOSE_BRACKET:
+      case bracket::type::CLOSE_ROUND_BRACKET:
         --m_bracket_count[0];
         return;
     }

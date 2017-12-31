@@ -3,6 +3,7 @@
 #include <ostream>
 #include <utility>
 #include <variant>
+#include "maylee/lexicon/bracket.hpp"
 #include "maylee/lexicon/identifier.hpp"
 #include "maylee/lexicon/keyword.hpp"
 #include "maylee/lexicon/literal.hpp"
@@ -26,6 +27,9 @@ namespace maylee {
         //! A punctuation mark.
         PUNCTUATION,
 
+        //! A bracket.
+        BRACKET,
+
         //! An operation.
         OPERATION,
 
@@ -40,8 +44,8 @@ namespace maylee {
       };
 
       //! A variant that stores the token's data.
-      using instance = std::variant<keyword, punctuation, operation, identifier,
-        literal, terminal>;
+      using instance = std::variant<keyword, punctuation, bracket, operation,
+        identifier, literal, terminal>;
 
       //! Constructs a keyword token.
       /*!

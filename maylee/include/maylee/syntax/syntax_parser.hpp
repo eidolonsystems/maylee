@@ -31,6 +31,9 @@ namespace maylee {
       */
       void feed(token t);
 
+      //! Returns an iterator to the next terminal token.
+      token_iterator get_next_terminal() const;
+
       //! Parses the next syntax node.
       /*!
         \return The syntax node parsed from the previously fed tokens or
@@ -49,6 +52,8 @@ namespace maylee {
       scope& get_scope();
       scope& push_scope();
       scope& pop_scope();
+      token_iterator get_next_terminal(token_iterator cursor) const;
+      std::unique_ptr<syntax_node> parse_node(token_iterator& cursor);
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
       std::unique_ptr<if_expression> parse_if_expression(
@@ -141,22 +146,12 @@ namespace maylee {
       m_cursor.get_size_remaining() + 1);
   }
 
+  inline token_iterator syntax_parser::get_next_terminal() const {
+    return get_next_terminal(m_cursor);
+  }
+
   inline std::unique_ptr<syntax_node> syntax_parser::parse_node() {
-    if(m_new_lines == 0) {
-      return nullptr;
-    }
-    std::unique_ptr<syntax_node> node;
-    if(((node = parse_expression(m_cursor)) != nullptr) ||
-        ((node = parse_terminal_node(m_cursor)) != nullptr)) {
-      if(is_terminal(*m_cursor)) {
-        --m_new_lines;
-        ++m_cursor;
-        return node;
-      }
-      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
-        m_cursor.get_location());
-    }
-    return nullptr;
+    return parse_node(m_cursor);
   }
 
   inline scope& syntax_parser::get_scope() {
@@ -171,6 +166,48 @@ namespace maylee {
   inline scope& syntax_parser::pop_scope() {
     m_scopes.pop_back();
     return get_scope();
+  }
+
+  inline token_iterator syntax_parser::get_next_terminal(
+      token_iterator cursor) const {
+    if(cursor.is_empty() || match(*cursor, terminal::type::end_of_file)) {
+      return cursor;
+    }
+    auto is_symbol = std::visit(
+      [&] (auto&& t) {
+        using T = std::decay_t<decltype(t)>;
+        if constexpr(std::is_same_v<T, identifier> ||
+            std::is_same_v<T, keyword> ||
+            std::is_same_v<T, literal>) {
+          return true;
+        }
+        return false;
+      }, cursor->get_instance());
+    if(is_symbol) {
+      return get_next_terminal(++cursor);
+    }
+    return cursor;
+  }
+
+  inline std::unique_ptr<syntax_node> syntax_parser::parse_node(
+      token_iterator& cursor) {
+    auto new_lines = m_new_lines;
+    if(new_lines == 0) {
+      return nullptr;
+    }
+    std::unique_ptr<syntax_node> node;
+    if(((node = parse_expression(cursor)) != nullptr) ||
+        ((node = parse_terminal_node(cursor)) != nullptr)) {
+      if(is_terminal(*cursor)) {
+        --new_lines;
+        ++cursor;
+        m_new_lines = new_lines;
+        return node;
+      }
+      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
+        cursor.get_location());
+    }
+    return nullptr;
   }
 
   inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(

@@ -6,18 +6,6 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_punctuation_stream", "[punctuation]") {
-  SECTION("Open bracket") {
-    punctuation p(punctuation::mark::OPEN_BRACKET);
-    stringstream ss;
-    ss << p;
-    REQUIRE(ss.str() == "(");
-  }
-  SECTION("Close bracket") {
-    punctuation p(punctuation::mark::CLOSE_BRACKET);
-    stringstream ss;
-    ss << p;
-    REQUIRE(ss.str() == ")");
-  }
   SECTION("Colon") {
     punctuation p(punctuation::mark::COLON);
     stringstream ss;
@@ -46,7 +34,7 @@ TEST_CASE("test_punctuation_stream", "[punctuation]") {
 
 TEST_CASE("test_punctuation_equality", "[punctuation]") {
   punctuation p1(punctuation::mark::COLON);
-  punctuation p2(punctuation::mark::OPEN_BRACKET);
+  punctuation p2(punctuation::mark::BAR);
   REQUIRE(p1 == p1);
   REQUIRE(p1 != p2);
   REQUIRE(p1 == punctuation::mark::COLON);
@@ -55,8 +43,6 @@ TEST_CASE("test_punctuation_equality", "[punctuation]") {
 
 TEST_CASE("test_parse_punctuation", "[punctuation]") {
   SECTION("Valid Punctuation") {
-    REQUIRE(parse_punctuation("(") == punctuation::mark::OPEN_BRACKET);
-    REQUIRE(parse_punctuation(")") == punctuation::mark::CLOSE_BRACKET);
     REQUIRE(parse_punctuation(":") == punctuation::mark::COLON);
     REQUIRE(parse_punctuation(",") == punctuation::mark::COMMA);
     REQUIRE(parse_punctuation(".") == punctuation::mark::DOT);

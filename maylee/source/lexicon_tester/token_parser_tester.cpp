@@ -89,7 +89,7 @@ TEST_CASE("test_line_continuations", "[token_parser]") {
     {
       auto t = parser.parse_token();
       REQUIRE(t.has_value());
-      REQUIRE(std::get_if<punctuation>(&t->get_instance()) != nullptr);
+      REQUIRE(std::get_if<bracket>(&t->get_instance()) != nullptr);
     }
     {
       auto t = parser.parse_token();
@@ -99,7 +99,7 @@ TEST_CASE("test_line_continuations", "[token_parser]") {
     {
       auto t = parser.parse_token();
       REQUIRE(t.has_value());
-      REQUIRE(std::get_if<punctuation>(&t->get_instance()) != nullptr);
+      REQUIRE(std::get_if<bracket>(&t->get_instance()) != nullptr);
     }
     {
       auto t = parser.parse_token();

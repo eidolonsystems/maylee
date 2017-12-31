@@ -36,6 +36,12 @@ TEST_CASE("test_parsing_terminal", "[syntax_parser]") {
   REQUIRE(dynamic_cast<terminal_node*>(expression.get()) != nullptr);
 }
 
+TEST_CASE("test_parsing_term", "[syntax_parser]") {
+  syntax_parser p;
+  feed(p, "hello world\n");
+  auto c = p.get_next_terminal();
+}
+
 TEST_CASE("test_parsing_literal_expression", "[syntax_parser]") {
   syntax_parser p;
   feed(p, "123");

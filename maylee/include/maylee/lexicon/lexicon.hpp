@@ -2,6 +2,7 @@
 #define MAYLEE_LEXICON_HPP
 
 namespace maylee {
+  class bracket;
   class identifier;
   class keyword;
   class lexical_iterator;

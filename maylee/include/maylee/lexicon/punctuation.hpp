@@ -15,12 +15,6 @@ namespace maylee {
       //! The list of punctuation marks.
       enum class mark {
 
-        //! '('
-        OPEN_BRACKET,
-
-        //! ')'
-        CLOSE_BRACKET,
-
         //! ':'
         COLON,
 
@@ -52,7 +46,7 @@ namespace maylee {
     \param c The character to test.
   */
   inline bool is_punctuation(char c) {
-    return c == '(' || c == ')' || c == ':' || c == ',' || c == '.' || c == '|';
+    return c == ':' || c == ',' || c == '.' || c == '|';
   }
 
   //! Parses a punctuation.
@@ -64,13 +58,7 @@ namespace maylee {
   inline std::optional<punctuation> parse_punctuation(
       lexical_iterator& cursor) {
     if(!cursor.is_empty()) {
-      if(*cursor == '(') {
-        ++cursor;
-        return punctuation::mark::OPEN_BRACKET;
-      } else if(*cursor == ')') {
-        ++cursor;
-        return punctuation::mark::CLOSE_BRACKET;
-      } else if(*cursor == ':') {
+      if(*cursor == ':') {
         ++cursor;
         return punctuation::mark::COLON;
       } else if(*cursor == ',') {
@@ -100,10 +88,6 @@ namespace maylee {
   inline std::ostream& operator <<(std::ostream& out,
       const punctuation& value) {
     switch(value.get_mark()) {
-      case punctuation::mark::OPEN_BRACKET:
-        return out << '(';
-      case punctuation::mark::CLOSE_BRACKET:
-        return out << ')';
       case punctuation::mark::COLON:
         return out << ':';
       case punctuation::mark::COMMA:

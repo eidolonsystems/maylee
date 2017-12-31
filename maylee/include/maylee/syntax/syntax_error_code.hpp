@@ -13,8 +13,14 @@ namespace maylee {
     //! An identifier was expected.
     IDENTIFIER_EXPECTED,
 
+    //! An expression was expected.
+    EXPRESSION_EXPECTED,
+
     //! An assignment operation was expected.
     ASSIGNMENT_EXPECTED,
+
+    //! A colon was expected.
+    COLON_EXPECTED,
 
     //! An identifier already has a definition.
     IDENTIFIER_ALREADY_DEFINED,

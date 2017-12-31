@@ -20,6 +20,23 @@
 namespace maylee {
   inline std::unique_ptr<if_expression>
       syntax_parser::parse_if_expression(token_iterator& cursor) {
+    auto c = cursor;
+    if(!match(*c, keyword::word::IF)) {
+      return nullptr;
+    }
+    ++c;
+    auto condition = parse_expression(c);
+    if(condition == nullptr) {
+      throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
+        c.get_location());
+    }
+    if(!match(*c, punctuation::mark::COLON)) {
+      throw syntax_error(syntax_error_code::COLON_EXPECTED, c.get_location());
+    }
+    ++c;
+    while(!match(*c, keyword::word::END)) {
+      auto e = parse_node(c);
+    }
     return nullptr;
   }
 
