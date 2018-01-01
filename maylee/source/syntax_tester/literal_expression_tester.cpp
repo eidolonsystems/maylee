@@ -9,5 +9,4 @@ TEST_CASE("test_literal_expression", "[literal_expression]") {
   REQUIRE(e.get_literal().get_value() == "3.1415");
   REQUIRE(*e.get_literal().get_type() ==
     *float_data_type::get_instance(float_data_type::type::FLOAT64));
-  REQUIRE(*e.get_evaluation_type() == *e.get_literal().get_type());
 }

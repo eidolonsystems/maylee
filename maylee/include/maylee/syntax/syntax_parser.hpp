@@ -9,6 +9,7 @@
 #include "maylee/lexicon/token.hpp"
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/scope.hpp"
+#include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax_error_code.hpp"
 #include "maylee/syntax/syntax_error.hpp"
 #include "maylee/syntax/syntax.hpp"
@@ -57,7 +58,7 @@ namespace maylee {
       std::unique_ptr<if_statement> parse_if_statement(token_iterator& cursor);
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
-      std::unique_ptr<syntax_node> parse_statement(token_iterator& cursor);
+      std::unique_ptr<statement> parse_statement(token_iterator& cursor);
       std::unique_ptr<let_expression> parse_let_expression(
         token_iterator& cursor);
       std::unique_ptr<literal_expression> parse_literal_expression(
@@ -261,12 +262,12 @@ namespace maylee {
     while(!cursor.is_empty() && match(*cursor, terminal::type::new_line)) {
       ++cursor;
     }
-    std::unique_ptr<syntax_node> node;
-    if(((node = parse_expression(cursor)) != nullptr) ||
-        ((node = parse_statement(cursor)) != nullptr)) {
+    if(auto node = parse_statement(cursor)) {
       if(!cursor.is_empty() && match(*cursor, terminal::type::new_line)) {
         ++cursor;
       }
+      return node;
+    } else if(auto node = parse_terminal_node(cursor)) {
       return node;
     }
     return nullptr;

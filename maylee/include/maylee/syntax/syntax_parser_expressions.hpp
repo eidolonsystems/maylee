@@ -46,9 +46,8 @@ namespace maylee {
       return nullptr;
     }
     auto expression = std::make_unique<let_expression>(name,
-      initializer->get_evaluation_type(), std::move(initializer));
-    m_scopes.back()->add(element(std::make_shared<variable>(
-      name, expression->get_evaluation_type()),
+      std::move(initializer));
+    m_scopes.back()->add(element(std::make_shared<variable>(name),
       identifier_cursor.get_location()));
     cursor = c;
     return expression;
@@ -129,10 +128,9 @@ namespace maylee {
         auto& function_name = get_function_name(o.m_op);
         auto function = resolve_overload(get_scope(), function_name,
           parameters, o.m_location);
-        auto return_type = function->get_signature()->get_return_type();
         auto call = std::make_unique<call_expression>(
           std::make_unique<variable_expression>(std::move(function)),
-          std::move(parameters), return_type);
+          std::move(parameters));
         expressions.push_back(std::move(call));
       };
     auto c = cursor;

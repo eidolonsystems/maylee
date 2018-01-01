@@ -77,14 +77,13 @@ namespace maylee {
     scope.add(element(scalar_data_type::get_uint32(), location::global()));
     scope.add(element(scalar_data_type::get_uint64(), location::global()));
     scope.add(element(size_data_type::get_instance(), location::global()));
-    scope.add(element(get_add_function(*scalar_data_type::get_int32(),
-      *scalar_data_type::get_int32()), location::global()));
-    scope.add(element(get_subtract_function(*scalar_data_type::get_int32(),
-      *scalar_data_type::get_int32()), location::global()));
-    scope.add(element(get_multiply_function(*scalar_data_type::get_int32(),
-      *scalar_data_type::get_int32()), location::global()));
-    scope.add(element(get_divide_function(*scalar_data_type::get_int32(),
-      *scalar_data_type::get_int32()), location::global()));
+    scope.add(element(std::make_shared<function>("add"), location::global()));
+    scope.add(element(std::make_shared<function>("subtract"),
+      location::global()));
+    scope.add(element(std::make_shared<function>("multiply"),
+      location::global()));
+    scope.add(element(std::make_shared<function>("divide"),
+      location::global()));
   }
 
   //! Given a function name and a list of parameters, finds the correct

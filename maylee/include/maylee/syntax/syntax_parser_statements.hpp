@@ -13,7 +13,7 @@ namespace maylee {
       token_iterator& cursor) {
     struct clause {
       std::unique_ptr<expression> m_condition;
-      std::unique_ptr<syntax_node> m_consequence;
+      std::unique_ptr<statement> m_consequence;
     };
     auto c = cursor;
     if(!match(*c, keyword::word::IF)) {
@@ -29,10 +29,10 @@ namespace maylee {
       }
       expect(c, punctuation::mark::COLON);
       push_scope();
-      std::vector<std::unique_ptr<syntax_node>> consequents;
+      std::vector<std::unique_ptr<statement>> consequents;
       while(!match(*c, keyword::word::END) && !match(*c, keyword::word::ELSE) &&
           !match(*c, keyword::word::ELSE_IF)) {
-        consequents.push_back(parse_node(c));
+        consequents.push_back(parse_statement(c));
       }
       auto s = pop_scope();
       auto consequent = std::make_unique<block_statement>(std::move(s),
@@ -43,7 +43,7 @@ namespace maylee {
       }
     }
     auto alternative =
-      [&] () -> std::unique_ptr<syntax_node> {
+      [&] () -> std::unique_ptr<statement> {
         if(match(*c, keyword::word::ELSE)) {
           if(c.is_empty()) {
             return nullptr;
@@ -51,9 +51,9 @@ namespace maylee {
           ++c;
           expect(c, punctuation::mark::COLON);
           push_scope();
-          std::vector<std::unique_ptr<syntax_node>> consequents;
+          std::vector<std::unique_ptr<statement>> consequents;
           while(!match(*c, keyword::word::END)) {
-            consequents.push_back(parse_node(c));
+            consequents.push_back(parse_statement(c));
           }
           auto s = pop_scope();
           return std::make_unique<block_statement>(std::move(s),
@@ -89,11 +89,11 @@ namespace maylee {
     return nullptr;
   }
 
-  inline std::unique_ptr<syntax_node> syntax_parser::parse_statement(
+  inline std::unique_ptr<statement> syntax_parser::parse_statement(
       token_iterator& cursor) {
-    if(auto node = parse_if_statement(cursor)) {
+    if(auto node = parse_expression(cursor)) {
       return node;
-    } else if(auto node = parse_terminal_node(cursor)) {
+    } else if(auto node = parse_if_statement(cursor)) {
       return node;
     }
     return nullptr;

@@ -21,9 +21,6 @@ namespace maylee {
       //! Returns the variable this expression evaluates to.
       const std::shared_ptr<variable>& get_variable() const;
 
-      const std::shared_ptr<data_type>&
-        get_evaluation_type() const override final;
-
     private:
       std::shared_ptr<variable> m_variable;
   };
@@ -35,11 +32,6 @@ namespace maylee {
   inline const std::shared_ptr<variable>&
       variable_expression::get_variable() const {
     return m_variable;
-  }
-
-  inline const std::shared_ptr<data_type>&
-      variable_expression::get_evaluation_type() const {
-    return m_variable->get_data_type();
   }
 }
 

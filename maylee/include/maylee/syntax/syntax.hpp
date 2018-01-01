@@ -14,6 +14,7 @@ namespace maylee {
   enum class op;
   class redefinition_syntax_error;
   class scope;
+  class statement;
   enum class syntax_error_code;
   class syntax_error;
   class syntax_node;

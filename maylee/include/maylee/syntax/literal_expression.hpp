@@ -1,9 +1,9 @@
 #ifndef MAYLEE_LITERAL_EXPRESSION_HPP
 #define MAYLEE_LITERAL_EXPRESSION_HPP
 #include <utility>
+#include "maylee/lexicon/literal.hpp"
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/syntax.hpp"
-#include "maylee/lexicon/literal.hpp"
 
 namespace maylee {
 
@@ -20,9 +20,6 @@ namespace maylee {
       //! Returns the literal that is evaluated.
       const literal& get_literal() const;
 
-      const std::shared_ptr<data_type>&
-        get_evaluation_type() const override final;
-
     private:
       literal m_literal;
   };
@@ -32,11 +29,6 @@ namespace maylee {
 
   inline const literal& literal_expression::get_literal() const {
     return m_literal;
-  }
-
-  inline const std::shared_ptr<data_type>&
-      literal_expression::get_evaluation_type() const {
-    return m_literal.get_type();
   }
 }
 
