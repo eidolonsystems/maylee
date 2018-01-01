@@ -25,7 +25,7 @@ namespace maylee {
         DOT,
 
         //! '|'
-        BAR
+        BAR,
       };
 
       //! Constructs a punctuation.

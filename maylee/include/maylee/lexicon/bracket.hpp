@@ -43,6 +43,39 @@ namespace maylee {
     return c == '(' || c == ')';
   }
 
+  //! Returns <code>true</code> iff the bracket is an opening bracket.
+  /*!
+    \param b The bracket to test.
+    \return <code>true</code> iff the bracket is an opening bracket.
+  */
+  inline bool is_open(bracket b) {
+    return b.get_type() == bracket::type::OPEN_ROUND_BRACKET;
+  }
+
+  //! Returns <code>true</code> iff the bracket is a closing bracket.
+  /*!
+    \param b The bracket to test.
+    \return <code>true</code> iff the bracket is a closing bracket.
+  */
+  inline bool is_close(bracket b) {
+    return b.get_type() == bracket::type::CLOSE_ROUND_BRACKET;
+  }
+
+  //! Given a bracket, returns the opposite bracket.
+  /*!
+    \param b The bracket.
+    \return The opposite bracket.
+  */
+  inline bracket get_opposite(bracket b) {
+    switch(b.get_type()) {
+      case bracket::type::OPEN_ROUND_BRACKET:
+        return bracket::type::CLOSE_ROUND_BRACKET;
+      case bracket::type::CLOSE_ROUND_BRACKET:
+        return bracket::type::OPEN_ROUND_BRACKET;
+    }
+    throw std::runtime_error("Invalid bracket.");
+  }
+
   //! Parses a bracket.
   /*!
     \param cursor An iterator to the first character to parse, this iterator

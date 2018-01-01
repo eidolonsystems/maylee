@@ -79,7 +79,16 @@ namespace maylee {
     \return <code>true</code> iff the token is a terminal symbol.
   */
   inline bool is_terminal(const token& t) {
-    return std::get_if<terminal>(&t.get_instance()) != nullptr;
+    return t.get_type() == token::type::TERMINAL;
+  }
+
+  //! Tests if a token represents a keyword token.
+  /*!
+    \param t The token to test.
+    \return <code>true</code> iff the token is a keyword.
+  */
+  inline bool is_keyword(const token& t) {
+    return t.get_type() == token::type::KEYWORD;
   }
 
   //! Tests if a token represents a particular instance.

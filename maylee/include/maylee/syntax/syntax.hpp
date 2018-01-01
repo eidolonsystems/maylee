@@ -2,12 +2,13 @@
 #define MAYLEE_SYNTAX_HPP
 
 namespace maylee {
+  class block_statement;
   class call_expression;
   class element;
   class expression;
   class function;
   class function_not_found_syntax_error;
-  class if_expression;
+  class if_statement;
   class let_expression;
   class literal_expression;
   enum class op;

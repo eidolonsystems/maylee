@@ -6,7 +6,6 @@
 #include "maylee/lexicon/token.hpp"
 #include "maylee/syntax/arity_syntax_error.hpp"
 #include "maylee/syntax/call_expression.hpp"
-#include "maylee/syntax/if_expression.hpp"
 #include "maylee/syntax/let_expression.hpp"
 #include "maylee/syntax/literal_expression.hpp"
 #include "maylee/syntax/ops.hpp"
@@ -18,28 +17,6 @@
 #include "maylee/syntax/variable_expression.hpp"
 
 namespace maylee {
-  inline std::unique_ptr<if_expression>
-      syntax_parser::parse_if_expression(token_iterator& cursor) {
-    auto c = cursor;
-    if(!match(*c, keyword::word::IF)) {
-      return nullptr;
-    }
-    ++c;
-    auto condition = parse_expression(c);
-    if(condition == nullptr) {
-      throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
-        c.get_location());
-    }
-    if(!match(*c, punctuation::mark::COLON)) {
-      throw syntax_error(syntax_error_code::COLON_EXPECTED, c.get_location());
-    }
-    ++c;
-    while(!match(*c, keyword::word::END)) {
-      auto e = parse_node(c);
-    }
-    return nullptr;
-  }
-
   inline std::unique_ptr<let_expression> syntax_parser::parse_let_expression(
       token_iterator& cursor) {
     if(cursor.is_empty()) {
@@ -63,7 +40,7 @@ namespace maylee {
     if(c.is_empty()) {
       return nullptr;
     }
-    require_assignment(c);
+    expect(c, operation::symbol::ASSIGN);
     auto initializer = parse_expression(c);
     if(initializer == nullptr) {
       return nullptr;
@@ -122,8 +99,6 @@ namespace maylee {
       return node;
     } else if(auto node = parse_variable_expression(cursor)) {
       return node;
-    } else if(auto node = parse_if_expression(cursor)) {
-      return node;
     }
     return nullptr;
   }
@@ -170,7 +145,7 @@ namespace maylee {
       if(mode == parse_mode::TERM) {
         if(is_terminal(*c)) {
           break;
-        } else if(match(*c, punctuation::mark::OPEN_BRACKET)) {
+        } else if(match(*c, bracket::type::OPEN_ROUND_BRACKET)) {
           operators.push({op::OPEN_BRACKET, c.get_location()});
           ++c;
         } else if(auto node = parse_expression_term(c)) {
@@ -194,7 +169,7 @@ namespace maylee {
           operators.push({o, c.get_location()});
           ++c;
           mode = parse_mode::TERM;
-        } else if(match(*c, punctuation::mark::CLOSE_BRACKET)) {
+        } else if(match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
           auto found_open_bracket = false;
           while(!operators.empty()) {
             auto o = operators.top();
@@ -209,7 +184,7 @@ namespace maylee {
           ++c;
           if(!found_open_bracket) {
             throw unmatched_bracket_syntax_error(c.get_location(),
-              punctuation::mark::CLOSE_BRACKET);
+              bracket::type::OPEN_ROUND_BRACKET);
           }
         } else {
           break;
@@ -223,16 +198,20 @@ namespace maylee {
         auto bracket =
           [&] {
             if(o.m_op == op::OPEN_BRACKET) {
-              return punctuation::mark::OPEN_BRACKET;
+              return bracket::type::OPEN_ROUND_BRACKET;
             }
-            return punctuation::mark::CLOSE_BRACKET;
+            return bracket::type::CLOSE_ROUND_BRACKET;
           }();
         throw unmatched_bracket_syntax_error(o.m_location, bracket);
       }
       build_call_expression(o);
     }
-    if(expressions.empty()) {
+    if(expressions.empty() || c.is_empty()) {
       return nullptr;
+    }
+    if(!is_syntax_node_end(*c)) {
+      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
+        c.get_location());
     }
     auto e = std::move(expressions.front());
     expressions.pop_front();

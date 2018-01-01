@@ -15,6 +15,7 @@
 #include "maylee/syntax/syntax_node.hpp"
 #include "maylee/syntax/terminal_node.hpp"
 #include "maylee/syntax/token_iterator.hpp"
+#include "maylee/syntax/unmatched_bracket_syntax_error.hpp"
 
 namespace maylee {
 
@@ -45,19 +46,18 @@ namespace maylee {
       std::vector<token> m_tokens;
       token_iterator m_cursor;
       std::deque<std::unique_ptr<scope>> m_scopes;
-      int m_new_lines;
 
       syntax_parser(const syntax_parser&) = delete;
       syntax_parser& operator =(const syntax_parser&) = delete;
       scope& get_scope();
       scope& push_scope();
-      scope& pop_scope();
+      std::unique_ptr<scope> pop_scope();
       token_iterator get_next_terminal(token_iterator cursor) const;
       std::unique_ptr<syntax_node> parse_node(token_iterator& cursor);
+      std::unique_ptr<if_statement> parse_if_statement(token_iterator& cursor);
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
-      std::unique_ptr<if_expression> parse_if_expression(
-        token_iterator& cursor);
+      std::unique_ptr<syntax_node> parse_statement(token_iterator& cursor);
       std::unique_ptr<let_expression> parse_let_expression(
         token_iterator& cursor);
       std::unique_ptr<literal_expression> parse_literal_expression(
@@ -105,41 +105,57 @@ namespace maylee {
     }
   }
 
-  //! Ensures that a token represents an assignment operation.
+  //! Tests if a token represents the end of a syntax node, this happens if
+  //! a token is a new line, end of file, a colon, or keywords end/else/else if.
   /*!
-    \param cursor An iterator to the first token to parse.
-    \param size The number of tokens remaining.
+    \param t The token to test.
+    \return <code>true</code> iff <i>t</i> ends a syntax node.
   */
-  inline void require_assignment(token_iterator& cursor) {
-    if(cursor.is_empty()) {
-      throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
-        cursor.get_location());
-    }
-    std::visit(
-      [&] (auto&& value) {
-        using T = std::decay_t<decltype(value)>;
-        if constexpr(std::is_same_v<T, operation>) {
-          if(value.get_symbol() == operation::symbol::ASSIGN) {
-            ++cursor;
-            return;
-          }
-        }
-        throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
-          cursor.get_location());
-      },
-      cursor->get_instance());
+  inline bool is_syntax_node_end(const token& t) {
+    return is_terminal(t) || match(t, punctuation::mark::COLON) ||
+      match(t, keyword::word::END) || match(t, keyword::word::ELSE) ||
+      match(t, keyword::word::ELSE_IF);
   }
 
-  inline syntax_parser::syntax_parser()
-      : m_new_lines(0) {
+  //! Ensures that the token represented by an iterator is equal to some other
+  //! token, throwing a syntax_error otherwise.
+  /*!
+    \param cursor The iterator to test, this iterator is advanced past the
+           the location where the expected token is located.
+    \param t The token to expect.
+  */
+  inline void expect(token_iterator& cursor, const token::instance& t) {
+    auto c = cursor;
+    while(!c.is_empty() && match(*c, terminal::type::new_line)) {
+      ++c;
+    }
+    if(c.is_empty() || c->get_instance() != t) {
+      std::visit(
+        [&] (auto&& instance) {
+          using T = std::decay_t<decltype(instance)>;
+          if constexpr(std::is_same_v<T, punctuation>) {
+            if(instance == punctuation::mark::COLON) {
+              throw syntax_error(syntax_error_code::COLON_EXPECTED,
+                cursor.get_location());
+            }
+          } else if constexpr(std::is_same_v<T, operation>) {
+            if(instance == operation::symbol::ASSIGN) {
+              throw syntax_error(syntax_error_code::ASSIGNMENT_EXPECTED,
+                cursor.get_location());
+            }
+          }
+        }, t);
+    }
+    ++c;
+    cursor = c;
+  }
+
+  inline syntax_parser::syntax_parser() {
     m_scopes.push_back(std::make_unique<scope>());
     populate_global_scope(*m_scopes.back());
   }
 
   inline void syntax_parser::feed(token t) {
-    if(is_terminal(t)) {
-      ++m_new_lines;
-    }
     auto position = &*m_cursor - m_tokens.data();
     m_tokens.push_back(std::move(t));
     m_cursor.adjust(m_tokens.data() + position,
@@ -163,61 +179,100 @@ namespace maylee {
     return get_scope();
   }
 
-  inline scope& syntax_parser::pop_scope() {
+  inline std::unique_ptr<scope> syntax_parser::pop_scope() {
+    auto s = std::move(m_scopes.back());
     m_scopes.pop_back();
-    return get_scope();
+    return s;
   }
 
   inline token_iterator syntax_parser::get_next_terminal(
       token_iterator cursor) const {
-    if(cursor.is_empty() || match(*cursor, terminal::type::end_of_file)) {
+    if(cursor.is_empty() || is_terminal(*cursor)) {
       return cursor;
+    }
+    auto c = cursor;
+    if(match(*c, punctuation::mark::COLON)) {
+      ++c;
+      while(true) {
+        c = get_next_terminal(c);
+        if(c.is_empty()) {
+          return cursor;
+        }
+        if(match(*c, keyword::word::END)) {
+          ++c;
+          return c;
+        }
+        ++c;
+      }
+    }
+    if(match(*c, keyword::word::END) ||
+        match(*c, keyword::word::ELSE) ||
+        match(*c, keyword::word::ELSE_IF)) {
+      return c;
     }
     auto is_symbol = std::visit(
       [&] (auto&& t) {
         using T = std::decay_t<decltype(t)>;
         if constexpr(std::is_same_v<T, identifier> ||
             std::is_same_v<T, keyword> ||
-            std::is_same_v<T, literal>) {
+            std::is_same_v<T, literal> ||
+            std::is_same_v<T, punctuation>) {
           return true;
         }
         return false;
-      }, cursor->get_instance());
+      }, c->get_instance());
     if(is_symbol) {
-      return get_next_terminal(++cursor);
+      ++c;
+      return get_next_terminal(c);
+    }
+    if(std::get_if<operation>(&c->get_instance())) {
+      ++c;
+      if(c.is_empty()) {
+        return cursor;
+      }
+      if(match(*c, terminal::type::new_line)) {
+        ++c;
+      }
+      return get_next_terminal(c);
+    }
+    if(auto open_bracket = std::get_if<bracket>(&c->get_instance())) {
+      if(!is_open(*open_bracket)) {
+        return c;
+      }
+      auto l = c.get_location();
+      ++c;
+      auto end = get_next_terminal(c);
+      if(end.is_empty()) {
+        return cursor;
+      }
+      auto close_bracket = std::get_if<bracket>(&end->get_instance());
+      if(close_bracket == nullptr ||
+          get_opposite(*close_bracket) != *open_bracket) {
+        throw unmatched_bracket_syntax_error(l, *open_bracket);
+      }
+      ++end;
+      return get_next_terminal(end);
     }
     return cursor;
   }
 
   inline std::unique_ptr<syntax_node> syntax_parser::parse_node(
       token_iterator& cursor) {
-    auto new_lines = m_new_lines;
-    if(new_lines == 0) {
-      return nullptr;
+    while(!cursor.is_empty() && match(*cursor, terminal::type::new_line)) {
+      ++cursor;
     }
     std::unique_ptr<syntax_node> node;
     if(((node = parse_expression(cursor)) != nullptr) ||
-        ((node = parse_terminal_node(cursor)) != nullptr)) {
-      if(is_terminal(*cursor)) {
-        --new_lines;
+        ((node = parse_statement(cursor)) != nullptr)) {
+      if(!cursor.is_empty() && match(*cursor, terminal::type::new_line)) {
         ++cursor;
-        m_new_lines = new_lines;
-        return node;
       }
-      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
-        cursor.get_location());
-    }
-    return nullptr;
-  }
-
-  inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(
-      token_iterator& cursor) {
-    if(!cursor.is_empty() && match(*cursor, terminal::type::end_of_file)) {
-      return std::make_unique<terminal_node>();
+      return node;
     }
     return nullptr;
   }
 }
 
 #include "syntax_parser_expressions.hpp"
+#include "syntax_parser_statements.hpp"
 #endif

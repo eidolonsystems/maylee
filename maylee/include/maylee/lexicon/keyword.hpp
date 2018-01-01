@@ -106,6 +106,7 @@ namespace maylee {
       } else if(*c != 'i' ||
           c.get_size_remaining() > 1 && *(c + 1) != 'f' ||
           c.get_size_remaining() > 2) {
+        cursor = c;
         return keyword::word::ELSE;
       }
     }

@@ -1,6 +1,6 @@
 #ifndef MAYLEE_UNMATCHED_BRACKET_SYNTAX_ERROR_HPP
 #define MAYLEE_UNMATCHED_BRACKET_SYNTAX_ERROR_HPP
-#include "maylee/lexicon/punctuation.hpp"
+#include "maylee/lexicon/bracket.hpp"
 #include "maylee/syntax/syntax.hpp"
 #include "maylee/syntax/syntax_error.hpp"
 
@@ -17,23 +17,22 @@ namespace maylee {
         \param bracket The bracket at the error location.
       */
       unmatched_bracket_syntax_error(location error_location,
-        punctuation bracket);
+        bracket bracket);
 
       //! Returns the unmatched bracket.
-      punctuation get_unmatched_bracket() const;
+      bracket get_unmatched_bracket() const;
 
     private:
-      punctuation m_bracket;
+      bracket m_bracket;
   };
 
   inline unmatched_bracket_syntax_error::unmatched_bracket_syntax_error(
-      location error_location, punctuation bracket)
+      location error_location, bracket bracket)
       : syntax_error(syntax_error_code::UNMATCHED_BRACKET,
           std::move(error_location)),
         m_bracket(std::move(bracket)) {}
 
-  inline punctuation unmatched_bracket_syntax_error::
-      get_unmatched_bracket() const {
+  inline bracket unmatched_bracket_syntax_error::get_unmatched_bracket() const {
     return m_bracket;
   }
 }

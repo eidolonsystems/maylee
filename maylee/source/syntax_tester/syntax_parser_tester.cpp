@@ -37,9 +37,41 @@ TEST_CASE("test_parsing_terminal", "[syntax_parser]") {
 }
 
 TEST_CASE("test_parsing_term", "[syntax_parser]") {
-  syntax_parser p;
-  feed(p, "hello world\n");
-  auto c = p.get_next_terminal();
+  SECTION("Parse identifiers.") {
+    syntax_parser p;
+    feed(p, "hello world");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse identifiers with new lines.") {
+    syntax_parser p;
+    feed(p, "hello\nworld");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse brackets.") {
+    syntax_parser p;
+    feed(p, "(()()()())");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse brackets with new lines.") {
+    syntax_parser p;
+    feed(p, "(\n5)");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse operators.") {
+    syntax_parser p;
+    feed(p, "5 + 5");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse operators with new line.") {
+    syntax_parser p;
+    feed(p, "5 +\n 5");
+    auto c = p.get_next_terminal();
+  }
+  SECTION("Parse colon.") {
+    syntax_parser p;
+    feed(p, "def x:5 6\n 7 end def y: 3 1 end");
+    auto c = p.get_next_terminal();
+  }
 }
 
 TEST_CASE("test_parsing_literal_expression", "[syntax_parser]") {
@@ -143,10 +175,33 @@ TEST_CASE("test_parsing_with_line_continuations", "[syntax_parser]") {
   }
 }
 
-TEST_CASE("test_parsing_if_expression", "[syntax_parser]") {
-  syntax_parser p;
-  feed(p, "if true: 123 end");
-  auto n = p.parse_node();
-  auto e = dynamic_cast<const if_expression*>(n.get());
-  REQUIRE(e != nullptr);
+TEST_CASE("test_parsing_if_statement", "[syntax_parser]") {
+  SECTION("Parse if statement.") {
+    syntax_parser p;
+    feed(p, "if true\n: 123 end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const if_statement*>(n.get());
+    REQUIRE(e != nullptr);
+  }
+  SECTION("Parse if/else statement.") {
+    syntax_parser p;
+    feed(p, "if true\n: 123 else: false end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const if_statement*>(n.get());
+    REQUIRE(e != nullptr);
+  }
+  SECTION("Parse if/else if statement.") {
+    syntax_parser p;
+    feed(p, "if true\n: 123 else if false: 321 end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const if_statement*>(n.get());
+    REQUIRE(e != nullptr);
+  }
+  SECTION("Parse if/else if/else statement.") {
+    syntax_parser p;
+    feed(p, "if true\n: 123 else if false: 321 else: 789 end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const if_statement*>(n.get());
+    REQUIRE(e != nullptr);
+  }
 }

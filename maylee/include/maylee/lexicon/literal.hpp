@@ -8,6 +8,7 @@
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/float_data_type.hpp"
 #include "maylee/data_types/scalar_data_type.hpp"
+#include "maylee/lexicon/bracket.hpp"
 #include "maylee/lexicon/keyword.hpp"
 #include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
@@ -47,7 +48,7 @@ namespace maylee {
   inline std::optional<literal> parse_literal(lexical_iterator& cursor) {
     auto is_separator =
       [] (char c) {
-        return std::isspace(c) || is_punctuation(c) ||
+        return std::isspace(c) || is_punctuation(c) || is_bracket(c) ||
           is_operation_delimiter(c) || c == '\0';
       };
     auto parse_decimal =
