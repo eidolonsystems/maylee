@@ -22,6 +22,9 @@ namespace maylee {
     //! A colon was expected.
     COLON_EXPECTED,
 
+    //! An open round bracket was expected.
+    OPEN_ROUND_BRACKET_EXPECTED,
+
     //! An identifier already has a definition.
     IDENTIFIER_ALREADY_DEFINED,
 

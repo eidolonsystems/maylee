@@ -7,6 +7,7 @@ namespace maylee {
   class element;
   class expression;
   class function;
+  class function_definition;
   class function_not_found_syntax_error;
   class if_statement;
   class let_expression;
@@ -21,7 +22,7 @@ namespace maylee {
   class syntax_parser;
   class terminal_node;
   class token_iterator;
-  class type_expression;
+  class type_name_expression;
   class unmatched_bracket_syntax_error;
   class variable;
   class variable_expression;

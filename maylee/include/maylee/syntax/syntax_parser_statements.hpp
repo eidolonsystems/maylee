@@ -3,12 +3,58 @@
 #include <cassert>
 #include "maylee/lexicon/token.hpp"
 #include "maylee/syntax/block_statement.hpp"
+#include "maylee/syntax/function_definition.hpp"
 #include "maylee/syntax/if_statement.hpp"
 #include "maylee/syntax/syntax.hpp"
 #include "maylee/syntax/syntax_error.hpp"
 #include "maylee/syntax/syntax_parser.hpp"
 
 namespace maylee {
+  inline std::unique_ptr<function_definition>
+      syntax_parser::parse_function_definition(token_iterator& cursor) {
+    auto c = cursor;
+    if(!match(*c, keyword::word::DEFINE)) {
+      return nullptr;
+    }
+    ++c;
+    if(c.is_empty()) {
+      return nullptr;
+    }
+    auto identifier_cursor = c;
+    auto& name = parse_identifier(c);
+    auto existing_element = get_scope().find_within(name);
+    if(existing_element.has_value()) {
+      // TODO
+//      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
+//        existing_element->get_location());
+    }
+    if(c.is_empty()) {
+      return nullptr;
+    }
+    expect(c, bracket::type::OPEN_ROUND_BRACKET);
+    std::vector<function_definition::parameter> parameters;
+    while(!match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
+      auto type = parse_expression(c);
+
+      // TODO
+    }
+    ++c;
+    if(c.is_empty()) {
+      return nullptr;
+    }
+    expect(c, punctuation::mark::COLON);
+    push_scope();
+    std::vector<std::unique_ptr<statement>> body;
+    while(!match(*c, keyword::word::END)) {
+      body.push_back(parse_statement(c));
+    }
+    auto s = pop_scope();
+    ++c;
+    cursor = c;
+    return std::make_unique<function_definition>(name, std::move(parameters),
+      std::make_unique<block_statement>(std::move(s), std::move(body)));
+  }
+
   inline std::unique_ptr<if_statement> syntax_parser::parse_if_statement(
       token_iterator& cursor) {
     struct clause {
@@ -91,9 +137,11 @@ namespace maylee {
 
   inline std::unique_ptr<statement> syntax_parser::parse_statement(
       token_iterator& cursor) {
-    if(auto node = parse_expression(cursor)) {
+    if(auto node = parse_if_statement(cursor)) {
       return node;
-    } else if(auto node = parse_if_statement(cursor)) {
+    } else if(auto node = parse_function_definition(cursor)) {
+      return node;
+    } else if(auto node = parse_expression(cursor)) {
       return node;
     }
     return nullptr;

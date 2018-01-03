@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
 
@@ -20,7 +21,7 @@ namespace maylee {
         std::string m_name;
 
         //! The parameter's type.
-        std::unique_ptr<type_expression> m_type;
+        std::unique_ptr<expression> m_type;
       };
 
       //! Constructs a function definition.

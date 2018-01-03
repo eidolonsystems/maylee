@@ -55,6 +55,8 @@ namespace maylee {
       std::unique_ptr<scope> pop_scope();
       token_iterator get_next_terminal(token_iterator cursor) const;
       std::unique_ptr<syntax_node> parse_node(token_iterator& cursor);
+      std::unique_ptr<function_definition> parse_function_definition(
+        token_iterator& cursor);
       std::unique_ptr<if_statement> parse_if_statement(token_iterator& cursor);
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
@@ -137,6 +139,11 @@ namespace maylee {
           if constexpr(std::is_same_v<T, punctuation>) {
             if(instance == punctuation::mark::COLON) {
               throw syntax_error(syntax_error_code::COLON_EXPECTED,
+                cursor.get_location());
+            }
+          } else if constexpr(std::is_same_v<T, bracket>) {
+            if(instance == bracket::type::OPEN_ROUND_BRACKET) {
+              throw syntax_error(syntax_error_code::OPEN_ROUND_BRACKET_EXPECTED,
                 cursor.get_location());
             }
           } else if constexpr(std::is_same_v<T, operation>) {

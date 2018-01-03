@@ -195,3 +195,13 @@ TEST_CASE("test_parsing_if_statement", "[syntax_parser]") {
     REQUIRE(e != nullptr);
   }
 }
+
+TEST_CASE("test_parsing_function_definition", "[syntax_parser]") {
+  SECTION("Parse zero parameter function with empty body.") {
+    syntax_parser p;
+    feed(p, "def f(): end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const function_definition*>(n.get());
+    REQUIRE(e != nullptr);
+  }
+}
