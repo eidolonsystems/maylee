@@ -18,6 +18,9 @@ namespace maylee {
         //! ':'
         COLON,
 
+        //! '::'
+        PATH,
+
         //! ','
         COMMA,
 
@@ -59,7 +62,15 @@ namespace maylee {
       lexical_iterator& cursor) {
     if(!cursor.is_empty()) {
       if(*cursor == ':') {
-        ++cursor;
+        auto c = cursor + 1;
+        if(c.is_empty()) {
+          return std::nullopt;
+        } else if(*c == ':') {
+          ++c;
+          cursor = c;
+          return punctuation::mark::PATH;
+        }
+        cursor = c;
         return punctuation::mark::COLON;
       } else if(*cursor == ',') {
         ++cursor;
@@ -90,6 +101,8 @@ namespace maylee {
     switch(value.get_mark()) {
       case punctuation::mark::COLON:
         return out << ':';
+      case punctuation::mark::PATH:
+        return out << "::";
       case punctuation::mark::COMMA:
         return out << ',';
       case punctuation::mark::DOT:

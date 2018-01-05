@@ -79,10 +79,10 @@ namespace maylee {
       } else {
         is_first = false;
       }
-      m_name += member.m_type->get_name();
       if(!member.m_name.empty()) {
-        m_name += " " + member.m_name;
+        m_name += member.m_name + ": ";
       }
+      m_name += member.m_type->get_name();
     }
     m_name += ")";
   }

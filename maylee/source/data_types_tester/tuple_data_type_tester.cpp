@@ -13,9 +13,32 @@ TEST_CASE("test_void_tuple", "[tuple_data_type]") {
 }
 
 TEST_CASE("test_pair", "[tuple_data_type]") {
-  tuple_data_type t(std::vector<tuple_data_type::member>(
-    {{"x", bool_data_type::get_instance()},
-    {"y", char_data_type::get_instance()}}));
-  REQUIRE(t.get_name() == "(Bool x, Char y)");
-  REQUIRE(t == t);
+  SECTION("Named fields.") {
+    tuple_data_type t(std::vector<tuple_data_type::member>(
+      {{"x", bool_data_type::get_instance()},
+      {"y", char_data_type::get_instance()}}));
+    REQUIRE(t.get_name() == "(x: Bool, y: Char)");
+    REQUIRE(t == t);
+  }
+  SECTION("Unnamed fields.") {
+    tuple_data_type t(std::vector<tuple_data_type::member>(
+      {{"", bool_data_type::get_instance()},
+      {"", char_data_type::get_instance()}}));
+    REQUIRE(t.get_name() == "(Bool, Char)");
+    REQUIRE(t == t);
+  }
+  SECTION("Mixed named fields.") {
+    tuple_data_type t(std::vector<tuple_data_type::member>(
+      {{"a", bool_data_type::get_instance()},
+      {"", char_data_type::get_instance()}}));
+    REQUIRE(t.get_name() == "(a: Bool, Char)");
+    REQUIRE(t == t);
+  }
+  SECTION("Mixed named fields.") {
+    tuple_data_type t(std::vector<tuple_data_type::member>(
+      {{"", bool_data_type::get_instance()},
+      {"b", char_data_type::get_instance()}}));
+    REQUIRE(t.get_name() == "(Bool, b: Char)");
+    REQUIRE(t == t);
+  }
 }

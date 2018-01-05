@@ -204,4 +204,11 @@ TEST_CASE("test_parsing_function_definition", "[syntax_parser]") {
     auto e = dynamic_cast<const function_definition*>(n.get());
     REQUIRE(e != nullptr);
   }
+  SECTION("Parse single parameter function with empty body.") {
+    syntax_parser p;
+    feed(p, "def f(x: Int32): end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const function_definition*>(n.get());
+    REQUIRE(e != nullptr);
+  }
 }

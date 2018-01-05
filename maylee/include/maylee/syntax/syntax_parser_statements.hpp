@@ -34,7 +34,19 @@ namespace maylee {
     expect(c, bracket::type::OPEN_ROUND_BRACKET);
     std::vector<function_definition::parameter> parameters;
     while(!match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
+      auto identifier_cursor = c;
+      auto& name = parse_identifier(c);
+      if(std::find_if(parameters.begin(), parameters.end(),
+          [&] (auto& parameter) {
+            return parameter.m_name == name;
+          }) != parameters.end()) {
+      // TODO
+//      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
+//        existing_element->get_location());
+      }
+      expect(c, punctuation::mark::COLON);
       auto type = parse_expression(c);
+      parameters.push_back({name, std::move(type)});
 
       // TODO
     }

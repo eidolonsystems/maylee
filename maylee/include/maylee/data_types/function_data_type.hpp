@@ -59,10 +59,10 @@ namespace maylee {
       } else {
         is_first = false;
       }
-      m_name += parameter.m_type->get_name();
       if(!parameter.m_name.empty()) {
-        m_name += " " + parameter.m_name;
+        m_name += parameter.m_name + ": ";
       }
+      m_name += parameter.m_type->get_name();
     }
     m_name += ") -> " + m_return_type->get_name();
   }
