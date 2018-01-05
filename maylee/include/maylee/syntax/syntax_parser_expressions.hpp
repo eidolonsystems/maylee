@@ -32,11 +32,6 @@ namespace maylee {
     }
     auto identifier_cursor = c;
     auto& name = parse_identifier(c);
-    auto existing_element = get_scope().find_within(name);
-    if(existing_element.has_value()) {
-      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
-        existing_element->get_location());
-    }
     if(c.is_empty()) {
       return nullptr;
     }
@@ -47,8 +42,6 @@ namespace maylee {
     }
     auto expression = std::make_unique<let_expression>(name,
       std::move(initializer));
-    m_scopes.back()->add(element(std::make_shared<variable>(name),
-      identifier_cursor.get_location()));
     cursor = c;
     return expression;
   }

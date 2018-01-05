@@ -6,5 +6,5 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_block_statement", "[block_statement]") {
-  block_statement b(std::make_unique<scope>(), {});
+  block_statement b({});
 }

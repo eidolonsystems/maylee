@@ -8,7 +8,6 @@
 #include <vector>
 #include "maylee/lexicon/token.hpp"
 #include "maylee/syntax/expression.hpp"
-#include "maylee/syntax/scope.hpp"
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax_error_code.hpp"
 #include "maylee/syntax/syntax_error.hpp"
@@ -25,7 +24,7 @@ namespace maylee {
     public:
 
       //! Constructs a default syntax parser.
-      syntax_parser();
+      syntax_parser() = default;
 
       //! Feeds this parser a token.
       /*!
@@ -46,13 +45,9 @@ namespace maylee {
     private:
       std::vector<token> m_tokens;
       token_iterator m_cursor;
-      std::deque<std::unique_ptr<scope>> m_scopes;
 
       syntax_parser(const syntax_parser&) = delete;
       syntax_parser& operator =(const syntax_parser&) = delete;
-      scope& get_scope();
-      scope& push_scope();
-      std::unique_ptr<scope> pop_scope();
       token_iterator get_next_terminal(token_iterator cursor) const;
       std::unique_ptr<syntax_node> parse_node(token_iterator& cursor);
       std::unique_ptr<function_definition> parse_function_definition(
@@ -158,11 +153,6 @@ namespace maylee {
     cursor = c;
   }
 
-  inline syntax_parser::syntax_parser() {
-    m_scopes.push_back(std::make_unique<scope>());
-    populate_global_scope(*m_scopes.back());
-  }
-
   inline void syntax_parser::feed(token t) {
     auto position = &*m_cursor - m_tokens.data();
     m_tokens.push_back(std::move(t));
@@ -176,21 +166,6 @@ namespace maylee {
 
   inline std::unique_ptr<syntax_node> syntax_parser::parse_node() {
     return parse_node(m_cursor);
-  }
-
-  inline scope& syntax_parser::get_scope() {
-    return *m_scopes.back();
-  }
-
-  inline scope& syntax_parser::push_scope() {
-    m_scopes.push_back(std::make_unique<scope>(&get_scope()));
-    return get_scope();
-  }
-
-  inline std::unique_ptr<scope> syntax_parser::pop_scope() {
-    auto s = std::move(m_scopes.back());
-    m_scopes.pop_back();
-    return s;
   }
 
   inline token_iterator syntax_parser::get_next_terminal(

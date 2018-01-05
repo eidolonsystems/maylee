@@ -22,12 +22,6 @@ namespace maylee {
     }
     auto identifier_cursor = c;
     auto& name = parse_identifier(c);
-    auto existing_element = get_scope().find_within(name);
-    if(existing_element.has_value()) {
-      // TODO
-//      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
-//        existing_element->get_location());
-    }
     if(c.is_empty()) {
       return nullptr;
     }
@@ -47,24 +41,20 @@ namespace maylee {
       expect(c, punctuation::mark::COLON);
       auto type = parse_expression(c);
       parameters.push_back({name, std::move(type)});
-
-      // TODO
     }
     ++c;
     if(c.is_empty()) {
       return nullptr;
     }
     expect(c, punctuation::mark::COLON);
-    push_scope();
     std::vector<std::unique_ptr<statement>> body;
     while(!match(*c, keyword::word::END)) {
       body.push_back(parse_statement(c));
     }
-    auto s = pop_scope();
     ++c;
     cursor = c;
     return std::make_unique<function_definition>(name, std::move(parameters),
-      std::make_unique<block_statement>(std::move(s), std::move(body)));
+      std::make_unique<block_statement>(std::move(body)));
   }
 
   inline std::unique_ptr<if_statement> syntax_parser::parse_if_statement(
@@ -86,14 +76,12 @@ namespace maylee {
           c.get_location());
       }
       expect(c, punctuation::mark::COLON);
-      push_scope();
       std::vector<std::unique_ptr<statement>> consequents;
       while(!match(*c, keyword::word::END) && !match(*c, keyword::word::ELSE) &&
           !match(*c, keyword::word::ELSE_IF)) {
         consequents.push_back(parse_statement(c));
       }
-      auto s = pop_scope();
-      auto consequent = std::make_unique<block_statement>(std::move(s),
+      auto consequent = std::make_unique<block_statement>(
         std::move(consequents));
       clauses.push_back({std::move(condition), std::move(consequent)});
       if(!match(*c, keyword::word::ELSE_IF)) {
@@ -108,14 +96,11 @@ namespace maylee {
           }
           ++c;
           expect(c, punctuation::mark::COLON);
-          push_scope();
           std::vector<std::unique_ptr<statement>> consequents;
           while(!match(*c, keyword::word::END)) {
             consequents.push_back(parse_statement(c));
           }
-          auto s = pop_scope();
-          return std::make_unique<block_statement>(std::move(s),
-            std::move(consequents));
+          return std::make_unique<block_statement>(std::move(consequents));
         } else {
           return std::make_unique<void_expression>();
         }
