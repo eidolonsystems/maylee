@@ -86,34 +86,6 @@ namespace maylee {
       location::global()));
   }
 
-  //! Given a function name and a list of parameters, finds the correct
-  //! function overload to apply.
-  /*!
-    \param s The scope to search.
-    \param name The name of the function.
-    \param parameters The parameters to apply.
-    \param l The location of the function call.
-    \return The correct function overload accessible from scope <i>s</i> with
-            the specified name applied to the specified parameters.
-  */
-  inline std::shared_ptr<function> resolve_overload(const scope& s,
-      const std::string& name,
-      const std::vector<std::unique_ptr<expression>>& parameters,
-      const location& l) {
-    auto e = s.find(name);
-    if(!e.has_value()) {
-      throw function_not_found_syntax_error(l, name);
-    }
-    if(auto v = std::get_if<std::shared_ptr<variable>>(&e->get_instance())) {
-      auto f = std::dynamic_pointer_cast<function>(*v);
-      if(f == nullptr) {
-        throw syntax_error(syntax_error_code::EXPRESSION_NOT_CALLABLE, l);
-      }
-      return f;
-    }
-    throw syntax_error(syntax_error_code::EXPRESSION_NOT_CALLABLE, l);
-  }
-
   inline scope::scope()
       : m_parent(nullptr) {}
 

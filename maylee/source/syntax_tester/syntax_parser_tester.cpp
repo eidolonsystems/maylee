@@ -105,7 +105,7 @@ TEST_CASE("test_parsing_variable_expression", "[syntax_parser]") {
   auto expression = p.parse_node();
   auto variable = dynamic_cast<variable_expression*>(expression.get());
   REQUIRE(variable != nullptr);
-  REQUIRE(variable->get_variable()->get_name() == "y");
+  REQUIRE(variable->get_name() == "y");
 }
 
 TEST_CASE("test_parsing_no_line_break", "[syntax_parser]") {

@@ -1,10 +1,10 @@
 #ifndef MAYLEE_VARIABLE_EXPRESSION_HPP
 #define MAYLEE_VARIABLE_EXPRESSION_HPP
 #include <memory>
+#include <string>
 #include <utility>
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/syntax.hpp"
-#include "maylee/syntax/variable.hpp"
 
 namespace maylee {
 
@@ -14,24 +14,22 @@ namespace maylee {
 
       //! Constructs a variable expression.
       /*!
-        \param variable The variable to evaluate to.
+        \param variable The name of the variable to evaluate.
       */
-      variable_expression(std::shared_ptr<variable> variable);
+      variable_expression(std::string name);
 
-      //! Returns the variable this expression evaluates to.
-      const std::shared_ptr<variable>& get_variable() const;
+      //! Returns the name of the variable to evaluate.
+      const std::string& get_name() const;
 
     private:
-      std::shared_ptr<variable> m_variable;
+      std::string m_name;
   };
 
-  inline variable_expression::variable_expression(
-      std::shared_ptr<variable> variable)
-      : m_variable(std::move(variable)) {}
+  inline variable_expression::variable_expression(std::string name)
+      : m_name(std::move(name)) {}
 
-  inline const std::shared_ptr<variable>&
-      variable_expression::get_variable() const {
-    return m_variable;
+  inline const std::string& variable_expression::get_name() const {
+    return m_name;
   }
 }
 

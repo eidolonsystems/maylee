@@ -78,16 +78,8 @@ namespace maylee {
     if(!name.has_value()) {
       return nullptr;
     }
-    auto element = get_scope().find(*name);
-    if(!element.has_value()) {
-      return nullptr;
-    }
-    if(auto v = std::get_if<std::shared_ptr<variable>>(
-        &element->get_instance())) {
-      cursor = c;
-      return std::make_unique<variable_expression>(*v);
-    }
-    return nullptr;
+    cursor = c;
+    return std::make_unique<variable_expression>(std::move(*name));
   }
 
   inline std::unique_ptr<expression> syntax_parser::parse_expression_term(
@@ -126,10 +118,8 @@ namespace maylee {
           --arity;
         }
         auto& function_name = get_function_name(o.m_op);
-        auto function = resolve_overload(get_scope(), function_name,
-          parameters, o.m_location);
         auto call = std::make_unique<call_expression>(
-          std::make_unique<variable_expression>(std::move(function)),
+          std::make_unique<variable_expression>(function_name),
           std::move(parameters));
         expressions.push_back(std::move(call));
       };
@@ -179,11 +169,10 @@ namespace maylee {
               build_call_expression(o);
             }
           }
-          ++c;
           if(!found_open_bracket) {
-            throw unmatched_bracket_syntax_error(c.get_location(),
-              bracket::type::OPEN_ROUND_BRACKET);
+            break;
           }
+          ++c;
         } else {
           break;
         }
@@ -206,10 +195,6 @@ namespace maylee {
     }
     if(expressions.empty() || c.is_empty()) {
       return nullptr;
-    }
-    if(!is_syntax_node_end(*c)) {
-      throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
-        c.get_location());
     }
     auto e = std::move(expressions.front());
     expressions.pop_front();
