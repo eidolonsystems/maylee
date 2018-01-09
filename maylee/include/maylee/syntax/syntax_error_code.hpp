@@ -10,6 +10,9 @@ namespace maylee {
     //! A new line was expected.
     NEW_LINE_EXPECTED,
 
+    //! An invalid escape character was encountered.
+    INVALID_ESCAPE_CHARACTER,
+
     //! An identifier was expected.
     IDENTIFIER_EXPECTED,
 

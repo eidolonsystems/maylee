@@ -46,3 +46,10 @@ TEST_CASE("test_parse_literal", "[literal]") {
     REQUIRE(parse_literal("abc") == nullopt);
   }
 }
+
+TEST_CASE("test_parse_string", "[literal]") {
+  REQUIRE(parse_literal("\"abc\"") ==
+    literal("abc", string_lit_data_type::get_instance()));
+  REQUIRE(parse_literal("\"a\\nc\"") ==
+    literal("a\nc", string_lit_data_type::get_instance()));
+}

@@ -11,6 +11,7 @@ namespace maylee {
   class function_data_type;
   class scalar_data_type;
   class size_data_type;
+  class string_lit_data_type;
   class tuple_data_type;
   class union_data_type;
   class variable_array_data_type;

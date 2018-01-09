@@ -8,12 +8,14 @@
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/float_data_type.hpp"
 #include "maylee/data_types/scalar_data_type.hpp"
+#include "maylee/data_types/string_lit_data_type.hpp"
 #include "maylee/lexicon/bracket.hpp"
 #include "maylee/lexicon/keyword.hpp"
 #include "maylee/lexicon/lexical_iterator.hpp"
 #include "maylee/lexicon/lexicon.hpp"
 #include "maylee/lexicon/operation.hpp"
 #include "maylee/lexicon/punctuation.hpp"
+#include "maylee/syntax/syntax_error.hpp"
 
 namespace maylee {
 
@@ -38,6 +40,72 @@ namespace maylee {
       std::string m_value;
       std::shared_ptr<data_type> m_type;
   };
+
+  //! Returns the escape character corresponding to a value.
+  /*!
+    \param c The escape character to translate.
+    \return The translated escape character.
+  */
+  inline std::optional<char> translate_escape_character(char c) {
+    if(c == '\\') {
+      return '\\';
+    } else if(c == 'n') {
+      return '\n';
+    } else if(c == 'r') {
+      return '\r';
+    } else if(c == '"') {
+      return '"';
+    } else if(c == 'b') {
+      return '\b';
+    } else if(c == 'f') {
+      return '\f';
+    } else if(c == 't') {
+      return '\t';
+    }
+    return std::nullopt;
+  }
+
+  //! Parses a string literal.
+  /*!
+    \param cursor An iterator to the first character to parse, this iterator
+           will be adjusted to one past the last character that was parsed.
+    \return The string literal that was parsed.
+  */
+  inline std::optional<literal> parse_string_literal(
+      lexical_iterator& cursor) {
+    if(cursor.is_empty() || *cursor != '"') {
+      return std::nullopt;
+    }
+    auto c = cursor + 1;
+    std::string value;
+    while(true) {
+      if(c.is_empty()) {
+        return std::nullopt;
+      }
+      if(*c == '"') {
+        break;
+      }
+      if(*c == '\\') {
+        ++c;
+        if(c.is_empty()) {
+          return std::nullopt;
+        }
+        auto escape = translate_escape_character(*c);
+        if(escape.has_value()) {
+          value += *escape;
+        } else {
+          throw syntax_error(syntax_error_code::INVALID_ESCAPE_CHARACTER,
+            c.get_location());
+        }
+      } else {
+        value += *c;
+      }
+      ++c;
+    }
+    ++c;
+    cursor = c;
+    return literal(value, string_lit_data_type::get_instance());
+  }
 
   //! Parses a literal.
   /*!
@@ -65,6 +133,9 @@ namespace maylee {
     }
     if(prefix_match(cursor, "false")) {
       return literal("false", bool_data_type::get_instance());
+    }
+    if(auto l = parse_string_literal(cursor)) {
+      return l;
     }
     auto c = cursor;
     if(std::isdigit(*c)) {
