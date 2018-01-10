@@ -5,6 +5,8 @@
 #include "maylee/syntax/block_statement.hpp"
 #include "maylee/syntax/function_definition.hpp"
 #include "maylee/syntax/if_statement.hpp"
+#include "maylee/syntax/function_parameter_redefinition_syntax_error.hpp"
+#include "maylee/syntax/return_statement.hpp"
 #include "maylee/syntax/syntax.hpp"
 #include "maylee/syntax/syntax_error.hpp"
 #include "maylee/syntax/syntax_parser.hpp"
@@ -27,20 +29,26 @@ namespace maylee {
     }
     expect(c, bracket::type::OPEN_ROUND_BRACKET);
     std::vector<function_definition::parameter> parameters;
+    std::vector<location> parameter_locations;
     while(!match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
       auto identifier_cursor = c;
       auto& name = parse_identifier(c);
-      if(std::find_if(parameters.begin(), parameters.end(),
-          [&] (auto& parameter) {
-            return parameter.m_name == name;
-          }) != parameters.end()) {
-      // TODO
-//      throw redefinition_syntax_error(identifier_cursor.get_location(), name,
-//        existing_element->get_location());
+      auto existing_parameter = std::find_if(parameters.begin(),
+        parameters.end(),
+        [&] (auto& parameter) {
+          return parameter.m_name == name;
+        });
+      if(existing_parameter != parameters.end()) {
+        auto existing_index = std::distance(existing_parameter,
+          parameters.begin());
+        throw function_parameter_redefinition_syntax_error(
+          identifier_cursor.get_location(), name,
+          parameter_locations[existing_index]);
       }
       expect(c, punctuation::mark::COLON);
       auto type = parse_expression(c);
       parameters.push_back({name, std::move(type)});
+      parameter_locations.push_back(identifier_cursor.get_location());
     }
     ++c;
     if(c.is_empty()) {
@@ -123,6 +131,22 @@ namespace maylee {
     return bottom;
   }
 
+  inline std::unique_ptr<return_statement>
+      syntax_parser::parse_return_statement(token_iterator& cursor) {
+    auto c = cursor;
+    if(!match(*c, keyword::word::RETURN)) {
+      return nullptr;
+    }
+    ++c;
+    if(is_syntax_node_end(*c)) {
+      cursor = c;
+      return std::make_unique<return_statement>();
+    }
+    auto result = parse_expression(c);
+    cursor = c;
+    return std::make_unique<return_statement>(std::move(result));
+  }
+
   inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(
       token_iterator& cursor) {
     if(!cursor.is_empty() && match(*cursor, terminal::type::end_of_file)) {
@@ -138,6 +162,7 @@ namespace maylee {
     std::unique_ptr<statement> node;
     if((node = parse_if_statement(c)) != nullptr ||
         (node = parse_function_definition(c)) != nullptr ||
+        (node = parse_return_statement(c)) != nullptr ||
         (node = parse_expression(c)) != nullptr) {
       if(!is_syntax_node_end(*c)) {
         throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,

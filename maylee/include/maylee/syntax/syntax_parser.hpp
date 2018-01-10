@@ -53,6 +53,8 @@ namespace maylee {
       std::unique_ptr<function_definition> parse_function_definition(
         token_iterator& cursor);
       std::unique_ptr<if_statement> parse_if_statement(token_iterator& cursor);
+      std::unique_ptr<return_statement> parse_return_statement(
+        token_iterator& cursor);
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
       std::unique_ptr<statement> parse_statement(token_iterator& cursor);

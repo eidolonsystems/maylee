@@ -9,11 +9,13 @@ namespace maylee {
   class function;
   class function_definition;
   class function_not_found_syntax_error;
+  class function_parameter_redefinition_syntax_error;
   class if_statement;
   class let_expression;
   class literal_expression;
   enum class op;
   class redefinition_syntax_error;
+  class return_statement;
   class scope;
   class statement;
   enum class syntax_error_code;

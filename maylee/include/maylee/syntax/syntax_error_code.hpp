@@ -28,6 +28,9 @@ namespace maylee {
     //! An open round bracket was expected.
     OPEN_ROUND_BRACKET_EXPECTED,
 
+    //! A function parameter has already been defined.
+    FUNCTION_PARAMETER_ALREADY_DEFINED,
+
     //! An identifier already has a definition.
     IDENTIFIER_ALREADY_DEFINED,
 

@@ -206,9 +206,34 @@ TEST_CASE("test_parsing_function_definition", "[syntax_parser]") {
   }
   SECTION("Parse single parameter function with empty body.") {
     syntax_parser p;
-    feed(p, "def f(x: Int32): end");
+    feed(p, "def f(x: Int): end");
     auto n = p.parse_node();
     auto e = dynamic_cast<const function_definition*>(n.get());
     REQUIRE(e != nullptr);
+  }
+  SECTION("Parse duplicate parameter names.") {
+    syntax_parser p;
+    feed(p, "def f(x: Int, x: Char): end");
+    REQUIRE_THROWS(p.parse_node());
+  }
+}
+
+TEST_CASE("test_parsing_return_statement", "[syntax_parser]") {
+  SECTION("Parse a Void return statement.") {
+    syntax_parser p;
+    feed(p, "return");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const return_statement*>(n.get());
+    REQUIRE(e != nullptr);
+    REQUIRE(dynamic_cast<const void_expression*>(&e->get_result()) != nullptr);
+  }
+  SECTION("Parse a return statement with a value.") {
+    syntax_parser p;
+    feed(p, "return 123");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const return_statement*>(n.get());
+    REQUIRE(e != nullptr);
+    REQUIRE(dynamic_cast<const literal_expression*>(&e->get_result()) !=
+      nullptr);
   }
 }
