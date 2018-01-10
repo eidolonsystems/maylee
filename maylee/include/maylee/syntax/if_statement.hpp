@@ -4,6 +4,7 @@
 #include <utility>
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 #include "maylee/syntax/void_expression.hpp"
 
 namespace maylee {
@@ -39,6 +40,8 @@ namespace maylee {
       //! Returns the statement evaluated if the condition is false.
       const statement& get_alternative() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::unique_ptr<expression> m_condition;
       std::unique_ptr<statement> m_consequent;
@@ -67,6 +70,14 @@ namespace maylee {
 
   inline const statement& if_statement::get_alternative() const {
     return *m_alternative;
+  }
+
+  inline void if_statement::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const if_statement& node) {
+    visit(static_cast<const statement&>(node));
   }
 }
 

@@ -21,6 +21,7 @@ namespace maylee {
   enum class syntax_error_code;
   class syntax_error;
   class syntax_node;
+  class syntax_node_visitor;
   class syntax_parser;
   class terminal_node;
   class token_iterator;

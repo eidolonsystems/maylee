@@ -4,6 +4,7 @@
 #include "maylee/lexicon/literal.hpp"
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -20,6 +21,8 @@ namespace maylee {
       //! Returns the literal that is evaluated.
       const literal& get_literal() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       literal m_literal;
   };
@@ -29,6 +32,14 @@ namespace maylee {
 
   inline const literal& literal_expression::get_literal() const {
     return m_literal;
+  }
+
+  inline void literal_expression::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const literal_expression& node) {
+    visit(static_cast<const expression&>(node));
   }
 }
 

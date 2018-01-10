@@ -2,6 +2,7 @@
 #define MAYLEE_EXPRESSION_HPP
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -12,6 +13,10 @@ namespace maylee {
       //! Constructs an expression.
       expression() = default;
   };
+
+  inline void syntax_node_visitor::visit(const expression& node) {
+    visit(static_cast<const statement&>(node));
+  }
 }
 
 #endif

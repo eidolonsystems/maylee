@@ -7,6 +7,7 @@
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -42,6 +43,8 @@ namespace maylee {
       //! Returns the function's body.
       const statement& get_body() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::string m_name;
       std::vector<parameter> m_parameters;
@@ -65,6 +68,14 @@ namespace maylee {
 
   inline const statement& function_definition::get_body() const {
     return *m_body;
+  }
+
+  inline void function_definition::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const function_definition& node) {
+    visit(static_cast<const statement&>(node));
   }
 }
 

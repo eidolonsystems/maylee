@@ -5,6 +5,7 @@
 #include <vector>
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -21,6 +22,8 @@ namespace maylee {
       //! Returns the statements belonging to this block.
       const std::vector<std::unique_ptr<statement>>& get_statements() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::vector<std::unique_ptr<statement>> m_statements;
   };
@@ -32,6 +35,14 @@ namespace maylee {
   inline const std::vector<std::unique_ptr<statement>>&
       block_statement::get_statements() const {
     return m_statements;
+  }
+
+  inline void block_statement::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const block_statement& node) {
+    visit(static_cast<const syntax_node&>(node));
   }
 }
 

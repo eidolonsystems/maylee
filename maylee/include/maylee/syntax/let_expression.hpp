@@ -4,6 +4,7 @@
 #include <string>
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -24,6 +25,8 @@ namespace maylee {
       //! Returns the initializer.
       const expression& get_initializer() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::string m_name;
       std::unique_ptr<expression> m_initializer;
@@ -40,6 +43,14 @@ namespace maylee {
 
   inline const expression& let_expression::get_initializer() const {
     return *m_initializer;
+  }
+
+  inline void let_expression::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const let_expression& node) {
+    visit(static_cast<const expression&>(node));
   }
 }
 

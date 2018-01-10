@@ -159,6 +159,9 @@ namespace maylee {
   inline std::unique_ptr<statement> syntax_parser::parse_statement(
       token_iterator& cursor) {
     auto c = cursor;
+    while(!c.is_empty() && match(*c, terminal::type::new_line)) {
+      ++c;
+    }
     std::unique_ptr<statement> node;
     if((node = parse_if_statement(c)) != nullptr ||
         (node = parse_function_definition(c)) != nullptr ||
@@ -167,6 +170,9 @@ namespace maylee {
       if(!is_syntax_node_end(*c)) {
         throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
           c.get_location());
+      }
+      while(!c.is_empty() && match(*c, terminal::type::new_line)) {
+        ++c;
       }
       cursor = c;
       return node;

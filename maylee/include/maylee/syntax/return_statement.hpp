@@ -4,6 +4,7 @@
 #include <utility>
 #include "maylee/syntax/statement.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 #include "maylee/syntax/void_expression.hpp"
 
 namespace maylee {
@@ -24,6 +25,8 @@ namespace maylee {
       //! Returns the result expression.
       const expression& get_result() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::unique_ptr<expression> m_result;
   };
@@ -36,6 +39,14 @@ namespace maylee {
 
   inline const expression& return_statement::get_result() const {
     return *m_result;
+  }
+
+  inline void return_statement::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const return_statement& node) {
+    visit(static_cast<const statement&>(node));
   }
 }
 

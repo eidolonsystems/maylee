@@ -5,6 +5,7 @@
 #include <vector>
 #include "maylee/syntax/expression.hpp"
 #include "maylee/syntax/syntax.hpp"
+#include "maylee/syntax/syntax_node_visitor.hpp"
 
 namespace maylee {
 
@@ -27,6 +28,8 @@ namespace maylee {
       //! Returns the parameters to apply to the callable.
       const std::vector<std::unique_ptr<expression>>& get_parameters() const;
 
+      void apply(syntax_node_visitor& visitor) const override final;
+
     private:
       std::unique_ptr<expression> m_callable;
       std::vector<std::unique_ptr<expression>> m_parameters;
@@ -44,6 +47,14 @@ namespace maylee {
   inline const std::vector<std::unique_ptr<expression>>&
       call_expression::get_parameters() const {
     return m_parameters;
+  }
+
+  inline void call_expression::apply(syntax_node_visitor& visitor) const {
+    visitor.visit(*this);
+  }
+
+  inline void syntax_node_visitor::visit(const call_expression& node) {
+    visit(static_cast<const expression&>(node));
   }
 }
 

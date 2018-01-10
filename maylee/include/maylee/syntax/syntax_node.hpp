@@ -9,6 +9,12 @@ namespace maylee {
     public:
       virtual ~syntax_node() = default;
 
+      //! Applies a syntax_node_visitor to this instance.
+      /*!
+        \param visitor The visitor to apply.
+      */
+      virtual void apply(syntax_node_visitor& visitor) const = 0;
+
     protected:
 
       //! Constructs a syntax_node.
