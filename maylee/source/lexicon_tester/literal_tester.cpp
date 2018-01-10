@@ -7,16 +7,16 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_literal_stream", "[literal]") {
-  literal l("5", scalar_data_type::get_int32());
+  literal l("5", scalar_data_type::get_int());
   stringstream ss;
   ss << l;
   REQUIRE(ss.str() == "5");
 }
 
 TEST_CASE("test_literal_equality", "[literal]") {
-  literal i1("5", scalar_data_type::get_int32());
-  literal i2("5", scalar_data_type::get_int64());
-  literal f1("3.14", float_data_type::get_float32());
+  literal i1("5", scalar_data_type::get_int());
+  literal i2("5", scalar_data_type::get_long());
+  literal f1("3.14", float_data_type::get_float());
   REQUIRE(i1 == i1);
   REQUIRE(i1 != i2);
   REQUIRE(i1 != f1);
@@ -28,9 +28,9 @@ TEST_CASE("test_parse_literal", "[literal]") {
       literal("true", bool_data_type::get_instance()));
     REQUIRE(parse_literal("false") ==
       literal("false", bool_data_type::get_instance()));
-    REQUIRE(parse_literal("1") == literal("1", scalar_data_type::get_int32()));
+    REQUIRE(parse_literal("1") == literal("1", scalar_data_type::get_int()));
     REQUIRE(parse_literal("1.1") ==
-      literal("1.1", float_data_type::get_float64()));
+      literal("1.1", float_data_type::get_double()));
   }
   SECTION("Literal Delimiters") {
     REQUIRE(parse_literal("trues") == nullopt);
@@ -40,7 +40,7 @@ TEST_CASE("test_parse_literal", "[literal]") {
     REQUIRE(parse_literal("true+") ==
       literal("true", bool_data_type::get_instance()));
     REQUIRE(parse_literal("5.5.") ==
-      literal("5.5", float_data_type::get_float64()));
+      literal("5.5", float_data_type::get_double()));
   }
   SECTION("Invalid Literals") {
     REQUIRE(parse_literal("abc") == nullopt);

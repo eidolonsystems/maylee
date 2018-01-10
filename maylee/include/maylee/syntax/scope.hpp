@@ -66,16 +66,16 @@ namespace maylee {
   inline void populate_global_scope(scope& scope) {
     scope.add(element(bool_data_type::get_instance(), location::global()));
     scope.add(element(char_data_type::get_instance(), location::global()));
-    scope.add(element(float_data_type::get_float32(), location::global()));
-    scope.add(element(float_data_type::get_float64(), location::global()));
-    scope.add(element(scalar_data_type::get_int8(), location::global()));
-    scope.add(element(scalar_data_type::get_int16(), location::global()));
-    scope.add(element(scalar_data_type::get_int32(), location::global()));
-    scope.add(element(scalar_data_type::get_int64(), location::global()));
-    scope.add(element(scalar_data_type::get_uint8(), location::global()));
-    scope.add(element(scalar_data_type::get_uint16(), location::global()));
-    scope.add(element(scalar_data_type::get_uint32(), location::global()));
-    scope.add(element(scalar_data_type::get_uint64(), location::global()));
+    scope.add(element(float_data_type::get_float(), location::global()));
+    scope.add(element(float_data_type::get_double(), location::global()));
+    scope.add(element(scalar_data_type::get_sbyte(), location::global()));
+    scope.add(element(scalar_data_type::get_short(), location::global()));
+    scope.add(element(scalar_data_type::get_int(), location::global()));
+    scope.add(element(scalar_data_type::get_long(), location::global()));
+    scope.add(element(scalar_data_type::get_byte(), location::global()));
+    scope.add(element(scalar_data_type::get_ushort(), location::global()));
+    scope.add(element(scalar_data_type::get_uint(), location::global()));
+    scope.add(element(scalar_data_type::get_ulong(), location::global()));
     scope.add(element(size_data_type::get_instance(), location::global()));
     scope.add(element(std::make_shared<function>("add"), location::global()));
     scope.add(element(std::make_shared<function>("subtract"),

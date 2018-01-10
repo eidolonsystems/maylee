@@ -15,17 +15,17 @@ namespace maylee {
       enum class type {
 
         //! 32-bit single precision floating point.
-        FLOAT32,
+        FLOAT,
 
         //! 64-bit double precision floating point.
-        FLOAT64
+        DOUBLE
       };
 
-      //! Returns an instance of FLOAT32.
-      static const std::shared_ptr<float_data_type>& get_float32();
+      //! Returns an instance of FLOAT.
+      static const std::shared_ptr<float_data_type>& get_float();
 
-      //! Returns an instance of FLOAT64.
-      static const std::shared_ptr<float_data_type>& get_float64();
+      //! Returns an instance of DOUBLE.
+      static const std::shared_ptr<float_data_type>& get_double();
 
       //! Returns an instance of this type.
       /*!
@@ -52,24 +52,24 @@ namespace maylee {
   };
 
   inline const std::shared_ptr<float_data_type>&
-      float_data_type::get_float32() {
-    static auto value = std::make_shared<float_data_type>(type::FLOAT32);
+      float_data_type::get_float() {
+    static auto value = std::make_shared<float_data_type>(type::FLOAT);
     return value;
   }
 
   inline const std::shared_ptr<float_data_type>&
-      float_data_type::get_float64() {
-    static auto value = std::make_shared<float_data_type>(type::FLOAT64);
+      float_data_type::get_double() {
+    static auto value = std::make_shared<float_data_type>(type::DOUBLE);
     return value;
   }
 
   inline const std::shared_ptr<float_data_type>& float_data_type::get_instance(
       type t) {
     switch(t) {
-      case type::FLOAT32:
-        return get_float32();
-      case type::FLOAT64:
-        return get_float64();
+      case type::FLOAT:
+        return get_float();
+      case type::DOUBLE:
+        return get_double();
       default:
         throw std::invalid_argument("Invalid float type.");
     }
@@ -84,14 +84,14 @@ namespace maylee {
 
   inline const std::string& float_data_type::get_name() const {
     switch(m_type) {
-      case type::FLOAT32:
+      case type::FLOAT:
         {
-          static std::string value = "Float32";
+          static std::string value = "Float";
           return value;
         }
-      case type::FLOAT64:
+      case type::DOUBLE:
         {
-          static std::string value = "Float64";
+          static std::string value = "Double";
           return value;
         }
       default:

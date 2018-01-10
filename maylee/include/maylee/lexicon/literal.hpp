@@ -149,7 +149,7 @@ namespace maylee {
         }
         auto value = std::string(&*cursor, c - cursor);
         cursor = c;
-        return literal(std::move(value), scalar_data_type::get_int32());
+        return literal(std::move(value), scalar_data_type::get_int());
       } else {
         ++c;
         parse_decimal(c);
@@ -162,7 +162,7 @@ namespace maylee {
         auto value = std::string(&*cursor, c - cursor);
         cursor = c;
         return literal(std::move(value),
-          float_data_type::get_instance(float_data_type::type::FLOAT64));
+          float_data_type::get_instance(float_data_type::type::DOUBLE));
       }
     }
     return std::nullopt;

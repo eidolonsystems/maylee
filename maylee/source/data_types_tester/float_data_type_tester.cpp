@@ -6,16 +6,16 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_float_name", "[float_data_type]") {
-  REQUIRE(float_data_type::get_float32()->get_name() == "Float32");
-  REQUIRE(float_data_type::get_float64()->get_name() == "Float64");
+  REQUIRE(float_data_type::get_float()->get_name() == "Float");
+  REQUIRE(float_data_type::get_double()->get_name() == "Double");
 }
 
 TEST_CASE("test_float_equality", "[float_data_type]") {
-  REQUIRE(float_data_type(float_data_type::type::FLOAT32) ==
-    float_data_type(float_data_type::type::FLOAT32));
-  REQUIRE(float_data_type(float_data_type::type::FLOAT64) ==
-    float_data_type(float_data_type::type::FLOAT64));
-  REQUIRE(float_data_type(float_data_type::type::FLOAT32) !=
-    float_data_type(float_data_type::type::FLOAT64));
-  REQUIRE(*float_data_type::get_float32() != *char_data_type::get_instance());
+  REQUIRE(float_data_type(float_data_type::type::FLOAT) ==
+    float_data_type(float_data_type::type::FLOAT));
+  REQUIRE(float_data_type(float_data_type::type::DOUBLE) ==
+    float_data_type(float_data_type::type::DOUBLE));
+  REQUIRE(float_data_type(float_data_type::type::FLOAT) !=
+    float_data_type(float_data_type::type::DOUBLE));
+  REQUIRE(*float_data_type::get_float() != *char_data_type::get_instance());
 }

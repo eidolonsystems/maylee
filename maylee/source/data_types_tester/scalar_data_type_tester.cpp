@@ -6,35 +6,35 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_scalar_is_unsigned", "[scalar_data_type]") {
-  REQUIRE(!scalar_data_type::get_int8()->is_unsigned());
-  REQUIRE(!scalar_data_type::get_int16()->is_unsigned());
-  REQUIRE(!scalar_data_type::get_int32()->is_unsigned());
-  REQUIRE(!scalar_data_type::get_int64()->is_unsigned());
-  REQUIRE(scalar_data_type::get_uint8()->is_unsigned());
-  REQUIRE(scalar_data_type::get_uint16()->is_unsigned());
-  REQUIRE(scalar_data_type::get_uint32()->is_unsigned());
-  REQUIRE(scalar_data_type::get_uint64()->is_unsigned());
+  REQUIRE(!scalar_data_type::get_sbyte()->is_unsigned());
+  REQUIRE(!scalar_data_type::get_short()->is_unsigned());
+  REQUIRE(!scalar_data_type::get_int()->is_unsigned());
+  REQUIRE(!scalar_data_type::get_long()->is_unsigned());
+  REQUIRE(scalar_data_type::get_byte()->is_unsigned());
+  REQUIRE(scalar_data_type::get_ushort()->is_unsigned());
+  REQUIRE(scalar_data_type::get_uint()->is_unsigned());
+  REQUIRE(scalar_data_type::get_ulong()->is_unsigned());
 }
 
 TEST_CASE("test_scalar_name", "[scalar_data_type]") {
-  REQUIRE(scalar_data_type::get_int8()->get_name() == "Int8");
-  REQUIRE(scalar_data_type::get_int16()->get_name() == "Int16");
-  REQUIRE(scalar_data_type::get_int32()->get_name() == "Int32");
-  REQUIRE(scalar_data_type::get_int64()->get_name() == "Int64");
-  REQUIRE(scalar_data_type::get_uint8()->get_name() == "UInt8");
-  REQUIRE(scalar_data_type::get_uint16()->get_name() == "UInt16");
-  REQUIRE(scalar_data_type::get_uint32()->get_name() == "UInt32");
-  REQUIRE(scalar_data_type::get_uint64()->get_name() == "UInt64");
+  REQUIRE(scalar_data_type::get_sbyte()->get_name() == "SByte");
+  REQUIRE(scalar_data_type::get_short()->get_name() == "Short");
+  REQUIRE(scalar_data_type::get_int()->get_name() == "Int");
+  REQUIRE(scalar_data_type::get_long()->get_name() == "Long");
+  REQUIRE(scalar_data_type::get_byte()->get_name() == "Byte");
+  REQUIRE(scalar_data_type::get_ushort()->get_name() == "UShort");
+  REQUIRE(scalar_data_type::get_uint()->get_name() == "UInt");
+  REQUIRE(scalar_data_type::get_ulong()->get_name() == "ULong");
 }
 
 TEST_CASE("test_scalar_equality", "[scalar_data_type]") {
-  REQUIRE(scalar_data_type(scalar_data_type::type::INT32) ==
-    scalar_data_type(scalar_data_type::type::INT32));
-  REQUIRE(scalar_data_type(scalar_data_type::type::INT64) ==
-    scalar_data_type(scalar_data_type::type::INT64));
-  REQUIRE(scalar_data_type(scalar_data_type::type::INT32) !=
-    scalar_data_type(scalar_data_type::type::UINT32));
-  REQUIRE(scalar_data_type(scalar_data_type::type::INT32) !=
-    scalar_data_type(scalar_data_type::type::INT64));
-  REQUIRE(*scalar_data_type::get_int32() != *char_data_type::get_instance());
+  REQUIRE(scalar_data_type(scalar_data_type::type::INT) ==
+    scalar_data_type(scalar_data_type::type::INT));
+  REQUIRE(scalar_data_type(scalar_data_type::type::LONG) ==
+    scalar_data_type(scalar_data_type::type::LONG));
+  REQUIRE(scalar_data_type(scalar_data_type::type::INT) !=
+    scalar_data_type(scalar_data_type::type::UINT));
+  REQUIRE(scalar_data_type(scalar_data_type::type::INT) !=
+    scalar_data_type(scalar_data_type::type::LONG));
+  REQUIRE(*scalar_data_type::get_int() != *char_data_type::get_instance());
 }

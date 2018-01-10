@@ -81,7 +81,7 @@ TEST_CASE("test_parsing_literal_expression", "[syntax_parser]") {
   auto literal = dynamic_cast<literal_expression*>(expression.get());
   REQUIRE(literal != nullptr);
   REQUIRE(literal->get_literal().get_value() == "123");
-  REQUIRE(*literal->get_literal().get_type() == *scalar_data_type::get_int32());
+  REQUIRE(*literal->get_literal().get_type() == *scalar_data_type::get_int());
 }
 
 TEST_CASE("test_parsing_let_expression", "[syntax_parser]") {
@@ -95,7 +95,7 @@ TEST_CASE("test_parsing_let_expression", "[syntax_parser]") {
     &let->get_initializer());
   REQUIRE(initializer->get_literal().get_value() == "321");
   REQUIRE(*initializer->get_literal().get_type() ==
-    *scalar_data_type::get_int32());
+    *scalar_data_type::get_int());
 }
 
 TEST_CASE("test_parsing_variable_expression", "[syntax_parser]") {
