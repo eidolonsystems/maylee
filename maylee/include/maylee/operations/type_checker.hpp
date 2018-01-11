@@ -15,26 +15,25 @@ namespace maylee {
     public:
       type_checker();
 
-      void type_check(const std::vector<std::unique_ptr<syntax_node>>& nodes);
+      void add(const syntax_node& node);
 
       std::shared_ptr<data_type> get_data_type(const syntax_node& node);
 
     private:
       std::shared_ptr<data_type> m_result;
       std::stack<std::unique_ptr<scope>> m_scopes;
-      std::unordered_map<std::string, std::shared_ptr<data_type>> m_data_types;
-      std::stack<std::vector<std::shared_ptr<data_type>>> m_return_types;
+      std::unordered_map<std::string, std::vector<const function_definition*>>
+        m_function_overloads;
 
       const scope& get_scope() const;
       scope& get_scope();
       void push_scope();
       void pop_scope();
       std::shared_ptr<data_type> eval_type_expression(const expression& e);
-      virtual void visit(const block_statement& node) override final;
       virtual void visit(const call_expression& node) override final;
-      virtual void visit(const literal_expression& node) override final;
       virtual void visit(const function_definition& node) override final;
-      virtual void visit(const return_statement& node) override final;
+      virtual void visit(const literal_expression& node) override final;
+      virtual void visit(const variable_expression& node) override final;
   };
 
   inline type_checker::type_checker() {
@@ -42,10 +41,9 @@ namespace maylee {
     populate_global_scope(*m_scopes.top());
   }
 
-  inline void type_checker::type_check(
-      const std::vector<std::unique_ptr<syntax_node>>& nodes) {
-    for(auto& node : nodes) {
-      node->apply(*this);
+  inline void type_checker::add(const syntax_node& node) {
+    if(auto f = dynamic_cast<const function_definition*>(&node)) {
+      m_function_overloads[f->get_name()].push_back(f);
     }
   }
 
@@ -85,14 +83,6 @@ namespace maylee {
     return nullptr;
   }
 
-  inline void type_checker::visit(const block_statement& node) {
-    push_scope();
-    for(auto& statement : node.get_statements()) {
-      statement->apply(*this);
-    }
-    pop_scope();
-  }
-
   inline void type_checker::visit(const call_expression& node) {
     std::vector<std::shared_ptr<data_type>> parameter_types;
     for(auto& parameter : node.get_parameters()) {
@@ -111,29 +101,31 @@ namespace maylee {
   }
 
   inline void type_checker::visit(const function_definition& node) {
-    std::vector<function_data_type::parameter> parameters;
-    for(auto& parameter : node.get_parameters()) {
-      parameters.push_back({parameter.m_name,
-        eval_type_expression(*parameter.m_type)});
-    }
-    m_return_types.push({});
-    node.get_body().apply(*this);
-    std::shared_ptr<data_type> return_type;
-    if(m_return_types.top().empty()) {
-      return_type = tuple_data_type::get_void();
-    } else {
-    }
-    m_data_types[node.get_name()] = std::make_shared<function_data_type>(
-      std::move(parameters), std::move(return_type));
   }
 
   inline void type_checker::visit(const literal_expression& node) {
     m_result = node.get_literal().get_type();
   }
 
-  inline void type_checker::visit(const return_statement& node) {
-    auto type = get_data_type(node.get_result());
-    m_return_types.top().push_back(type);
+  inline void type_checker::visit(const variable_expression& node) {
+    auto existing_definition = get_scope().find(node.get_name());
+    if(auto v = std::dynamic_pointer_cast<variable>(existing_definition)) {
+      m_result = v->get_data_type();
+      return;
+    } else if(existing_definition == nullptr) {
+      auto overload_iterator = m_function_overloads.find(node.get_name());
+      if(overload_iterator != m_function_overloads.end()) {
+        auto& overloads = overload_iterator->second;
+        for(auto& overload : overloads) {
+          overload->apply(*this);
+        }
+        auto existing_definition = get_scope().find(node.get_name());
+        if(existing_definition == nullptr) {
+          // TODO
+        }
+//        m_result = exi
+      }
+    }
   }
 }
 
