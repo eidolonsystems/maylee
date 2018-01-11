@@ -25,6 +25,9 @@ namespace maylee {
     //! A colon was expected.
     COLON_EXPECTED,
 
+    //! A comma was expected.
+    COMMA_EXPECTED,
+
     //! An open round bracket was expected.
     OPEN_ROUND_BRACKET_EXPECTED,
 

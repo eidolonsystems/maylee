@@ -137,6 +137,9 @@ namespace maylee {
             if(instance == punctuation::mark::COLON) {
               throw syntax_error(syntax_error_code::COLON_EXPECTED,
                 cursor.get_location());
+            } else if(instance == punctuation::mark::COMMA) {
+              throw syntax_error(syntax_error_code::COMMA_EXPECTED,
+                cursor.get_location());
             }
           } else if constexpr(std::is_same_v<T, bracket>) {
             if(instance == bracket::type::OPEN_ROUND_BRACKET) {

@@ -136,7 +136,30 @@ namespace maylee {
           break;
         }
       } else {
-        if(c->get_type() == token::type::OPERATION) {
+        if(match(*c, bracket::type::OPEN_ROUND_BRACKET)) {
+          std::vector<std::unique_ptr<expression>> parameters;
+          if(!match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
+            ++c;
+            while(true) {
+              auto parameter = parse_expression(c);
+              if(parameter == nullptr) {
+                throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
+                  c.get_location());
+              }
+              parameters.push_back(std::move(parameter));
+              if(match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
+                break;
+              }
+              expect(c, punctuation::mark::COMMA);
+            }
+          }
+          auto callable = std::move(expressions.back());
+          expressions.pop_back();
+          auto call = std::make_unique<call_expression>(std::move(callable),
+            std::move(parameters));
+          expressions.push_back(std::move(call));
+          ++c;
+        } else if(c->get_type() == token::type::OPERATION) {
           auto o = get_binary_op(std::get<operation>(c->get_instance()));
           while(!operators.empty() &&
               (operators.top().m_op != op::OPEN_BRACKET &&

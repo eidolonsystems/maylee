@@ -237,3 +237,11 @@ TEST_CASE("test_parsing_return_statement", "[syntax_parser]") {
       nullptr);
   }
 }
+
+TEST_CASE("test_parsing_function_call", "[syntax_parser]") {
+  syntax_parser p;
+  feed(p, "x(1, 2, 3)");
+  auto n = p.parse_node();
+  auto e = dynamic_cast<const call_expression*>(n.get());
+  REQUIRE(e != nullptr);
+}
