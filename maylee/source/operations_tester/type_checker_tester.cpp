@@ -59,23 +59,3 @@ TEST_CASE("test_type_check_arithmetic", "[type_checker]") {
     REQUIRE(*type == *scalar_data_type::get_int());
   }
 }
-
-TEST_CASE("test_function_definition", "[type_checker]") {
-/*
-  SECTION("Test empty body.") {
-    syntax_parser p;
-    feed(p,
-      "def f():\n"
-      "end");
-    std::vector<std::unique_ptr<syntax_node>> nodes;
-    nodes.push_back(p.parse_node());
-    type_checker checker;
-    checker.type_check(nodes);
-    auto type = checker.get_data_type("f");
-    auto expected_type = std::make_shared<function_data_type>(
-      std::vector<function_data_type::parameter>(),
-      tuple_data_type::get_void());
-    REQUIRE(*type == *expected_type);
-  }
-*/
-}

@@ -100,8 +100,14 @@ namespace maylee {
     }
     if(auto v = dynamic_cast<const variable_expression*>(
         &node.get_callable())) {
-      auto variable = get_scope().find(v->get_name());
+      auto f = get_scope().find(v->get_name(), parameter_types);
+      if(f == nullptr) {
+        // TODO
+      }
+      m_result = f->get_signature()->get_return_type();
+      return;
     }
+    // TODO
   }
 
   inline void type_checker::visit(const function_definition& node) {
