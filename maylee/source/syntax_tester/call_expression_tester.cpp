@@ -6,7 +6,8 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_call_expression", "[call_expression]") {
-  call_expression call(std::make_unique<variable_expression>("f"), {});
+  call_expression call(location::global(),
+    std::make_unique<variable_expression>(location::global(), "f"), {});
   auto fexpr = dynamic_cast<const variable_expression*>(&call.get_callable());
   REQUIRE(fexpr != nullptr);
   REQUIRE(fexpr->get_name() == "f");

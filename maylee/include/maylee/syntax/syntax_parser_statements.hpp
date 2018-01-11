@@ -55,6 +55,7 @@ namespace maylee {
     if(c.is_empty()) {
       return nullptr;
     }
+    auto block_location = c.get_location();
     expect(c, punctuation::mark::COLON);
     while(match(*c, terminal::type::new_line)) {
       ++c;
@@ -64,14 +65,17 @@ namespace maylee {
       body.push_back(parse_statement(c));
     }
     ++c;
+    auto f = std::make_unique<function_definition>(cursor.get_location(), name,
+      std::move(parameters),
+      std::make_unique<block_statement>(block_location, std::move(body)));
     cursor = c;
-    return std::make_unique<function_definition>(name, std::move(parameters),
-      std::make_unique<block_statement>(std::move(body)));
+    return f;
   }
 
   inline std::unique_ptr<if_statement> syntax_parser::parse_if_statement(
       token_iterator& cursor) {
     struct clause {
+      location m_location;
       std::unique_ptr<expression> m_condition;
       std::unique_ptr<statement> m_consequence;
     };
@@ -81,12 +85,14 @@ namespace maylee {
     }
     std::vector<clause> clauses;
     while(true) {
+      auto clause_location = c.get_location();
       ++c;
       auto condition = parse_expression(c);
       if(condition == nullptr) {
         throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
           c.get_location());
       }
+      auto block_location = c.get_location();
       expect(c, punctuation::mark::COLON);
       while(match(*c, terminal::type::new_line)) {
         ++c;
@@ -96,9 +102,10 @@ namespace maylee {
           !match(*c, keyword::word::ELSE_IF)) {
         consequents.push_back(parse_statement(c));
       }
-      auto consequent = std::make_unique<block_statement>(
+      auto consequent = std::make_unique<block_statement>(block_location,
         std::move(consequents));
-      clauses.push_back({std::move(condition), std::move(consequent)});
+      clauses.push_back({std::move(clause_location), std::move(condition),
+        std::move(consequent)});
       if(!match(*c, keyword::word::ELSE_IF)) {
         break;
       }
@@ -110,6 +117,7 @@ namespace maylee {
             return nullptr;
           }
           ++c;
+          auto block_location = c.get_location();
           expect(c, punctuation::mark::COLON);
           while(match(*c, terminal::type::new_line)) {
             ++c;
@@ -118,9 +126,10 @@ namespace maylee {
           while(!match(*c, keyword::word::END)) {
             consequents.push_back(parse_statement(c));
           }
-          return std::make_unique<block_statement>(std::move(consequents));
+          return std::make_unique<block_statement>(block_location,
+            std::move(consequents));
         } else {
-          return std::make_unique<void_expression>();
+          return std::make_unique<void_expression>(location::global());
         }
       }();
     if(alternative == nullptr) {
@@ -129,13 +138,14 @@ namespace maylee {
     auto end_clause = std::move(clauses.back());
     clauses.pop_back();
     auto bottom = std::make_unique<if_statement>(
-      std::move(end_clause.m_condition), std::move(end_clause.m_consequence),
-      std::move(alternative));
+      std::move(end_clause.m_location), std::move(end_clause.m_condition),
+      std::move(end_clause.m_consequence), std::move(alternative));
     while(!clauses.empty()) {
       auto end_clause = std::move(clauses.back());
       clauses.pop_back();
-      bottom = std::make_unique<if_statement>(std::move(end_clause.m_condition),
-        std::move(end_clause.m_consequence), std::move(bottom));
+      bottom = std::make_unique<if_statement>(std::move(end_clause.m_location),
+        std::move(end_clause.m_condition), std::move(end_clause.m_consequence),
+        std::move(bottom));
     }
     cursor = c;
     return bottom;
@@ -149,19 +159,23 @@ namespace maylee {
     }
     ++c;
     if(is_syntax_node_end(*c)) {
+      auto r = std::make_unique<return_statement>(cursor.get_location());
       cursor = c;
-      return std::make_unique<return_statement>();
+      return r;
     }
     auto result = parse_expression(c);
+    auto r = std::make_unique<return_statement>(cursor.get_location(),
+      std::move(result));
     cursor = c;
-    return std::make_unique<return_statement>(std::move(result));
+    return r;
   }
 
   inline std::unique_ptr<terminal_node> syntax_parser::parse_terminal_node(
       token_iterator& cursor) {
     if(!cursor.is_empty() && match(*cursor, terminal::type::end_of_file)) {
+      auto t = std::make_unique<terminal_node>(cursor.get_location());
       ++cursor;
-      return std::make_unique<terminal_node>();
+      return t;
     }
     return nullptr;
   }
@@ -189,14 +203,15 @@ namespace maylee {
       if(c.is_empty()) {
         return nullptr;
       } else if(match(*c, operation::symbol::ASSIGN)) {
+        auto assign_location = c.get_location();
         ++c;
         auto value = parse_expression(c);
         if(value == nullptr) {
           throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
             c.get_location());
         }
-        node = std::make_unique<assignment_statement>(std::move(expression),
-          std::move(value));
+        node = std::make_unique<assignment_statement>(assign_location,
+          std::move(expression), std::move(value));
       } else {
         node = std::move(expression);
       }

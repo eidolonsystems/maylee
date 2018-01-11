@@ -9,9 +9,7 @@ namespace maylee {
   //! An expression that evaluates to a void.
   class void_expression : public expression {
     public:
-
-      //! Constructs a void expression.
-      void_expression() = default;
+      using expression::expression;
 
       void apply(syntax_node_visitor& visitor) const override final;
   };

@@ -4,6 +4,6 @@
 using namespace maylee;
 
 TEST_CASE("test_type_name_expression", "[type_name_expression]") {
-  type_name_expression e("String");
+  type_name_expression e(location::global(), "String");
   REQUIRE(e.get_name() == "String");
 }

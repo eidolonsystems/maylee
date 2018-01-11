@@ -15,9 +15,10 @@ namespace maylee {
 
       //! Constructs a variable expression.
       /*!
+        \param l The location of the identifier token.
         \param variable The name of the variable to evaluate.
       */
-      variable_expression(std::string name);
+      variable_expression(location l, std::string name);
 
       //! Returns the name of the variable to evaluate.
       const std::string& get_name() const;
@@ -28,8 +29,9 @@ namespace maylee {
       std::string m_name;
   };
 
-  inline variable_expression::variable_expression(std::string name)
-      : m_name(std::move(name)) {}
+  inline variable_expression::variable_expression(location l, std::string name)
+      : expression(std::move(l)),
+        m_name(std::move(name)) {}
 
   inline const std::string& variable_expression::get_name() const {
     return m_name;

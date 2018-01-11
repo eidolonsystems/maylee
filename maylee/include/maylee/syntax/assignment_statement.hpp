@@ -14,10 +14,11 @@ namespace maylee {
 
       //! Constructs an assignment_statement.
       /*!
+        \param l The location of the assignment operator.
         \param destination The left hand side being assigned.
         \param value The expression to assign.
       */
-      assignment_statement(std::unique_ptr<expression> destination,
+      assignment_statement(location l, std::unique_ptr<expression> destination,
         std::unique_ptr<expression> value);
 
       //! Returns the destination.
@@ -33,10 +34,11 @@ namespace maylee {
       std::unique_ptr<expression> m_value;
   };
 
-  inline assignment_statement::assignment_statement(
+  inline assignment_statement::assignment_statement(location l,
       std::unique_ptr<expression> destination,
       std::unique_ptr<expression> value)
-      : m_destination(std::move(destination)),
+      : statement(std::move(l)),
+        m_destination(std::move(destination)),
         m_value(std::move(value)) {}
 
   inline const expression& assignment_statement::get_destination() const {

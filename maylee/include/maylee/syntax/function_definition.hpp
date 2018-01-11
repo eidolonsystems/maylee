@@ -27,12 +27,13 @@ namespace maylee {
 
       //! Constructs a function definition.
       /*!
+        \param l The location of the DEFINE keyword.
         \param name The name of the function.
         \param parameters The list of parameters.
         \param body The function's body.
       */
-      function_definition(std::string name, std::vector<parameter> parameters,
-        std::unique_ptr<statement> body);
+      function_definition(location l, std::string name,
+        std::vector<parameter> parameters, std::unique_ptr<statement> body);
 
       //! Returns the name of the function.
       const std::string& get_name() const;
@@ -51,9 +52,10 @@ namespace maylee {
       std::unique_ptr<statement> m_body;
   };
 
-  inline function_definition::function_definition(std::string name,
+  inline function_definition::function_definition(location l, std::string name,
       std::vector<parameter> parameters, std::unique_ptr<statement> body)
-      : m_name(std::move(name)),
+      : statement(std::move(l)),
+        m_name(std::move(name)),
         m_parameters(std::move(parameters)),
         m_body(std::move(body)) {}
 

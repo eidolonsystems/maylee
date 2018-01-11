@@ -15,9 +15,11 @@ namespace maylee {
 
       //! Constructs a block statement.
       /*!
+        \param l The location of the start of the statement, typically a COLON.
         \param statements The statements belonging to this block.
       */
-      block_statement(std::vector<std::unique_ptr<statement>> statements);
+      block_statement(location l,
+        std::vector<std::unique_ptr<statement>> statements);
 
       //! Returns the statements belonging to this block.
       const std::vector<std::unique_ptr<statement>>& get_statements() const;
@@ -28,9 +30,10 @@ namespace maylee {
       std::vector<std::unique_ptr<statement>> m_statements;
   };
 
-  inline block_statement::block_statement(
+  inline block_statement::block_statement(location l,
       std::vector<std::unique_ptr<statement>> statements)
-      : m_statements(std::move(statements)) {}
+      : statement(std::move(l)),
+        m_statements(std::move(statements)) {}
 
   inline const std::vector<std::unique_ptr<statement>>&
       block_statement::get_statements() const {

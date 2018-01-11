@@ -6,7 +6,8 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_let_expression", "[let_expression]") {
-  let_expression e("x",
-    std::make_unique<literal_expression>(*parse_literal("123")));
+  let_expression e(location::global(), "x",
+    std::make_unique<literal_expression>(location::global(),
+    *parse_literal("123")));
   REQUIRE(e.get_name() == "x");
 }

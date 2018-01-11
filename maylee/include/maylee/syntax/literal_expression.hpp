@@ -14,9 +14,10 @@ namespace maylee {
 
       //! Constructs a literal_expression.
       /*!
+        \param l The location of the token representing the literal value.
         \param literal The literal to evaluate to.
       */
-      literal_expression(literal literal);
+      literal_expression(location l, literal literal);
 
       //! Returns the literal that is evaluated.
       const literal& get_literal() const;
@@ -27,8 +28,9 @@ namespace maylee {
       literal m_literal;
   };
 
-  inline literal_expression::literal_expression(literal literal)
-      : m_literal(std::move(literal)) {}
+  inline literal_expression::literal_expression(location l, literal literal)
+      : expression(std::move(l)),
+        m_literal(std::move(literal)) {}
 
   inline const literal& literal_expression::get_literal() const {
     return m_literal;

@@ -10,9 +10,7 @@ namespace maylee {
   //! Represents a terminal token.
   class terminal_node : public syntax_node {
     public:
-
-      //! Constructs a terminal node.
-      terminal_node() = default;
+      using syntax_node::syntax_node;
 
       void apply(syntax_node_visitor& visitor) const override final;
   };

@@ -13,10 +13,11 @@ namespace maylee {
     public:
 
       //! Constructs a type name expression.
-      /*!
+      /*! 
+        \param l The location of the identifier token.
         \param name The name of the type to evaluate to.
       */
-      type_name_expression(std::string name);
+      type_name_expression(location l, std::string name);
 
       //! Returns the name of the type to evaluate to.
       const std::string& get_name() const;
@@ -27,8 +28,10 @@ namespace maylee {
       std::string m_name;
   };
 
-  inline type_name_expression::type_name_expression(std::string name)
-      : m_name(std::move(name)) {}
+  inline type_name_expression::type_name_expression(location l,
+      std::string name)
+      : expression(std::move(l)),
+        m_name(std::move(name)) {}
 
   inline const std::string& type_name_expression::get_name() const {
     return m_name;

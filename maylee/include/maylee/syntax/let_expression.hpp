@@ -14,10 +14,12 @@ namespace maylee {
 
       //! Constructs a let_expression.
       /*!
+        \param l The location of the LET keyword.
         \param name The name of the variable.
         \param initializer The expression used to initialize the variable.
       */
-      let_expression(std::string name, std::unique_ptr<expression> initializer);
+      let_expression(location l, std::string name,
+        std::unique_ptr<expression> initializer);
 
       //! Returns the name of the variable.
       const std::string& get_name() const;
@@ -32,9 +34,10 @@ namespace maylee {
       std::unique_ptr<expression> m_initializer;
   };
 
-  inline let_expression::let_expression(std::string name,
+  inline let_expression::let_expression(location l, std::string name,
       std::unique_ptr<expression> initializer)
-      : m_name(std::move(name)),
+      : expression(std::move(l)),
+        m_name(std::move(name)),
         m_initializer(std::move(initializer)) {}
 
   inline const std::string& let_expression::get_name() const {

@@ -8,10 +8,8 @@ namespace maylee {
 
   //! The base class for a syntax node representing a statement.
   class statement : public syntax_node {
-    protected:
-
-      //! Constructs a statement.
-      statement() = default;
+    public:
+      using syntax_node::syntax_node;
   };
 
   inline void syntax_node_visitor::visit(const statement& node) {

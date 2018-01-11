@@ -14,13 +14,17 @@ namespace maylee {
     public:
 
       //! Constructs a return statement for a Void function.
-      return_statement();
+      /*!
+        \param l The location of the RETURN keyword.
+      */
+      return_statement(location l);
 
       //! Constructs a return statement.
       /*!
+        \param l The location of the RETURN keyword.
         \param result The expression used to produce the return value.
       */
-      return_statement(std::unique_ptr<expression> result);
+      return_statement(location l, std::unique_ptr<expression> result);
 
       //! Returns the result expression.
       const expression& get_result() const;
@@ -31,11 +35,14 @@ namespace maylee {
       std::unique_ptr<expression> m_result;
   };
 
-  inline return_statement::return_statement()
-      : return_statement(std::make_unique<void_expression>()) {}
+  inline return_statement::return_statement(location l)
+      : return_statement(std::move(l),
+          std::make_unique<void_expression>(location::global())) {}
 
-  inline return_statement::return_statement(std::unique_ptr<expression> result)
-      : m_result(std::move(result)) {}
+  inline return_statement::return_statement(location l,
+      std::unique_ptr<expression> result)
+      : statement(std::move(l)),
+        m_result(std::move(result)) {}
 
   inline const expression& return_statement::get_result() const {
     return *m_result;

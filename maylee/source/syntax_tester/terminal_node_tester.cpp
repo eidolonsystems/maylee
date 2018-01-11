@@ -4,5 +4,5 @@
 using namespace maylee;
 
 TEST_CASE("test_terminal_node", "[test_terminal_node]") {
-  terminal_node n;
+  terminal_node n(location::global());
 }

@@ -15,20 +15,22 @@ namespace maylee {
 
       //! Constructs an if statement.
       /*!
+        \param l The location of the IF keyword.
         \param condition The condition to test.
         \param consequent The statement to execute if the condition is true.
         \param alternative The statement to execute if the condition is false.
       */
-      if_statement(std::unique_ptr<expression> condition,
+      if_statement(location l, std::unique_ptr<expression> condition,
         std::unique_ptr<statement> consequent,
         std::unique_ptr<statement> alternative);
 
       //! Constructs an if statement with no alternative statement.
       /*!
+        \param l The location of the IF keyword.
         \param condition The condition to test.
         \param consequent The statement to execute if the condition is true.
       */
-      if_statement(std::unique_ptr<expression> condition,
+      if_statement(location l, std::unique_ptr<expression> condition,
         std::unique_ptr<statement> consequent);
 
       //! Returns the condition that is evaluated.
@@ -48,17 +50,20 @@ namespace maylee {
       std::unique_ptr<statement> m_alternative;
   };
 
-  inline if_statement::if_statement(std::unique_ptr<expression> condition,
+  inline if_statement::if_statement(location l,
+      std::unique_ptr<expression> condition,
       std::unique_ptr<statement> consequent,
       std::unique_ptr<statement> alternative)
-      : m_condition(std::move(condition)),
+      : statement(std::move(l)),
+        m_condition(std::move(condition)),
         m_consequent(std::move(consequent)),
         m_alternative(std::move(alternative)) {}
 
-  inline if_statement::if_statement(std::unique_ptr<expression> condition,
+  inline if_statement::if_statement(location l,
+      std::unique_ptr<expression> condition,
       std::unique_ptr<statement> consequent)
-      : if_statement(std::move(condition), std::move(consequent),
-          std::make_unique<void_expression>()) {}
+      : if_statement(std::move(l), std::move(condition), std::move(consequent),
+          std::make_unique<void_expression>(location::global())) {}
 
   inline const expression& if_statement::get_condition() const {
     return *m_condition;

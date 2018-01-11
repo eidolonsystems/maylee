@@ -5,6 +5,6 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_variable_expression", "[variable_expression]") {
-  variable_expression expression("abc");
+  variable_expression expression(location::global(), "abc");
   REQUIRE(expression.get_name() == "abc");
 }

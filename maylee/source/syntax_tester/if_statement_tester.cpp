@@ -7,14 +7,19 @@ using namespace std;
 
 TEST_CASE("test_if_statement", "[if_statement]") {
   SECTION("Test both a consequent and alternative.") {
-    if_statement e(
-      std::make_unique<literal_expression>(*parse_literal("true")),
-      std::make_unique<literal_expression>(*parse_literal("123")),
-      std::make_unique<literal_expression>(*parse_literal("false")));
+    if_statement e(location::global(),
+      std::make_unique<literal_expression>(location::global(),
+        *parse_literal("true")),
+      std::make_unique<literal_expression>(location::global(),
+        *parse_literal("123")),
+      std::make_unique<literal_expression>(location::global(),
+        *parse_literal("false")));
   }
   SECTION("No alternative provided.") {
-    if_statement e(
-      std::make_unique<literal_expression>(*parse_literal("true")),
-      std::make_unique<literal_expression>(*parse_literal("123")));
+    if_statement e(location::global(),
+      std::make_unique<literal_expression>(location::global(),
+        *parse_literal("true")),
+      std::make_unique<literal_expression>(location::global(),
+        *parse_literal("123")));
   }
 }

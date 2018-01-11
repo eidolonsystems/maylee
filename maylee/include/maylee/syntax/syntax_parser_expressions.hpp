@@ -40,8 +40,8 @@ namespace maylee {
     if(initializer == nullptr) {
       return nullptr;
     }
-    auto expression = std::make_unique<let_expression>(name,
-      std::move(initializer));
+    auto expression = std::make_unique<let_expression>(cursor.get_location(),
+      name, std::move(initializer));
     cursor = c;
     return expression;
   }
@@ -55,7 +55,8 @@ namespace maylee {
       [&] (auto&& value) -> std::unique_ptr<literal_expression> {
         using T = std::decay_t<decltype(value)>;
         if constexpr(std::is_same_v<T, literal>) {
-          auto expression = std::make_unique<literal_expression>(value);
+          auto expression = std::make_unique<literal_expression>(
+            cursor.get_location(), value);
           ++cursor;
           return expression;
         }
@@ -71,8 +72,10 @@ namespace maylee {
     if(!name.has_value()) {
       return nullptr;
     }
+    auto v = std::make_unique<variable_expression>(cursor.get_location(),
+      std::move(*name));
     cursor = c;
-    return std::make_unique<variable_expression>(std::move(*name));
+    return v;
   }
 
   inline std::unique_ptr<expression> syntax_parser::parse_expression_term(
@@ -111,8 +114,8 @@ namespace maylee {
           --arity;
         }
         auto& function_name = get_function_name(o.m_op);
-        auto call = std::make_unique<call_expression>(
-          std::make_unique<variable_expression>(function_name),
+        auto call = std::make_unique<call_expression>(o.m_location,
+          std::make_unique<variable_expression>(o.m_location, function_name),
           std::move(parameters));
         expressions.push_back(std::move(call));
       };
@@ -137,6 +140,7 @@ namespace maylee {
         }
       } else {
         if(match(*c, bracket::type::OPEN_ROUND_BRACKET)) {
+          auto call_location = c.get_location();
           std::vector<std::unique_ptr<expression>> parameters;
           if(!match(*c, bracket::type::CLOSE_ROUND_BRACKET)) {
             ++c;
@@ -155,8 +159,8 @@ namespace maylee {
           }
           auto callable = std::move(expressions.back());
           expressions.pop_back();
-          auto call = std::make_unique<call_expression>(std::move(callable),
-            std::move(parameters));
+          auto call = std::make_unique<call_expression>(call_location,
+            std::move(callable), std::move(parameters));
           expressions.push_back(std::move(call));
           ++c;
         } else if(c->get_type() == token::type::OPERATION) {

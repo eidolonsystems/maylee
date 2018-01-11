@@ -16,10 +16,11 @@ namespace maylee {
 
       //! Constructs a call_expression.
       /*!
+        \param l The location of the opening bracket.
         \param callable The expression to call.
         \param parameters The parameters to apply to the <i>callable</i>.
       */
-      call_expression(std::unique_ptr<expression> callable,
+      call_expression(location l, std::unique_ptr<expression> callable,
         std::vector<std::unique_ptr<expression>> parameters);
 
       //! Returns the callable expression.
@@ -35,9 +36,11 @@ namespace maylee {
       std::vector<std::unique_ptr<expression>> m_parameters;
   };
 
-  inline call_expression::call_expression(std::unique_ptr<expression> callable,
+  inline call_expression::call_expression(location l,
+      std::unique_ptr<expression> callable,
       std::vector<std::unique_ptr<expression>> parameters)
-      : m_callable(std::move(callable)),
+      : expression(std::move(l)),
+        m_callable(std::move(callable)),
         m_parameters(std::move(parameters)) {}
 
   inline const expression& call_expression::get_callable() const {
