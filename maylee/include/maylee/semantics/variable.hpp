@@ -1,32 +1,36 @@
 #ifndef MAYLEE_VARIABLE_HPP
 #define MAYLEE_VARIABLE_HPP
-#include <string>
-#include <utility>
-#include "maylee/syntax/syntax.hpp"
+#include "maylee/semantics/element.hpp"
 
 namespace maylee {
 
   //! Represents a variable.
-  class variable {
+  class variable : public element {
     public:
 
       //! Constructs a variable.
       /*!
+        \param l The location where the variable was declared.
         \param name The name of the variable.
       */
-      variable(std::string name);
+      variable(location l, std::string name);
 
-      virtual ~variable() = default;
+      const location& get_location() const override final;
 
-      //! Returns the name of the variable.
-      const std::string& get_name() const;
+      const std::string& get_name() const override final;
 
     private:
+      location m_location;
       std::string m_name;
   };
 
-  inline variable::variable(std::string name)
-      : m_name(std::move(name)) {}
+  inline variable::variable(location l, std::string name)
+      : m_location(std::move(l)),
+        m_name(std::move(name)) {}
+
+  inline const location& variable::get_location() const {
+    return m_location;
+  }
 
   inline const std::string& variable::get_name() const {
     return m_name;

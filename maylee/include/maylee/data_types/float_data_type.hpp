@@ -42,6 +42,8 @@ namespace maylee {
       //! Returns the type of float represented.
       type get_type() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -80,6 +82,10 @@ namespace maylee {
 
   inline float_data_type::type float_data_type::get_type() const {
     return m_type;
+  }
+
+  inline const location& float_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& float_data_type::get_name() const {

@@ -5,6 +5,6 @@ using namespace maylee;
 using namespace std;
 
 TEST_CASE("test_variable", "[variable]") {
-  variable v("abc");
+  variable v(location::global(), "abc");
   REQUIRE(v.get_name() == "abc");
 }

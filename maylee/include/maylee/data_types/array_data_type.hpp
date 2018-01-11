@@ -24,6 +24,8 @@ namespace maylee {
       //! Returns the number of elements stored.
       size get_length() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -47,6 +49,10 @@ namespace maylee {
 
   inline size array_data_type::get_length() const {
     return m_length;
+  }
+
+  inline const location& array_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& array_data_type::get_name() const {

@@ -19,6 +19,8 @@ namespace maylee {
       //! Returns the type stored by the array.
       const std::shared_ptr<data_type>& get_type() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -37,6 +39,10 @@ namespace maylee {
   inline const std::shared_ptr<data_type>&
       variable_array_data_type::get_type() const {
     return m_type;
+  }
+
+  inline const location& variable_array_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& variable_array_data_type::get_name() const {

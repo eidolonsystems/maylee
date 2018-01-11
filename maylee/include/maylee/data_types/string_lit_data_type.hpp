@@ -16,6 +16,8 @@ namespace maylee {
       //! Constructs a string literal data type.
       string_lit_data_type();
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -33,6 +35,10 @@ namespace maylee {
 
   inline string_lit_data_type::string_lit_data_type()
       : m_name("StringLit") {}
+
+  inline const location& string_lit_data_type::get_location() const {
+    return location::global();
+  }
 
   inline const std::string& string_lit_data_type::get_name() const {
     return m_name;

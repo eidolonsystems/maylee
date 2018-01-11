@@ -76,13 +76,10 @@ namespace maylee {
   inline std::shared_ptr<data_type> type_checker::eval_type_expression(
       const expression& e) {
     if(auto t = dynamic_cast<const type_name_expression*>(&e)) {
-      auto type = get_scope().find(t->get_name());
-      if(type.has_value()) {
-        auto element = std::get_if<std::shared_ptr<data_type>>(
-          &type->get_instance());
-        if(element != nullptr) {
-          return *element;
-        }
+      auto type = std::dynamic_pointer_cast<data_type>(
+        get_scope().find(t->get_name()));
+      if(type != nullptr) {
+        return type;
       }
     }
     return nullptr;

@@ -27,6 +27,8 @@ namespace maylee {
       //! Returns the union's variants.
       const std::vector<std::shared_ptr<data_type>>& get_variants() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -96,6 +98,10 @@ namespace maylee {
   inline const std::vector<std::shared_ptr<data_type>>&
       union_data_type::get_variants() const {
     return m_variants;
+  }
+
+  inline const location& union_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& union_data_type::get_name() const {

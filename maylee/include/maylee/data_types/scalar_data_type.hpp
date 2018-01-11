@@ -81,6 +81,8 @@ namespace maylee {
       //! Returns <code>true</code> iff the scalar is unsigned.
       bool is_unsigned() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -168,6 +170,10 @@ namespace maylee {
 
   inline bool scalar_data_type::is_unsigned() const {
     return m_type >= type::BYTE;
+  }
+
+  inline const location& scalar_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& scalar_data_type::get_name() const {

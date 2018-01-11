@@ -16,6 +16,8 @@ namespace maylee {
       //! Constructs a bool data type.
       bool_data_type() = default;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -25,6 +27,10 @@ namespace maylee {
   inline const std::shared_ptr<bool_data_type>& bool_data_type::get_instance() {
     static auto instance = std::make_shared<bool_data_type>();
     return instance;
+  }
+
+  inline const location& bool_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& bool_data_type::get_name() const {

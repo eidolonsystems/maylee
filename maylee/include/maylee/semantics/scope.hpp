@@ -1,7 +1,6 @@
 #ifndef MAYLEE_SCOPE_HPP
 #define MAYLEE_SCOPE_HPP
 #include <memory>
-#include <optional>
 #include <unordered_map>
 #include "maylee/data_types/bool_data_type.hpp"
 #include "maylee/data_types/char_data_type.hpp"
@@ -9,6 +8,7 @@
 #include "maylee/data_types/scalar_data_type.hpp"
 #include "maylee/data_types/size_data_type.hpp"
 #include "maylee/semantics/element.hpp"
+#include "maylee/semantics/function.hpp"
 #include "maylee/semantics/semantics.hpp"
 #include "maylee/syntax/ops.hpp"
 
@@ -34,13 +34,13 @@ namespace maylee {
 
       //! Finds an element accessible from within this scope (ie. contained
       //! within this scope or a parent scope).
-      std::optional<element> find(const std::string& name) const;
+      std::shared_ptr<element> find(const std::string& name) const;
 
       //! Finds 
 
       //! Finds an element within this scope (ie. contained strictly within this
       //! scope, not a parent scope).
-      std::optional<element> find_within(const std::string& name) const;
+      std::shared_ptr<element> find_within(const std::string& name) const;
 
       //! Adds an element to this scope.
       /*!
@@ -48,11 +48,11 @@ namespace maylee {
         \return <code>true</code> iff the element was added, otherwise an
                 element with the same name already exists.
       */
-      bool add(element element);
+      bool add(std::shared_ptr<element> element);
 
     private:
       const scope* m_parent;
-      std::unordered_map<std::string, element> m_elements;
+      std::unordered_map<std::string, std::shared_ptr<element>> m_elements;
 
       scope(const scope&) = delete;
       scope& operator =(const scope&) = delete;
@@ -63,26 +63,23 @@ namespace maylee {
     \param scope The scope to populate.
   */
   inline void populate_global_scope(scope& scope) {
-    scope.add(element(bool_data_type::get_instance(), location::global()));
-    scope.add(element(char_data_type::get_instance(), location::global()));
-    scope.add(element(float_data_type::get_float(), location::global()));
-    scope.add(element(float_data_type::get_double(), location::global()));
-    scope.add(element(scalar_data_type::get_sbyte(), location::global()));
-    scope.add(element(scalar_data_type::get_short(), location::global()));
-    scope.add(element(scalar_data_type::get_int(), location::global()));
-    scope.add(element(scalar_data_type::get_long(), location::global()));
-    scope.add(element(scalar_data_type::get_byte(), location::global()));
-    scope.add(element(scalar_data_type::get_ushort(), location::global()));
-    scope.add(element(scalar_data_type::get_uint(), location::global()));
-    scope.add(element(scalar_data_type::get_ulong(), location::global()));
-    scope.add(element(size_data_type::get_instance(), location::global()));
-    scope.add(element(std::make_shared<function>("add"), location::global()));
-    scope.add(element(std::make_shared<function>("subtract"),
-      location::global()));
-    scope.add(element(std::make_shared<function>("multiply"),
-      location::global()));
-    scope.add(element(std::make_shared<function>("divide"),
-      location::global()));
+    scope.add(bool_data_type::get_instance());
+    scope.add(char_data_type::get_instance());
+    scope.add(float_data_type::get_float());
+    scope.add(float_data_type::get_double());
+    scope.add(scalar_data_type::get_sbyte());
+    scope.add(scalar_data_type::get_short());
+    scope.add(scalar_data_type::get_int());
+    scope.add(scalar_data_type::get_long());
+    scope.add(scalar_data_type::get_byte());
+    scope.add(scalar_data_type::get_ushort());
+    scope.add(scalar_data_type::get_uint());
+    scope.add(scalar_data_type::get_ulong());
+    scope.add(size_data_type::get_instance());
+    scope.add(std::make_shared<function>(location::global(), "add"));
+    scope.add(std::make_shared<function>(location::global(), "subtract"));
+    scope.add(std::make_shared<function>(location::global(), "multiply"));
+    scope.add(std::make_shared<function>(location::global(), "divide"));
   }
 
   inline scope::scope()
@@ -95,29 +92,29 @@ namespace maylee {
     return m_elements.count(name) == 1;
   }
 
-  inline std::optional<element> scope::find(const std::string& name) const {
+  inline std::shared_ptr<element> scope::find(const std::string& name) const {
     auto element = m_elements.find(name);
     if(element == m_elements.end()) {
       if(m_parent == nullptr) {
-        return std::nullopt;
+        return nullptr;
       }
       return m_parent->find(name);
     }
     return element->second;
   }
 
-  inline std::optional<element> scope::find_within(
-      const std::string& name) const {
+  inline std::shared_ptr<element> scope::find_within(
+        const std::string& name) const {
     auto element = m_elements.find(name);
     if(element == m_elements.end()) {
-      return std::nullopt;
+      return nullptr;
     }
     return element->second;
   }
 
-  inline bool scope::add(element element) {
+  inline bool scope::add(std::shared_ptr<element> element) {
     return m_elements.try_emplace(
-      element.get_name(), std::move(element)).second;
+      element->get_name(), std::move(element)).second;
   }
 }
 

@@ -44,6 +44,8 @@ namespace maylee {
       */
       const member* find_member(const std::string_view& name) const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -102,6 +104,10 @@ namespace maylee {
       return nullptr;
     }
     return &*m;
+  }
+
+  inline const location& tuple_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& tuple_data_type::get_name() const {

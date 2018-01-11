@@ -36,6 +36,8 @@ namespace maylee {
       //! Returns the return type.
       const std::shared_ptr<data_type>& get_return_type() const;
 
+      const location& get_location() const override final;
+
       const std::string& get_name() const override final;
 
     protected:
@@ -75,6 +77,10 @@ namespace maylee {
   inline const std::shared_ptr<data_type>&
       function_data_type::get_return_type() const {
     return m_return_type;
+  }
+
+  inline const location& function_data_type::get_location() const {
+    return location::global();
   }
 
   inline const std::string& function_data_type::get_name() const {
