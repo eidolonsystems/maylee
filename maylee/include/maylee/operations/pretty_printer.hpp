@@ -14,6 +14,12 @@ namespace details {
         node.apply(*this);
       }
 
+      virtual void visit(const assignment_statement& node) override final {
+        node.get_destination().apply(*this);
+        *m_out << " = ";
+        node.get_value().apply(*this);
+      }
+
       virtual void visit(const block_statement& node) override final {
         ++m_indent_level;
         for(auto& statement : node.get_statements()) {

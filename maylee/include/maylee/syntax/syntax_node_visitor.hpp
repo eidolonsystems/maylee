@@ -9,6 +9,8 @@ namespace maylee {
     public:
       virtual ~syntax_node_visitor() = default;
 
+      virtual void visit(const assignment_statement& node);
+
       virtual void visit(const block_statement& node);
 
       virtual void visit(const call_expression& node);

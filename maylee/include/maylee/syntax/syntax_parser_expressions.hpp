@@ -160,6 +160,9 @@ namespace maylee {
           expressions.push_back(std::move(call));
           ++c;
         } else if(c->get_type() == token::type::OPERATION) {
+          if(match(*c, operation::symbol::ASSIGN)) {
+            break;
+          }
           auto o = get_binary_op(std::get<operation>(c->get_instance()));
           while(!operators.empty() &&
               (operators.top().m_op != op::OPEN_BRACKET &&

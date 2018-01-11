@@ -1,5 +1,6 @@
 #ifndef MAYLEE_SYNTAX_NODES_HPP
 #define MAYLEE_SYNTAX_NODES_HPP
+#include "maylee/syntax/assignment_statement.hpp"
 #include "maylee/syntax/block_statement.hpp"
 #include "maylee/syntax/call_expression.hpp"
 #include "maylee/syntax/expression.hpp"

@@ -2,6 +2,7 @@
 #define MAYLEE_SYNTAX_PARSER_STATEMENT_HPP
 #include <cassert>
 #include "maylee/lexicon/token.hpp"
+#include "maylee/syntax/assignment_statement.hpp"
 #include "maylee/syntax/block_statement.hpp"
 #include "maylee/syntax/function_definition.hpp"
 #include "maylee/syntax/if_statement.hpp"
@@ -165,8 +166,31 @@ namespace maylee {
     std::unique_ptr<statement> node;
     if((node = parse_if_statement(c)) != nullptr ||
         (node = parse_function_definition(c)) != nullptr ||
-        (node = parse_return_statement(c)) != nullptr ||
-        (node = parse_expression(c)) != nullptr) {
+        (node = parse_return_statement(c)) != nullptr) {
+      if(!is_syntax_node_end(*c)) {
+        throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
+          c.get_location());
+      }
+      while(!c.is_empty() && match(*c, terminal::type::new_line)) {
+        ++c;
+      }
+      cursor = c;
+      return node;
+    } else if(auto expression = parse_expression(c)) {
+      if(c.is_empty()) {
+        return nullptr;
+      } else if(match(*c, operation::symbol::ASSIGN)) {
+        ++c;
+        auto value = parse_expression(c);
+        if(value == nullptr) {
+          throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
+            c.get_location());
+        }
+        node = std::make_unique<assignment_statement>(std::move(expression),
+          std::move(value));
+      } else {
+        node = std::move(expression);
+      }
       if(!is_syntax_node_end(*c)) {
         throw syntax_error(syntax_error_code::NEW_LINE_EXPECTED,
           c.get_location());

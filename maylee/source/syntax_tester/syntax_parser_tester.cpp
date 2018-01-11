@@ -245,3 +245,11 @@ TEST_CASE("test_parsing_function_call", "[syntax_parser]") {
   auto e = dynamic_cast<const call_expression*>(n.get());
   REQUIRE(e != nullptr);
 }
+
+TEST_CASE("test_parsing_assignment", "[syntax_parser]") {
+  syntax_parser p;
+  feed(p, "x = 123");
+  auto n = p.parse_node();
+  auto e = dynamic_cast<const assignment_statement*>(n.get());
+  REQUIRE(e != nullptr);
+}
