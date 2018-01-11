@@ -1,5 +1,5 @@
-#ifndef MAYLEE_PRETTY_PRINTER_HPP
-#define MAYLEE_PRETTY_PRINTER_HPP
+#ifndef MAYLEE_PRETTY_PRINT_HPP
+#define MAYLEE_PRETTY_PRINT_HPP
 #include <iostream>
 #include "maylee/syntax/syntax_nodes.hpp"
 #include "maylee/syntax/syntax_node_visitor.hpp"

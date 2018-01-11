@@ -1,5 +1,5 @@
 #include "maylee/maylee/catch.hpp"
-#include "maylee/syntax/scope.hpp"
+#include "maylee/semantics/scope.hpp"
 
 using namespace maylee;
 using namespace std;

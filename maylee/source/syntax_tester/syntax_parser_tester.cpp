@@ -166,6 +166,13 @@ TEST_CASE("test_parsing_with_line_continuations", "[syntax_parser]") {
 }
 
 TEST_CASE("test_parsing_if_statement", "[syntax_parser]") {
+  SECTION("Parse empty if statement.") {
+    syntax_parser p;
+    feed(p, "if true:\nend");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const if_statement*>(n.get());
+    REQUIRE(e != nullptr);
+  }
   SECTION("Parse if statement.") {
     syntax_parser p;
     feed(p, "if true\n: 123 end");
@@ -197,9 +204,16 @@ TEST_CASE("test_parsing_if_statement", "[syntax_parser]") {
 }
 
 TEST_CASE("test_parsing_function_definition", "[syntax_parser]") {
-  SECTION("Parse zero parameter function with empty body.") {
+  SECTION("Parse function with empty body.") {
     syntax_parser p;
     feed(p, "def f(): end");
+    auto n = p.parse_node();
+    auto e = dynamic_cast<const function_definition*>(n.get());
+    REQUIRE(e != nullptr);
+  }
+  SECTION("Parse function with empty body.") {
+    syntax_parser p;
+    feed(p, "def f():\nend");
     auto n = p.parse_node();
     auto e = dynamic_cast<const function_definition*>(n.get());
     REQUIRE(e != nullptr);

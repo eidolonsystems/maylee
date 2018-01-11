@@ -5,9 +5,7 @@ namespace maylee {
   class assignment_statement;
   class block_statement;
   class call_expression;
-  class element;
   class expression;
-  class function;
   class function_definition;
   class function_not_found_syntax_error;
   class function_parameter_redefinition_syntax_error;
@@ -17,7 +15,6 @@ namespace maylee {
   enum class op;
   class redefinition_syntax_error;
   class return_statement;
-  class scope;
   class statement;
   enum class syntax_error_code;
   class syntax_error;
@@ -28,7 +25,6 @@ namespace maylee {
   class token_iterator;
   class type_name_expression;
   class unmatched_bracket_syntax_error;
-  class variable;
   class variable_expression;
   class void_expression;
 }

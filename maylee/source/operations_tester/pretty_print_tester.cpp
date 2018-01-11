@@ -1,12 +1,12 @@
 #include <sstream>
 #include "maylee/maylee/catch.hpp"
-#include "maylee/operations/pretty_printer.hpp"
+#include "maylee/operations/pretty_print.hpp"
 #include "maylee/syntax/literal_expression.hpp"
 
 using namespace maylee;
 using namespace std;
 
-TEST_CASE("test_pretty_print_let", "[pretty_printer]") {
+TEST_CASE("test_pretty_print_let", "[pretty_print]") {
   SECTION("Int literal") {
     std::stringstream ss;
     auto l = std::make_unique<literal_expression>(

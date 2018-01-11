@@ -56,6 +56,9 @@ namespace maylee {
       return nullptr;
     }
     expect(c, punctuation::mark::COLON);
+    while(match(*c, terminal::type::new_line)) {
+      ++c;
+    }
     std::vector<std::unique_ptr<statement>> body;
     while(!match(*c, keyword::word::END)) {
       body.push_back(parse_statement(c));
@@ -85,6 +88,9 @@ namespace maylee {
           c.get_location());
       }
       expect(c, punctuation::mark::COLON);
+      while(match(*c, terminal::type::new_line)) {
+        ++c;
+      }
       std::vector<std::unique_ptr<statement>> consequents;
       while(!match(*c, keyword::word::END) && !match(*c, keyword::word::ELSE) &&
           !match(*c, keyword::word::ELSE_IF)) {
@@ -105,6 +111,9 @@ namespace maylee {
           }
           ++c;
           expect(c, punctuation::mark::COLON);
+          while(match(*c, terminal::type::new_line)) {
+            ++c;
+          }
           std::vector<std::unique_ptr<statement>> consequents;
           while(!match(*c, keyword::word::END)) {
             consequents.push_back(parse_statement(c));

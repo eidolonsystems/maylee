@@ -2,8 +2,8 @@
 #define MAYLEE_FUNCTION_HPP
 #include <string>
 #include <utility>
-#include "maylee/syntax/syntax.hpp"
-#include "maylee/syntax/variable.hpp"
+#include "maylee/semantics/semantics.hpp"
+#include "maylee/semantics/variable.hpp"
 
 namespace maylee {
 

@@ -1,6 +1,6 @@
 #include "maylee/maylee/catch.hpp"
-#include "maylee/syntax/element.hpp"
-#include "maylee/syntax/variable.hpp"
+#include "maylee/semantics/element.hpp"
+#include "maylee/semantics/variable.hpp"
 
 using namespace maylee;
 using namespace std;

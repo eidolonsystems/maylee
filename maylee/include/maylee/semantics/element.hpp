@@ -6,9 +6,9 @@
 #include <variant>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/lexicon/location.hpp"
-#include "maylee/syntax/function.hpp"
-#include "maylee/syntax/syntax.hpp"
-#include "maylee/syntax/variable.hpp"
+#include "maylee/semantics/function.hpp"
+#include "maylee/semantics/semantics.hpp"
+#include "maylee/semantics/variable.hpp"
 
 namespace maylee {
 

@@ -8,10 +8,9 @@
 #include "maylee/data_types/float_data_type.hpp"
 #include "maylee/data_types/scalar_data_type.hpp"
 #include "maylee/data_types/size_data_type.hpp"
-#include "maylee/syntax/element.hpp"
-#include "maylee/syntax/function_not_found_syntax_error.hpp"
+#include "maylee/semantics/element.hpp"
+#include "maylee/semantics/semantics.hpp"
 #include "maylee/syntax/ops.hpp"
-#include "maylee/syntax/syntax.hpp"
 
 namespace maylee {
 
