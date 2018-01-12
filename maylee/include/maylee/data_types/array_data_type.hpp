@@ -3,7 +3,6 @@
 #include <memory>
 #include "maylee/data_types/data_type.hpp"
 #include "maylee/data_types/data_types.hpp"
-#include "maylee/data_types/size_data_type.hpp"
 
 namespace maylee {
 

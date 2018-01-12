@@ -16,7 +16,6 @@ namespace maylee {
   class union_data_type;
   class variable_array_data_type;
 
-  //! Specifies the type used to represent static sizes.
   using size = std::uint64_t;
 }
 

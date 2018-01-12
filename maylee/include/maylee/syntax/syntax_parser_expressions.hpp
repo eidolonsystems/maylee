@@ -19,27 +19,14 @@
 namespace maylee {
   inline std::unique_ptr<let_expression> syntax_parser::parse_let_expression(
       token_iterator& cursor) {
-    if(cursor.is_empty()) {
-      return nullptr;
-    }
     auto c = cursor;
     if(!match(*c, keyword::word::LET)) {
       return nullptr;
     }
     ++c;
-    if(c.is_empty()) {
-      return nullptr;
-    }
-    auto identifier_cursor = c;
     auto& name = parse_identifier(c);
-    if(c.is_empty()) {
-      return nullptr;
-    }
     expect(c, operation::symbol::ASSIGN);
-    auto initializer = parse_expression(c);
-    if(initializer == nullptr) {
-      return nullptr;
-    }
+    auto initializer = expect_expression(c);
     auto expression = std::make_unique<let_expression>(cursor.get_location(),
       name, std::move(initializer));
     cursor = c;
@@ -48,9 +35,6 @@ namespace maylee {
 
   inline std::unique_ptr<literal_expression> syntax_parser::
       parse_literal_expression(token_iterator& cursor) {
-    if(cursor.is_empty()) {
-      return nullptr;
-    }
     return std::visit(
       [&] (auto&& value) -> std::unique_ptr<literal_expression> {
         using T = std::decay_t<decltype(value)>;
@@ -125,11 +109,9 @@ namespace maylee {
       OPERATOR
     };
     auto mode = parse_mode::TERM;
-    while(!c.is_empty()) {
+    while(true) {
       if(mode == parse_mode::TERM) {
-        if(is_terminal(*c)) {
-          break;
-        } else if(match(*c, bracket::type::OPEN_ROUND_BRACKET)) {
+        if(match(*c, bracket::type::OPEN_ROUND_BRACKET)) {
           operators.push({op::OPEN_BRACKET, c.get_location()});
           ++c;
         } else if(auto node = parse_expression_term(c)) {
@@ -164,10 +146,11 @@ namespace maylee {
           expressions.push_back(std::move(call));
           ++c;
         } else if(c->get_type() == token::type::OPERATION) {
-          if(match(*c, operation::symbol::ASSIGN)) {
+          auto& instance = std::get<operation>(c->get_instance());
+          if(is_assignment(instance)) {
             break;
           }
-          auto o = get_binary_op(std::get<operation>(c->get_instance()));
+          auto o = get_binary_op(instance);
           while(!operators.empty() &&
               (operators.top().m_op != op::OPEN_BRACKET &&
               operators.top().m_op != op::CLOSE_BRACKET &&
@@ -216,13 +199,23 @@ namespace maylee {
       }
       build_call_expression(o);
     }
-    if(expressions.empty() || c.is_empty()) {
+    if(expressions.empty()) {
       return nullptr;
     }
     auto e = std::move(expressions.front());
     expressions.pop_front();
     assert(expressions.empty());
     cursor = c;
+    return e;
+  }
+
+  inline std::unique_ptr<expression> syntax_parser::expect_expression(
+      token_iterator& cursor) {
+    auto e = parse_expression(cursor);
+    if(e == nullptr) {
+      throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
+        cursor.get_location());
+    }
     return e;
   }
 }

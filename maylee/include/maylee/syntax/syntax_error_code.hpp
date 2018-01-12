@@ -16,6 +16,9 @@ namespace maylee {
     //! An identifier was expected.
     IDENTIFIER_EXPECTED,
 
+    //! A statement was expected.
+    STATEMENT_EXPECTED,
+
     //! An expression was expected.
     EXPRESSION_EXPECTED,
 

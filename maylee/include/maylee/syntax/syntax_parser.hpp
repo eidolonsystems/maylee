@@ -58,6 +58,7 @@ namespace maylee {
       std::unique_ptr<terminal_node> parse_terminal_node(
         token_iterator& cursor);
       std::unique_ptr<statement> parse_statement(token_iterator& cursor);
+      std::unique_ptr<statement> expect_statement(token_iterator& cursor);
       std::unique_ptr<let_expression> parse_let_expression(
         token_iterator& cursor);
       std::unique_ptr<literal_expression> parse_literal_expression(
@@ -66,6 +67,7 @@ namespace maylee {
         token_iterator& cursor);
       std::unique_ptr<expression> parse_expression_term(token_iterator& cursor);
       std::unique_ptr<expression> parse_expression(token_iterator& cursor);
+      std::unique_ptr<expression> expect_expression(token_iterator& cursor);
   };
 
   //! Parses an identifier from a token stream.

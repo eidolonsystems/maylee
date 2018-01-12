@@ -125,7 +125,7 @@ TEST_CASE("test_incremental_parsing", "[syntax_parser]") {
   SECTION("Test feeding a few tokens at a time.") {
     syntax_parser p;
     incremental_feed(p, "let x ");
-    REQUIRE(p.parse_node() == nullptr);
+    REQUIRE_THROWS(p.parse_node());
     feed(p, "= false");
     auto expression = p.parse_node();
     auto let = dynamic_cast<let_expression*>(expression.get());

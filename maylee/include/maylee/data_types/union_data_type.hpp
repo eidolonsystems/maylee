@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 #include "maylee/data_types/data_type.hpp"

@@ -158,6 +158,15 @@ namespace maylee {
       lexical_iterator(source.data(), source.size() + 1));
   }
 
+  //! Tests if an operation represents assignment (=, +=, etc...).
+  /*!
+    \param operation The operation to test.
+    \return <code>true</code> iff the operation is an assignment.
+  */
+  inline bool is_assignment(operation o) {
+    return o.get_symbol() == operation::symbol::ASSIGN;
+  }
+
   inline std::ostream& operator <<(std::ostream& out, const operation& value) {
     switch(value.get_symbol()) {
       case operation::symbol::PLUS:

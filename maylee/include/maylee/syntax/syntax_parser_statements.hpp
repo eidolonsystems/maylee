@@ -20,14 +20,7 @@ namespace maylee {
       return nullptr;
     }
     ++c;
-    if(c.is_empty()) {
-      return nullptr;
-    }
-    auto identifier_cursor = c;
     auto& name = parse_identifier(c);
-    if(c.is_empty()) {
-      return nullptr;
-    }
     expect(c, bracket::type::OPEN_ROUND_BRACKET);
     std::vector<function_definition::parameter> parameters;
     std::vector<location> parameter_locations;
@@ -47,14 +40,11 @@ namespace maylee {
           parameter_locations[existing_index]);
       }
       expect(c, punctuation::mark::COLON);
-      auto type = parse_expression(c);
+      auto type = expect_expression(c);
       parameters.push_back({name, std::move(type)});
       parameter_locations.push_back(identifier_cursor.get_location());
     }
     ++c;
-    if(c.is_empty()) {
-      return nullptr;
-    }
     auto block_location = c.get_location();
     expect(c, punctuation::mark::COLON);
     while(match(*c, terminal::type::new_line)) {
@@ -62,7 +52,7 @@ namespace maylee {
     }
     std::vector<std::unique_ptr<statement>> body;
     while(!match(*c, keyword::word::END)) {
-      body.push_back(parse_statement(c));
+      body.push_back(expect_statement(c));
     }
     ++c;
     auto f = std::make_unique<function_definition>(cursor.get_location(), name,
@@ -87,11 +77,7 @@ namespace maylee {
     while(true) {
       auto clause_location = c.get_location();
       ++c;
-      auto condition = parse_expression(c);
-      if(condition == nullptr) {
-        throw syntax_error(syntax_error_code::EXPRESSION_EXPECTED,
-          c.get_location());
-      }
+      auto condition = expect_expression(c);
       auto block_location = c.get_location();
       expect(c, punctuation::mark::COLON);
       while(match(*c, terminal::type::new_line)) {
@@ -100,7 +86,7 @@ namespace maylee {
       std::vector<std::unique_ptr<statement>> consequents;
       while(!match(*c, keyword::word::END) && !match(*c, keyword::word::ELSE) &&
           !match(*c, keyword::word::ELSE_IF)) {
-        consequents.push_back(parse_statement(c));
+        consequents.push_back(expect_statement(c));
       }
       auto consequent = std::make_unique<block_statement>(block_location,
         std::move(consequents));
@@ -113,9 +99,6 @@ namespace maylee {
     auto alternative =
       [&] () -> std::unique_ptr<statement> {
         if(match(*c, keyword::word::ELSE)) {
-          if(c.is_empty()) {
-            return nullptr;
-          }
           ++c;
           auto block_location = c.get_location();
           expect(c, punctuation::mark::COLON);
@@ -124,17 +107,14 @@ namespace maylee {
           }
           std::vector<std::unique_ptr<statement>> consequents;
           while(!match(*c, keyword::word::END)) {
-            consequents.push_back(parse_statement(c));
+            consequents.push_back(expect_statement(c));
           }
           return std::make_unique<block_statement>(block_location,
             std::move(consequents));
         } else {
-          return std::make_unique<void_expression>(location::global());
+          return std::make_unique<void_expression>(c.get_location());
         }
       }();
-    if(alternative == nullptr) {
-      return nullptr;
-    }
     auto end_clause = std::move(clauses.back());
     clauses.pop_back();
     auto bottom = std::make_unique<if_statement>(
@@ -163,7 +143,7 @@ namespace maylee {
       cursor = c;
       return r;
     }
-    auto result = parse_expression(c);
+    auto result = expect_expression(c);
     auto r = std::make_unique<return_statement>(cursor.get_location(),
       std::move(result));
     cursor = c;
@@ -226,6 +206,16 @@ namespace maylee {
       return node;
     }
     return nullptr;
+  }
+
+  inline std::unique_ptr<statement> syntax_parser::expect_statement(
+      token_iterator& cursor) {
+    auto s = parse_statement(cursor);
+    if(s == nullptr) {
+      throw syntax_error(syntax_error_code::STATEMENT_EXPECTED,
+        cursor.get_location());
+    }
+    return s;
   }
 }
 

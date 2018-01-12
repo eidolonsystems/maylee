@@ -1,7 +1,6 @@
 #ifndef MAYLEE_DATA_TYPE_HPP
 #define MAYLEE_DATA_TYPE_HPP
 #include <ostream>
-#include <string>
 #include "maylee/data_types/data_types.hpp"
 #include "maylee/semantics/element.hpp"
 
